@@ -40,7 +40,9 @@
         <el-col :span="1.5">
           <el-button type="warning" plain icon="Download" @click="handleExport">导出</el-button>
         </el-col>
-        <right-toolbar v-model:showSearch="showSearch"></right-toolbar>
+        <el-col :span="1.5">
+          <el-button icon="Search" @click="showSearch = !showSearch">{{ showSearch ? '隐藏' : '展开' }}搜索</el-button>
+        </el-col>
       </el-row>
 
       <!-- 数据表格 -->

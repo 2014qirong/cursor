@@ -2,9 +2,9 @@
   <div v-if="!item.hidden">
     <!-- 没有子菜单的路由项 -->
     <template v-if="!hasOneShowingChild(item.children, item) && !item.alwaysShow">
-      <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
+      <app-link v-if="onlyOneChild && onlyOneChild.meta && onlyOneChild.meta.title" :to="resolvePath(onlyOneChild.path)">
         <el-menu-item :index="resolvePath(onlyOneChild.path)">
-          <el-icon v-if="onlyOneChild.meta.icon">
+          <el-icon v-if="onlyOneChild.meta && onlyOneChild.meta.icon">
             <component :is="onlyOneChild.meta.icon"></component>
           </el-icon>
           <template #title>{{ onlyOneChild.meta.title }}</template>
@@ -13,12 +13,12 @@
     </template>
 
     <!-- 有子菜单的路由项 -->
-    <el-sub-menu v-else :index="resolvePath(item.path)" popper-append-to-body>
+    <el-sub-menu v-else-if="item && item.path" :index="resolvePath(item.path)" popper-append-to-body>
       <template #title>
         <el-icon v-if="item.meta && item.meta.icon">
           <component :is="item.meta.icon"></component>
         </el-icon>
-        <span>{{ item.meta.title }}</span>
+        <span v-if="item.meta && item.meta.title">{{ item.meta.title }}</span>
       </template>
       
       <sidebar-item
@@ -69,7 +69,13 @@ const hasOneShowingChild = (children = [], parent) => {
 
   // 如果没有子路由，则将父路由作为唯一子路由
   if (showingChildren.length === 0) {
-    onlyOneChild.value = { ...parent, path: '', noShowingChildren: true }
+    // 确保父路由有meta属性
+    onlyOneChild.value = { 
+      ...parent, 
+      path: '', 
+      noShowingChildren: true,
+      meta: parent.meta || { title: '', icon: '' } // 确保meta对象存在
+    }
     return true
   }
 
