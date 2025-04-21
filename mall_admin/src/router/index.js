@@ -13,6 +13,15 @@ import contentRoutes from './modules/content'
 import systemRoutes from './modules/system'
 import statisticsRoutes from './modules/statistics'
 
+console.log('模块路由导入检查:')
+console.log('productRoutes:', JSON.stringify(productRoutes))
+console.log('orderRoutes:', JSON.stringify(orderRoutes))
+console.log('userRoutes:', JSON.stringify(userRoutes))
+console.log('marketingRoutes:', JSON.stringify(marketingRoutes))
+console.log('contentRoutes:', JSON.stringify(contentRoutes))
+console.log('systemRoutes:', JSON.stringify(systemRoutes))
+console.log('statisticsRoutes:', JSON.stringify(statisticsRoutes))
+
 /**
  * 基础路由
  */
@@ -42,7 +51,7 @@ export const constantRoutes = [
       }
     ]
   },
-  // 可根据权限动态加载的路由
+  // 直接添加各个模块路由
   productRoutes,
   orderRoutes,
   userRoutes,
@@ -54,10 +63,21 @@ export const constantRoutes = [
   { path: '/:pathMatch(.*)*', redirect: '/404', hidden: true }
 ]
 
+// 创建路由实例
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   scrollBehavior: () => ({ top: 0 }),
   routes: constantRoutes
+})
+
+// 路由生命周期钩子 - 调试用
+router.beforeEach((to, from) => {
+  console.log(`路由跳转: ${from.path} -> ${to.path}`)
+  return true
+})
+
+router.afterEach((to, from) => {
+  console.log(`路由跳转完成: ${to.path}`)
 })
 
 export function resetRouter() {

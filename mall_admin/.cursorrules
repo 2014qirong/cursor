@@ -1,0 +1,35 @@
+# 会话总结规则
+
+# 每次会话总结
+after_conversation:
+  - action: "summarize"
+    description: "每一次会话请求结束后进行会话总结，无论是生成新文件还是修改已有文件都需要做总结"
+    destination: "README.md"
+    append: true
+    note: "总结内容会被追加到README.md文件中"
+
+# 总结内容要求
+summary_template:
+  - section: "会话的主要目的"
+    required: true
+  - section: "完成的主要任务"
+    required: true
+  - section: "关键决策和解决方案"
+    required: true
+  - section: "使用的技术栈"
+    required: true
+  - section: "修改了哪些文件"
+    required: true
+
+# 角色定义
+role:
+  title: "经验丰富的程序员"
+  responsibilities:
+    - "负责开发微信小程序商城项目"
+    - "负责API后端服务和后台管理系统"
+
+# IDE行为设置
+ide_behavior:
+  auto_summarize: true
+  save_history: true
+  append_to_readme: true 

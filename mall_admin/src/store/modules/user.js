@@ -58,11 +58,13 @@ export const useUserStore = defineStore({
         // const { data } = await getUserInfo()
         // const { roles, name, avatar, permissions } = data
         
-        // 模拟用户信息
+        // 模拟用户信息 - 设置为管理员角色，拥有所有权限
         const roles = ['admin']
-        const name = 'Admin'
+        const name = '管理员'
         const avatar = 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
-        const permissions = ['system:user:list', 'system:role:list']
+        
+        // 添加所有功能模块的权限 (使用*通配符表示拥有全部权限)
+        const permissions = ['*:*:*']
         
         // 检查角色是否为非空数组
         if (!roles || roles.length <= 0) {

@@ -1,0 +1,85 @@
+# 依赖目录
+node_modules/
+.pnpm-store/
+.npm/
+yarn-error.log
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# 构建输出
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+
+# 缓存目录
+.cache/
+.eslintcache
+.stylelintcache
+.parcel-cache
+
+# 环境文件
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# 编辑器和IDE相关
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.code-workspace
+.history/
+*.sublime-project
+*.sublime-workspace
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# 日志文件
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+
+# 临时文件
+*.swp
+*.swo
+*.tmp
+*.temp
+*~
+
+# 大型二进制文件
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.mp4
+*.webm
+*.mov
+*.avi
+*.pdf
+
+# Cursor专有
+.cursor/
+.cursor-ignore 

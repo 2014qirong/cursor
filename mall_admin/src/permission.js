@@ -3,6 +3,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { getToken } from '@/utils/auth'
 import { ElMessage } from 'element-plus'
+import { useUserStore } from '@/store/modules/user'
 
 NProgress.configure({ showSpinner: false })
 
@@ -16,16 +17,36 @@ router.beforeEach(async (to, from, next) => {
   
   try {
     const hasToken = getToken()
+    const userStore = useUserStore()
 
     if (hasToken) {
       if (to.path === '/login') {
         next({ path: '/' })
         NProgress.done()
       } else {
-        // 这里可以添加获取用户信息和权限判断
-        // const hasRoles = store.getters.roles && store.getters.roles.length > 0
-        // 如果没有获取过用户信息，在这里获取
-        next()
+        // 判断是否已获取用户信息和角色
+        const hasRoles = userStore.hasRoles
+        console.log('当前用户角色状态:', hasRoles, '用户角色:', userStore.roles)
+        
+        if (hasRoles) {
+          next()
+        } else {
+          try {
+            // 获取用户信息
+            const { roles } = await userStore.getUserInfo()
+            console.log('成功获取用户角色:', roles)
+            
+            // 所有路由已在router/index.js中注册
+            console.log('已注册的路由:', router.getRoutes().map(route => route.path))
+            next({ ...to, replace: true })
+          } catch (error) {
+            // 获取用户信息失败，清除token并跳转到登录页
+            await userStore.resetToken()
+            ElMessage.error(error.message || '获取用户信息失败')
+            next(`/login?redirect=${to.path}`)
+            NProgress.done()
+          }
+        }
       }
     } else {
       if (whiteList.indexOf(to.path) !== -1) {
