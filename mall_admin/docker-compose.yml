@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  mall-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mall-admin
+    ports:
+      - "9000:80"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - mall-dev-network
+    volumes:
+      - ./src:/app/src
+    restart: always
+
+networks:
+  mall-dev-network:
+    external: true 

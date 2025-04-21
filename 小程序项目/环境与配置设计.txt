@@ -1,0 +1,772 @@
+# 商城小程序项目环境与配置设计
+
+## 一、环境架构设计
+
+### 1. 环境分层策略
+- **开发环境**：供开发人员日常开发使用，可频繁变更
+- **测试环境**：QA测试人员使用，进行功能测试和集成测试
+- **预发布环境**：与生产环境配置一致，用于最终发布前验证
+- **生产环境**：面向最终用户的正式环境
+
+### 2. 多环境部署架构
+```
+                    +----------------+
+                    |  负载均衡器    |
+                    +----------------+
+                            |
+         +------------------+------------------+
+         |                  |                  |
++----------------+ +----------------+ +----------------+
+|   应用服务器1   | |   应用服务器2   | |   应用服务器N   |
++----------------+ +----------------+ +----------------+
+         |                  |                  |
++----------------+ +----------------+ +----------------+
+|  数据库主节点   | |  数据库从节点1  | |  数据库从节点2  |
++----------------+ +----------------+ +----------------+
+         |
++----------------+
+|  Redis集群     |
++----------------+
+         |
++----------------+
+| Elasticsearch  |
++----------------+
+```
+
+## 二、域名与服务器配置
+
+### 1. 域名配置方案
+
+#### 微信小程序前端
+- **开发环境**: 微信开发者工具本地环境
+- **测试环境**: `test-mall.example.com`
+- **预发布环境**: `pre-mall.example.com`
+- **生产环境**: `mall.example.com`
+
+#### 后台管理系统
+- **开发环境**: `localhost:8080`
+- **测试环境**: `test-admin.example.com`
+- **预发布环境**: `pre-admin.example.com`
+- **生产环境**: `admin.example.com`
+
+#### API服务
+- **开发环境**: `localhost:3000`
+- **测试环境**: `test-api.example.com`
+- **预发布环境**: `pre-api.example.com`
+- **生产环境**: `api.example.com`
+
+### 2. 服务器配置
+
+#### 开发环境
+- **本地容器化开发环境**:
+  - Docker Compose管理的容器集群
+  - 包含MySQL、Redis、Elasticsearch等服务
+  - 用于本地开发和调试
+
+#### 测试环境
+- **应用服务器**: 2台云服务器，4核8G
+- **数据库服务器**: 1主1从，4核8G
+- **缓存服务器**: 2节点Redis集群，2核4G
+- **搜索服务器**: 单节点Elasticsearch，4核8G
+
+#### 预发布环境
+- **应用服务器**: 2台云服务器，8核16G
+- **数据库服务器**: 1主2从，8核16G
+- **缓存服务器**: 3节点Redis集群，4核8G
+- **搜索服务器**: 3节点Elasticsearch集群，4核8G
+
+#### 生产环境
+- **应用服务器**: 4台云服务器，16核32G，自动扩缩容
+- **数据库服务器**: 1主2从，16核32G，高可用架构
+- **缓存服务器**: 6节点Redis集群，8核16G
+- **搜索服务器**: 5节点Elasticsearch集群，8核16G
+- **CDN**: 全球分布式内容分发网络
+
+## 三、开发环境容器化配置
+
+### 1. 容器组件
+
+开发环境包含以下Docker容器：
+
+- **MySQL 8.0**: 主要数据库，端口 3306
+- **Redis 6.0**: 缓存数据库，端口 6379
+- **Elasticsearch 7.14.0**: 搜索引擎，端口 9200
+- **Kibana 7.14.0**: Elasticsearch管理工具，端口 5601
+- **Adminer**: MySQL管理工具，端口 8080
+- **Redis Commander**: Redis管理工具，端口 8081
+
+### 2. 数据库配置
+
+- **数据库名**: mall_dev
+- **用户名**: dev_user
+- **密码**: admin123
+- **初始数据**: 包含基础表结构和测试数据
+
+### 3. 持久化存储
+
+所有数据都存储在Docker卷中，确保数据持久化：
+
+- **mysql-data**: MySQL数据目录
+- **redis-data**: Redis数据目录  
+- **elasticsearch-data**: Elasticsearch数据目录
+
+### 4. 开发环境脚本
+
+开发环境提供两个管理脚本：
+
+- **start-dev-env.sh**: 启动开发环境
+- **stop-dev-env.sh**: 停止开发环境
+
+## 四、环境变量与配置管理
+
+### 1. 微信小程序前端配置
+
+```javascript
+// config/env.js
+const env = {
+  development: {
+    apiBaseUrl: 'http://localhost:3000/api',
+    envName: '开发环境',
+    mockData: true,
+    version: '0.1.0',
+    debug: true
+  },
+  test: {
+    apiBaseUrl: 'https://test-api.example.com/api',
+    envName: '测试环境',
+    mockData: false,
+    version: '0.1.0',
+    debug: true
+  },
+  pre: {
+    apiBaseUrl: 'https://pre-api.example.com/api',
+    envName: '预发布环境',
+    mockData: false,
+    version: '0.1.0',
+    debug: false
+  },
+  production: {
+    apiBaseUrl: 'https://api.example.com/api',
+    envName: '生产环境',
+    mockData: false,
+    version: '1.0.0',
+    debug: false
+  }
+};
+
+// 通过编译条件切换环境
+let currentEnv = 'development';
+
+// #ifdef DEVELOPMENT
+currentEnv = 'development';
+// #endif
+
+// #ifdef TEST
+currentEnv = 'test';
+// #endif
+
+// #ifdef PRE
+currentEnv = 'pre';
+// #endif
+
+// #ifdef PRODUCTION
+currentEnv = 'production';
+// #endif
+
+export default env[currentEnv];
+```
+
+### 2. 后台管理系统配置
+
+#### .env.development
+```
+NODE_ENV = development
+VITE_APP_TITLE = 商城管理系统(开发)
+VITE_APP_BASE_API = 'http://localhost:3000/api/admin'
+VITE_APP_UPLOAD_URL = 'http://localhost:3000/api/admin/upload'
+VITE_APP_MOCK_ENABLE = true
+VITE_APP_TOKEN_NAME = 'dev_token'
+```
+
+#### .env.test
+```
+NODE_ENV = test
+VITE_APP_TITLE = 商城管理系统(测试)
+VITE_APP_BASE_API = 'https://test-api.example.com/api/admin'
+VITE_APP_UPLOAD_URL = 'https://test-api.example.com/api/admin/upload'
+VITE_APP_MOCK_ENABLE = false
+VITE_APP_TOKEN_NAME = 'test_token'
+```
+
+#### .env.pre
+```
+NODE_ENV = pre
+VITE_APP_TITLE = 商城管理系统(预发布)
+VITE_APP_BASE_API = 'https://pre-api.example.com/api/admin'
+VITE_APP_UPLOAD_URL = 'https://pre-api.example.com/api/admin/upload'
+VITE_APP_MOCK_ENABLE = false
+VITE_APP_TOKEN_NAME = 'pre_token'
+```
+
+#### .env.production
+```
+NODE_ENV = production
+VITE_APP_TITLE = 商城管理系统
+VITE_APP_BASE_API = 'https://api.example.com/api/admin'
+VITE_APP_UPLOAD_URL = 'https://api.example.com/api/admin/upload'
+VITE_APP_MOCK_ENABLE = false
+VITE_APP_TOKEN_NAME = 'mall_token'
+```
+
+### 3. API服务配置
+
+#### 开发环境变量 (.env.development)
+```
+# API服务配置
+NODE_ENV=development
+PORT=3000
+
+# 数据库配置
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=dev_user
+DB_PASSWORD=admin123
+DB_DATABASE=mall_dev
+
+# Redis配置
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=admin123
+REDIS_DB=0
+
+# Elasticsearch配置
+ES_HOST=localhost:9200
+ES_INDEX_PREFIX=mall_dev_
+
+# 上传配置
+UPLOAD_PROVIDER=local
+UPLOAD_PATH=./uploads
+UPLOAD_BASE_URL=http://localhost:3000/uploads/
+
+# JWT配置
+JWT_SECRET=dev_jwt_secret_key
+JWT_EXPIRES_IN=7d
+
+# 微信小程序配置
+WECHAT_APPID=wx_test_app_id
+WECHAT_SECRET=wx_test_app_secret
+WECHAT_MCH_ID=wx_test_mch_id
+WECHAT_MCH_KEY=wx_test_mch_key
+WECHAT_NOTIFY_URL=http://localhost:3000/api/payment/wechat/notify
+
+# 日志配置
+LOG_LEVEL=debug
+LOG_PATH=./logs
+```
+
+#### 其他环境配置
+
+```javascript
+// config/index.js
+module.exports = {
+  development: {
+    app: {
+      name: '商城API服务(开发)',
+      port: 3000,
+      logLevel: 'debug',
+      enableCors: true,
+      enableRateLimit: false
+    },
+    database: {
+      host: 'localhost',
+      port: 3306,
+      username: 'dev_user',
+      password: 'admin123',
+      database: 'mall_dev',
+      timezone: '+08:00',
+      connectionLimit: 10,
+      enableLogging: true
+    },
+    redis: {
+      host: 'localhost',
+      port: 6379,
+      password: 'admin123',
+      db: 0
+    },
+    elasticsearch: {
+      host: 'localhost:9200',
+      indexPrefix: 'mall_dev_'
+    },
+    // ... 其他配置
+  },
+  
+  test: {
+    // ... 测试环境配置
+  },
+  
+  pre: {
+    // ... 预发布环境配置
+  },
+  
+  production: {
+    // ... 生产环境配置
+  }
+};
+```
+
+## 五、环境切换机制
+
+### 1. 微信小程序环境切换
+- **开发版本**：对应开发环境配置
+- **体验版本**：对应测试环境或预发布环境配置
+- **正式版本**：对应生产环境配置
+
+```javascript
+// app.js
+const config = require('./config/env');
+App({
+  globalData: {
+    env: config.envName,
+    baseUrl: config.apiBaseUrl,
+    debug: config.debug
+  },
+  
+  onLaunch() {
+    // 输出当前环境信息，仅在开发和测试环境显示
+    if (config.debug) {
+      console.log('当前环境:', config.envName);
+      console.log('API地址:', config.apiBaseUrl);
+    }
+  }
+});
+```
+
+### 2. 后台管理系统环境切换
+
+```javascript
+// package.json
+{
+  "scripts": {
+    "dev": "vite --mode development",
+    "build:test": "vite build --mode test",
+    "build:pre": "vite build --mode pre",
+    "build:prod": "vite build --mode production"
+  }
+}
+```
+
+```javascript
+// main.js
+import { createApp } from 'vue';
+import App from './App.vue';
+
+const app = createApp(App);
+
+// 将环境变量注入到全局配置
+app.config.globalProperties.$env = {
+  mode: import.meta.env.MODE,
+  baseApi: import.meta.env.VITE_APP_BASE_API,
+  title: import.meta.env.VITE_APP_TITLE,
+  mockEnable: import.meta.env.VITE_APP_MOCK_ENABLE === 'true'
+};
+
+// 在开发和测试环境显示环境标识
+if (import.meta.env.MODE !== 'production') {
+  document.title = import.meta.env.VITE_APP_TITLE;
+}
+
+app.mount('#app');
+```
+
+### 3. API服务环境切换
+
+```javascript
+// app.js
+const express = require('express');
+const config = require('./config');
+
+// 根据环境变量加载对应配置
+const env = process.env.NODE_ENV || 'development';
+const currentConfig = config[env];
+
+console.log(`启动服务: ${currentConfig.app.name}`);
+console.log(`环境: ${env}`);
+
+// 初始化应用...
+```
+
+启动命令:
+```
+# 开发环境
+NODE_ENV=development node app.js
+
+# 测试环境
+NODE_ENV=test node app.js
+
+# 预发布环境
+NODE_ENV=pre node app.js
+
+# 生产环境
+NODE_ENV=production node app.js
+```
+
+## 六、Docker 环境部署配置
+
+### 1. 开发环境Docker Compose配置
+
+```yaml
+# docker-compose.dev.yml
+version: '3'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mall-dev-mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin123
+      - MYSQL_DATABASE=mall_dev
+      - MYSQL_USER=dev_user
+      - MYSQL_PASSWORD=admin123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+      - ./mysql/conf:/etc/mysql/conf.d
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - mall-dev-network
+
+  redis:
+    image: redis:6.0-alpine
+    container_name: mall-dev-redis
+    restart: always
+    command: redis-server --requirepass admin123
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - mall-dev-network
+
+  elasticsearch:
+    image: elasticsearch:7.14.0
+    container_name: mall-dev-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - mall-dev-network
+
+  # 管理工具
+  kibana:
+    image: kibana:7.14.0
+    container_name: mall-dev-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - mall-dev-network
+
+  adminer:
+    image: adminer
+    container_name: mall-dev-adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - mall-dev-network
+    depends_on:
+      - mysql
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: mall-dev-redis-commander
+    restart: always
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0:admin123
+    ports:
+      - "8081:8081"
+    networks:
+      - mall-dev-network
+    depends_on:
+      - redis
+
+networks:
+  mall-dev-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  redis-data:
+  elasticsearch-data:
+```
+
+### 2. 生产环境部署配置
+
+```yaml
+# docker-compose.prod.yml
+version: '3'
+
+services:
+  api:
+    build: ./api
+    image: mall-api:${TAG:-latest}
+    container_name: mall-api
+    restart: always
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - ES_HOST=${ES_HOST}
+      - JWT_SECRET=${JWT_SECRET}
+      - WECHAT_APPID=${WECHAT_APPID}
+      - WECHAT_SECRET=${WECHAT_SECRET}
+      - WECHAT_MCH_ID=${WECHAT_MCH_ID}
+      - WECHAT_MCH_KEY=${WECHAT_MCH_KEY}
+    ports:
+      - "${API_PORT:-3000}:3000"
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    networks:
+      - mall-network
+    depends_on:
+      - mysql
+      - redis
+
+  admin:
+    image: mall-admin:${TAG:-latest}
+    container_name: mall-admin
+    restart: always
+    ports:
+      - "${ADMIN_PORT:-80}:80"
+    networks:
+      - mall-network
+
+networks:
+  mall-network:
+    driver: bridge
+```
+
+### 3. 环境变量文件
+
+#### 测试环境 (.env.test)
+```
+# API服务配置
+NODE_ENV=test
+API_PORT=3000
+ADMIN_PORT=80
+
+# 数据库配置
+DB_HOST=mysql
+DB_PORT=3306
+DB_USER=test_user
+DB_PASSWORD=test_password
+DB_NAME=mall_test
+MYSQL_ROOT_PASSWORD=test_root_password
+
+# Redis配置
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_PASSWORD=test_redis_pass
+
+# 其他服务配置
+ES_HOST=elasticsearch:9200
+JWT_SECRET=test_jwt_secret
+WECHAT_APPID=wx_test_app_id
+WECHAT_SECRET=wx_test_app_secret
+WECHAT_MCH_ID=wx_test_mch_id
+WECHAT_MCH_KEY=wx_test_mch_key
+
+# 构建标签
+TAG=test
+```
+
+#### 生产环境 (.env.production)
+```
+# API服务配置
+NODE_ENV=production
+API_PORT=3000
+ADMIN_PORT=80
+
+# 数据库配置
+DB_HOST=prod-db.example.com
+DB_PORT=3306
+DB_USER=prod_user
+DB_PASSWORD=prod_strong_password
+DB_NAME=mall_prod
+MYSQL_ROOT_PASSWORD=prod_root_strong_password
+
+# Redis配置
+REDIS_HOST=prod-redis.example.com
+REDIS_PORT=6379
+REDIS_PASSWORD=prod_redis_strong_pass
+
+# 其他服务配置
+ES_HOST=prod-es.example.com:9200
+JWT_SECRET=prod_strong_jwt_secret
+WECHAT_APPID=wx_prod_app_id
+WECHAT_SECRET=wx_prod_app_secret
+WECHAT_MCH_ID=wx_prod_mch_id
+WECHAT_MCH_KEY=wx_prod_mch_key
+
+# 构建标签
+TAG=latest
+```
+
+## 七、环境特有功能配置
+
+### 1. 测试环境特有功能
+- **API请求日志记录**: 记录所有请求和响应详情
+- **测试账号自动登录**: 提供测试账号无需密码直接登录
+- **Mock数据开关**: 可随时切换真实/模拟数据
+- **慢查询日志**: 记录所有执行时间超过100ms的数据库查询
+- **性能监控面板**: 提供实时API性能监控
+- **数据重置功能**: 一键重置测试数据到初始状态
+
+```javascript
+// 测试环境特有中间件 (API服务)
+if (env === 'test' || env === 'development') {
+  // 请求日志记录
+  app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    console.log('Request Body:', req.body);
+    
+    const oldSend = res.send;
+    res.send = function(data) {
+      console.log('Response:', data);
+      return oldSend.apply(res, arguments);
+    };
+    
+    next();
+  });
+  
+  // 慢查询日志
+  app.use((req, res, next) => {
+    const startTime = Date.now();
+    res.on('finish', () => {
+      const duration = Date.now() - startTime;
+      if (duration > 100) {
+        console.warn(`慢请求: ${req.method} ${req.url} - ${duration}ms`);
+      }
+    });
+    next();
+  });
+  
+  // 测试账号路由
+  app.post('/api/test/login', (req, res) => {
+    res.json({
+      success: true,
+      token: 'test_auth_token',
+      user: {
+        id: 1,
+        username: 'test_user',
+        role: 'admin'
+      }
+    });
+  });
+  
+  // 数据重置路由
+  app.post('/api/test/reset', (req, res) => {
+    // 重置数据库到初始状态
+    res.json({ success: true, message: '数据已重置' });
+  });
+}
+```
+
+### 2. 生产环境特有功能
+- **错误监控与报警**: 集成Sentry等工具监控生产错误并发送报警
+- **访问限流控制**: 防止恶意请求和DDOS攻击
+- **数据库只读副本**: 读写分离，提高性能
+- **CDN资源分发**: 静态资源通过CDN加速
+- **请求合法性验证**: 更严格的参数验证和防注入措施
+
+```javascript
+// 生产环境特有中间件 (API服务)
+if (env === 'production' || env === 'pre') {
+  // Sentry错误监控
+  const Sentry = require('@sentry/node');
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: env
+  });
+  app.use(Sentry.Handlers.requestHandler());
+  app.use(Sentry.Handlers.errorHandler());
+  
+  // 限流中间件
+  const rateLimit = require('express-rate-limit');
+  app.use(rateLimit({
+    windowMs: 15 * 60 * 1000, // 15分钟
+    max: 100, // 每个IP 15分钟内最多100个请求
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (req, res) => {
+      res.status(429).json({
+        success: false,
+        message: '请求过于频繁，请稍后再试'
+      });
+    }
+  }));
+  
+  // 更严格的请求校验
+  app.use(helmet()); // 安全HTTP头
+  app.use(hpp()); // 防止HTTP参数污染
+  
+  // 路由层面HTTP方法限制
+  const methodNotAllowed = (req, res) => {
+    res.status(405).json({
+      success: false,
+      message: '方法不允许'
+    });
+  };
+  
+  // API文档在生产环境禁用
+  app.use('/api-docs', (req, res) => {
+    res.status(404).send('Not Found');
+  });
+}
+```
+
+## 八、配置安全与管理
+
+### 1. 敏感配置管理
+
+- **环境变量**: 敏感信息通过环境变量传递，不硬编码
+- **配置加密**: 敏感配置在存储时加密
+- **配置分级**: 按安全级别分级管理配置
+- **配置版本控制**: 配置变更记录与回滚机制
+
+### 2. 密钥轮换策略
+
+- **JWT密钥**: 每季度轮换一次
+- **数据库密码**: 每季度轮换一次
+- **API密钥**: 每月轮换一次
+- **SSL证书**: 自动更新，提前30天预警
+
+### 3. 配置更新流程
+
+1. 提出配置变更申请
+2. 开发环境测试配置
+3. 测试环境验证配置
+4. 变更评审与审批
+5. 预发布环境验证
+6. 生产环境应用配置
+7. 配置变更监控与确认
+8. 文档更新与归档 

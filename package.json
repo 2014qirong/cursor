@@ -1,0 +1,17 @@
+{
+  "name": "cursor",
+  "version": "1.0.0",
+  "description": "这是一个实用工具集网站，提供多种在线工具，包括图片压缩、文件转换等功能。以下是如何通过Docker在本地部署和运行该应用的步骤。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vitejs/plugin-vue": "^5.2.3",
+    "vite": "^6.2.4",
+    "vue-router": "^4.5.0"
+  }
+}

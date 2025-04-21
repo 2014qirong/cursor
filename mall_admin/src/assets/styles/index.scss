@@ -1,0 +1,115 @@
+// 全局样式
+
+// 清除浏览器默认样式
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+  background-color: #f5f7f9;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: #409EFF;
+  text-decoration: none;
+  
+  &:hover {
+    color: #66b1ff;
+  }
+}
+
+// 公共样式
+.app-container {
+  padding: 20px;
+}
+
+// 按钮样式覆盖
+.el-button--text {
+  padding: 0;
+  height: auto;
+  
+  &:hover {
+    background-color: transparent;
+  }
+}
+
+// 表格样式覆盖
+.el-table {
+  .el-table__header th {
+    background-color: #f5f7fa;
+    color: #606266;
+    font-weight: bold;
+  }
+}
+
+// 卡片样式覆盖
+.el-card {
+  border-radius: 4px;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  
+  & + .el-card {
+    margin-top: 20px;
+  }
+}
+
+// 滚动条样式
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+  
+  &:hover {
+    background: #a8a8a8;
+  }
+}
+
+// 页面过渡动画
+.fade-transform-enter-active,
+.fade-transform-leave-active {
+  transition: all 0.3s;
+}
+
+.fade-transform-enter-from {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.fade-transform-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+// 路由页面切换动画
+.breadcrumb-enter-active,
+.breadcrumb-leave-active {
+  transition: all 0.5s;
+}
+
+.breadcrumb-enter-from,
+.breadcrumb-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.breadcrumb-leave-active {
+  position: absolute;
+}

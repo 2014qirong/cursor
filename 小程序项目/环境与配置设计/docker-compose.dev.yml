@@ -1,0 +1,93 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mall-dev-mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin123
+      - MYSQL_DATABASE=mall_dev
+      - MYSQL_USER=dev_user
+      - MYSQL_PASSWORD=admin123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+      - ./mysql/conf:/etc/mysql/conf.d
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - mall-dev-network
+
+  redis:
+    image: redis:6.0-alpine
+    container_name: mall-dev-redis
+    restart: always
+    command: redis-server --requirepass admin123
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - mall-dev-network
+
+  elasticsearch:
+    image: elasticsearch:7.14.0
+    container_name: mall-dev-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - mall-dev-network
+
+  kibana:
+    image: kibana:7.14.0
+    container_name: mall-dev-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - mall-dev-network
+
+  adminer:
+    image: adminer
+    container_name: mall-dev-adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - mall-dev-network
+    depends_on:
+      - mysql
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: mall-dev-redis-commander
+    restart: always
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0:admin123
+    ports:
+      - "8081:8081"
+    networks:
+      - mall-dev-network
+    depends_on:
+      - redis
+
+networks:
+  mall-dev-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  redis-data:
+  elasticsearch-data: 

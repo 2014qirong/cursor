@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片转PDF - 实用工具集</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/tools.css">
+    <link rel="stylesheet" href="../styles/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .tool-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px;
+        }
+        
+        .tool-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .tool-header i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .upload-area:hover, .upload-area.active {
+            border-color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        .upload-area p {
+            margin: 15px 0;
+            color: var(--gray-color);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .preview-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .preview-item {
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .preview-item .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 24px;
+            height: 24px;
+            background-color: rgba(255, 0, 0, 0.7);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .preview-item .file-name {
+            padding: 8px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            font-size: 12px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        
+        .options-area {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+        }
+        
+        .options-area h3 {
+            margin-bottom: 15px;
+        }
+        
+        .option-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .option-row label {
+            min-width: 150px;
+            font-weight: 500;
+        }
+        
+        .option-row select, .option-row input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex-grow: 1;
+        }
+        
+        .actions-area {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0;
+            transition: width 0.3s;
+        }
+        
+        @media screen and (max-width: 768px) {
+            .tool-container {
+                padding: 20px;
+            }
+            
+            .option-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .option-row label {
+                margin-bottom: 8px;
+            }
+            
+            .option-row select, .option-row input {
+                width: 100%;
+            }
+            
+            .actions-area {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .actions-area .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h1>实用工具集</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#about">关于我们</a></li>
+                <li><a href="../index.html#contact">联系方式</a></li>
+            </ul>
+            <div class="burger">
+                <div class="line1"></div>
+                <div class="line2"></div>
+                <div class="line3"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 工具内容 -->
+    <main>
+        <div class="container">
+            <div class="tool-container">
+                <div class="tool-header">
+                    <i class="fas fa-file-pdf"></i>
+                    <h2>图片转PDF</h2>
+                    <p>将多张图片合并为一个PDF文件，方便分享和打印</p>
+                </div>
+                
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #aaa;"></i>
+                    <h3>拖放图片到这里</h3>
+                    <p>或者</p>
+                    <label for="fileInput" class="btn">选择图片</label>
+                    <input type="file" id="fileInput" class="file-input" multiple accept="image/*">
+                    <p class="drag-instructions"><i class="fas fa-info-circle"></i> 支持格式: JPG, PNG, GIF, BMP, WEBP</p>
+                    <p class="drag-instructions"><i class="fas fa-info-circle"></i> 最多可上传20张图片，每张不超过10MB</p>
+                </div>
+                
+                <div class="preview-area" id="previewArea"></div>
+                
+                <div class="options-area">
+                    <h3>PDF选项</h3>
+                    <div class="option-row">
+                        <label for="pageSize">纸张大小</label>
+                        <select id="pageSize">
+                            <option value="a4">A4 (210 × 297 mm)</option>
+                            <option value="letter">Letter (215.9 × 279.4 mm)</option>
+                            <option value="legal">Legal (215.9 × 355.6 mm)</option>
+                            <option value="a3">A3 (297 × 420 mm)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-row">
+                        <label for="orientation">页面方向</label>
+                        <select id="orientation">
+                            <option value="portrait">纵向</option>
+                            <option value="landscape">横向</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-row">
+                        <label for="margin">页边距 (mm)</label>
+                        <input type="number" id="margin" min="0" max="50" value="10">
+                    </div>
+                    
+                    <div class="option-row">
+                        <label for="imageQuality">图片质量</label>
+                        <select id="imageQuality">
+                            <option value="high">高质量</option>
+                            <option value="medium" selected>中等质量</option>
+                            <option value="low">低质量 (较小文件)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                
+                <div class="actions-area">
+                    <button class="btn btn-outline" id="resetBtn">重置</button>
+                    <button class="btn" id="createPdfBtn">生成PDF</button>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <h3>使用说明</h3>
+                <ol>
+                    <li>通过拖放或点击"选择图片"按钮上传需要转换的图片</li>
+                    <li>调整PDF选项，如纸张大小、方向和页边距</li>
+                    <li>点击"生成PDF"按钮开始转换</li>
+                    <li>转换完成后，文件将自动下载到您的设备</li>
+                </ol>
+                
+                <h3 class="mt-3">功能特点</h3>
+                <ul>
+                    <li>支持批量转换多张图片</li>
+                    <li>所有处理在浏览器中完成，保护您的隐私</li>
+                    <li>可自定义PDF页面设置</li>
+                    <li>支持JPG、PNG、GIF、BMP、WEBP等常见图片格式</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>实用工具集</h3>
+                    <p>为您提供各种在线实用工具，提高工作效率</p>
+                </div>
+                <div class="footer-section">
+                    <h3>快速链接</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="../index.html#about">关于我们</a></li>
+                        <li><a href="../index.html#contact">联系方式</a></li>
+                        <li><a href="../index.html#privacy">隐私政策</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>联系我们</h3>
+                    <p>邮箱: contact@toolbox.com</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-weixin"></i></a>
+                        <a href="#"><i class="fab fa-weibo"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 实用工具集. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 脚本 -->
+    <script src="../scripts/main.js"></script>
+    <script src="../scripts/utils.js"></script>
+    <script src="../scripts/tools/image-to-pdf.js"></script>
+</body>
+</html> 

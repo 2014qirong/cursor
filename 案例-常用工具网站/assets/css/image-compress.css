@@ -1,0 +1,449 @@
+/* 全局样式 */
+:root {
+    --primary-color: #3b71ca;
+    --hover-color: #2e5ea9;
+    --light-bg: #f8f9fa;
+    --border-color: #dee2e6;
+    --success-color: #14a44d;
+    --danger-color: #dc4c64;
+    --warning-color: #e4a11b;
+    --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+body {
+    background-color: #f5f7fa;
+    color: #333;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    padding: 20px 0;
+}
+
+/* 工具容器样式 */
+.tool-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.tool-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.tool-header h1 {
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.tool-card {
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    height: 100%;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.tool-card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.25rem;
+}
+
+.card-title {
+    margin-bottom: 0;
+    font-weight: 600;
+    color: #333;
+}
+
+.card-title i {
+    margin-right: 8px;
+    color: var(--primary-color);
+}
+
+/* 上传区域样式 */
+.upload-area {
+    background-color: var(--light-bg);
+    border: 2px dashed var(--border-color);
+    border-radius: 10px;
+    padding: 2rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover, .upload-area.dragover {
+    border-color: var(--primary-color);
+    background-color: rgba(59, 113, 202, 0.05);
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.upload-text {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #444;
+}
+
+.upload-info {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+#images-count {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 0.875rem;
+}
+
+/* 压缩设置样式 */
+.compression-settings {
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.settings-title {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #444;
+}
+
+/* 预览区域样式 */
+.preview-section {
+    margin-bottom: 1.5rem;
+}
+
+.preview-title {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #444;
+    display: flex;
+    align-items: center;
+}
+
+.preview-area {
+    background-color: var(--light-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    height: 220px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.preview-area img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.preview-info {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+/* 结果列表样式 */
+.results-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.result-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    background-color: #fff;
+    transition: all 0.2s ease;
+}
+
+.result-item:hover {
+    background-color: var(--light-bg);
+}
+
+.result-thumbnail {
+    width: 60px;
+    height: 60px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-right: 0.75rem;
+    background-color: var(--light-bg);
+}
+
+.result-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.result-info {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.result-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.result-stats {
+    font-size: 0.75rem;
+    color: #6c757d;
+    display: flex;
+    gap: 8px;
+}
+
+.result-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    color: #6c757d;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.action-btn:hover {
+    color: var(--primary-color);
+    background-color: rgba(59, 113, 202, 0.1);
+}
+
+/* 状态消息样式 */
+.status-message {
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.status-success {
+    background-color: rgba(20, 164, 77, 0.1);
+    color: var(--success-color);
+    border: 1px solid rgba(20, 164, 77, 0.2);
+}
+
+.status-error {
+    background-color: rgba(220, 76, 100, 0.1);
+    color: var(--danger-color);
+    border: 1px solid rgba(220, 76, 100, 0.2);
+}
+
+.status-warning {
+    background-color: rgba(228, 161, 27, 0.1);
+    color: var(--warning-color);
+    border: 1px solid rgba(228, 161, 27, 0.2);
+}
+
+.status-info {
+    background-color: rgba(59, 113, 202, 0.1);
+    color: var(--primary-color);
+    border: 1px solid rgba(59, 113, 202, 0.2);
+}
+
+/* 进度条样式 */
+.progress-container {
+    margin: 1rem 0;
+}
+
+.tool-footer {
+    margin-top: 3rem;
+}
+
+/* 响应式调整 */
+@media (max-width: 991.98px) {
+    .tool-card {
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* 按钮悬停效果 */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--hover-color);
+    border-color: var(--hover-color);
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* 图片翻页按钮 */
+.preview-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+.preview-nav:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.preview-nav.prev {
+    left: 10px;
+}
+
+.preview-nav.next {
+    right: 10px;
+}
+
+.image-counter {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* 图片悬停效果 */
+.preview-container img:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+/* 美化滑块 */
+.form-range::-webkit-slider-thumb {
+    background: #0d6efd;
+}
+
+.form-range::-moz-range-thumb {
+    background: #0d6efd;
+}
+
+/* 批量结果项目样式 */
+.batch-result-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.batch-result-item .image-info {
+    flex-grow: 1;
+    margin-left: 10px;
+}
+
+.compression-info {
+    display: flex;
+    flex-direction: column;
+    margin: 0 15px;
+}
+
+.compression-badge {
+    font-size: 0.8rem;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.good-compression {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.medium-compression {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+.low-compression {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+/* 工具提示样式 */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+} 

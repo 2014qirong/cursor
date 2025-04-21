@@ -1,0 +1,18 @@
+cluster.name: "mall-dev-es"
+network.host: 0.0.0.0
+http.port: 9200
+discovery.type: single-node
+bootstrap.memory_lock: true
+
+# 跨域支持
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+http.cors.allow-methods: OPTIONS, HEAD, GET, POST, PUT, DELETE
+http.cors.allow-headers: Authorization, X-Requested-With, Content-Type, Content-Length
+
+# 安全配置
+xpack.security.enabled: false
+
+# 默认分片配置
+index.number_of_shards: 1
+index.number_of_replicas: 0 

@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  web-tools:
+    build: .
+    container_name: web-tools-app
+    ports:
+      - "8080:80"
+    volumes:
+      - ./案例-常用工具网站:/usr/share/nginx/html
+    restart: always 

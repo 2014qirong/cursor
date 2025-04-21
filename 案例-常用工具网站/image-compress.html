@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片压缩工具 - 一键压缩图片尺寸和大小</title>
+    <meta name="description" content="免费在线图片压缩工具，无需上传到服务器，保护您的隐私。支持JPG, PNG, WebP等多种格式，可批量处理">
+    <meta name="keywords" content="图片压缩,图片压缩工具,在线图片压缩,批量压缩图片,无损压缩,本地压缩">
+    
+    <!-- 引入Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- 自定义CSS -->
+    <link href="assets/css/image-compress.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid tool-container">
+        <div class="tool-header">
+            <h1>图片压缩工具</h1>
+            <p class="lead">无需上传，本地处理，保护您的隐私</p>
+        </div>
+        
+        <div class="row g-4">
+            <!-- 左侧面板：上传和设置 -->
+            <div class="col-lg-4">
+                <div class="card tool-card">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="bi bi-upload"></i> 上传图片</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- 拖放上传区域 -->
+                        <div id="drop-area" class="upload-area">
+                            <div class="upload-icon">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                            </div>
+                            <p class="upload-text">拖放图片到这里<br>或点击上传</p>
+                            <p class="upload-info">支持: JPG, PNG, WebP, GIF</p>
+                            <p class="upload-info">最大: 10MB/文件</p>
+                            <span class="badge bg-primary" id="images-count">0</span>
+                            <input type="file" id="file-input" multiple accept="image/*" style="display: none;">
+                        </div>
+                        
+                        <!-- 压缩设置 -->
+                        <div class="compression-settings mt-4">
+                            <h6 class="settings-title">压缩设置</h6>
+                            
+                            <!-- 质量设置 -->
+                            <div class="mb-3">
+                                <label for="quality-slider" class="form-label">压缩质量: <span id="quality-value">85</span>%</label>
+                                <input type="range" class="form-range" id="quality-slider" min="1" max="100" value="85">
+                            </div>
+                            
+                            <!-- 输出格式 -->
+                            <div class="mb-3">
+                                <label for="output-format" class="form-label">输出格式:</label>
+                                <select class="form-select" id="output-format">
+                                    <option value="original">保持原格式</option>
+                                    <option value="jpeg">JPEG</option>
+                                    <option value="png">PNG</option>
+                                    <option value="webp">WebP</option>
+                                </select>
+                            </div>
+                            
+                            <!-- 调整大小选项 -->
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="resize-checkbox">
+                                    <label class="form-check-label" for="resize-checkbox">
+                                        调整图片尺寸
+                                    </label>
+                                </div>
+                                
+                                <div id="resize-options" class="mt-2 d-none">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label for="width-input" class="form-label small">宽度 (像素)</label>
+                                            <input type="number" class="form-control form-control-sm" id="width-input" placeholder="宽度">
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="height-input" class="form-label small">高度 (像素)</label>
+                                            <input type="number" class="form-control form-control-sm" id="height-input" placeholder="高度">
+                                        </div>
+                                    </div>
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" id="aspect-ratio-checkbox" checked>
+                                        <label class="form-check-label" for="aspect-ratio-checkbox">
+                                            保持纵横比
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 文件重命名 -->
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rename-checkbox">
+                                    <label class="form-check-label" for="rename-checkbox">
+                                        重命名文件
+                                    </label>
+                                </div>
+                                
+                                <div id="rename-options" class="mt-2 d-none">
+                                    <label for="rename-pattern" class="form-label small">命名模式 (使用 {index} 表示序号)</label>
+                                    <input type="text" class="form-control form-control-sm" id="rename-pattern" placeholder="例如: image_{index}" value="compressed_{index}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 操作按钮 -->
+                        <div class="d-grid gap-2 mt-3">
+                            <button class="btn btn-primary" id="compress-btn">
+                                <i class="bi bi-magic"></i> 开始压缩
+                            </button>
+                            <button class="btn btn-outline-secondary" id="clear-all-btn">
+                                <i class="bi bi-trash"></i> 清除所有
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 中间面板：预览和结果 -->
+            <div class="col-lg-4">
+                <div class="card tool-card">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="bi bi-images"></i> 预览</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- 原始图片预览 -->
+                        <div class="preview-section">
+                            <h6 class="preview-title">原始图片</h6>
+                            <div id="original-preview" class="preview-area">
+                                <div class="text-center text-muted">无预览</div>
+                            </div>
+                            <div id="original-info" class="preview-info"></div>
+                        </div>
+                        
+                        <!-- 压缩后预览 -->
+                        <div class="preview-section mt-4">
+                            <h6 class="preview-title">压缩后</h6>
+                            <div id="compressed-preview" class="preview-area">
+                                <div class="text-center text-muted">无预览</div>
+                            </div>
+                            <div id="compressed-info" class="preview-info"></div>
+                        </div>
+                        
+                        <!-- 状态消息 -->
+                        <div id="status-message" class="status-message mt-3"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧面板：批量结果 -->
+            <div class="col-lg-4">
+                <div id="batch-results" class="card tool-card d-none">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="bi bi-list-check"></i> 批量结果</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- 批量操作按钮 -->
+                        <div class="d-flex justify-content-between mb-3">
+                            <button class="btn btn-primary" id="download-all-btn" data-bs-toggle="tooltip" title="下载所有压缩图片的ZIP压缩包">
+                                <i class="bi bi-download"></i> 下载所有
+                            </button>
+                            <button class="btn btn-outline-secondary" id="copy-results-btn" data-bs-toggle="tooltip" title="复制压缩结果信息到剪贴板">
+                                <i class="bi bi-clipboard"></i> 复制结果
+                            </button>
+                        </div>
+                        
+                        <!-- 结果列表 -->
+                        <div id="results-list" class="results-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tool-footer mt-4">
+            <p class="text-center text-muted small">图片压缩在您的浏览器本地进行，不会上传到服务器，保护您的隐私。</p>
+        </div>
+    </div>
+    
+    <!-- JSZip库 (用于批量下载) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- 引入Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 自定义JavaScript -->
+    <script src="assets/js/image-compress.js"></script>
+</body>
+</html> 

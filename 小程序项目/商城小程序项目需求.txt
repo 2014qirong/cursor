@@ -1,0 +1,188 @@
+这是一个商城小程序，项目需求如下：
+### 这个项目包含三个子项目：
+1、 商城小程序前端（微信小程序原生）
+2、 商城小程序后端管理系统
+3、前端的后端 API 服务
+
+## 技术栈设计
+
+### 1. 商城小程序前端（微信小程序原生）
+- **开发框架**：微信小程序原生框架
+- **UI组件库**：WeUI、Vant Weapp
+- **状态管理**：Mobx-miniprogram
+- **请求库**：wx.request封装
+- **地图服务**：腾讯地图API
+- **支付功能**：微信支付API
+- **数据可视化**：wx-charts
+- **开发工具**：微信开发者工具
+
+### 2. 商城小程序后端管理系统
+- **前端框架**：Vue.js 3 + Vite
+- **UI组件库**：Element Plus
+- **状态管理**：Pinia
+- **路由管理**：Vue Router
+- **HTTP客户端**：Axios
+- **图表库**：ECharts
+- **富文本编辑器**：TinyMCE
+- **构建工具**：Vite
+
+### 3. 前端的后端API服务
+- **开发语言**：Node.js
+- **Web框架**：Express.js
+- **数据库**：MySQL
+- **ORM框架**：Sequelize
+- **身份认证**：JWT
+- **日志管理**：Winston
+- **API文档**：Swagger
+- **部署**：Docker
+
+### 三个子项目对应的工能
+1 商城小程序前端功能如下：
+- **用户模块**：
+  - 用户注册与登录（微信一键登录后授权获取）
+  - 个人信息管理（图像、积分）
+  - 收货地址管理（默认地址设置）
+  - 我的订单查询
+  - 购物车管理
+  - 收藏夹功能
+  - 浏览历史记录
+
+- **商品模块**：
+  - 商品分类浏览
+  - 商品搜索功能（支持关键词、分类、价格区间等）
+  - 商品详情展示（图片轮播、规格选择、库存、销量、详情描述）
+  - 相关商品推荐
+  - 商品评价系统
+  - 商品收藏功能
+  - 商品页面可以点击立即购买和加入购物车
+
+- **购物车模块**：
+  - 添加/删除商品
+  - 修改商品数量
+  - 商品规格选择
+  - 购物车商品管理
+  - 价格计算
+
+- **订单模块**：
+  - 订单生成与确认
+  - 收货地址选择
+  - 支付方式选择
+  - 订单状态跟踪
+  - 订单评价
+  - 退款/售后申请
+
+- **支付模块**：
+  - 微信支付集成
+  - 支付结果处理
+  - 订单支付状态更新
+
+2 商城后台管理系统
+- **商品管理模块**：
+  - 商品分类管理（添加、编辑、删除分类）
+  - 商品信息管理（添加、编辑、删除商品）
+  - 商品规格管理（规格名称、规格值设置）
+  - 商品库存管理（库存预警、库存更新）
+  - 商品上下架控制
+  - 商品批量操作（批量上下架、批量修改价格）
+  - 商品导入导出功能
+
+- **订单管理模块**：
+  - 订单列表查看（支持多条件筛选）
+  - 订单详情查看
+  - 订单状态管理（发货、取消、完成等）
+  - 退款/售后处理
+  - 订单统计报表
+  - 发货管理（物流信息录入、发货单打印）
+
+- **用户管理模块**：
+  - 用户列表查看
+  - 用户详情查看
+  - 用户账户管理（启用/禁用账户）
+  - 用户消费统计
+  - 用户等级管理
+  - 用户反馈处理
+
+- **营销管理模块**：
+  - 优惠券管理（创建、发放、统计）
+  - 促销活动管理（满减、折扣、秒杀等）
+  - 积分商城管理
+  - 拼团活动管理
+  - 限时折扣设置
+  - 营销效果分析
+
+- **内容管理模块**：
+  - 首页轮播图管理
+  - 商品推荐位管理
+  - 公告管理
+  - 专题页面管理
+  - 文章管理（商品相关文章、使用教程等）
+
+- **系统设置模块**：
+  - 基础信息设置（商城名称、logo等）
+  - 支付方式配置
+  - 物流配置
+  - 短信通知配置
+  - 权限管理（管理员角色、权限分配）
+  - 操作日志查看
+
+- **数据统计模块**：
+  - 销售数据统计（销售额、订单量）
+  - 用户数据统计（新增用户、活跃用户）
+  - 商品数据统计（热销商品、库存预警）
+  - 数据可视化展示（图表、报表）
+  - 数据导出功能
+
+3 商城小程序后端API服务
+
+- **用户API**：
+  - 微信登录授权接口：`POST /api/user/auth/wechat`
+  - 用户信息获取与更新接口：`GET /api/user/profile`，`PUT /api/user/profile`
+  - 收货地址CRUD接口：`GET /api/user/addresses`，`POST /api/user/addresses`，`PUT /api/user/addresses/{id}`，`DELETE /api/user/addresses/{id}`
+  - 用户收藏管理接口：`GET /api/user/favorites`，`POST /api/user/favorites`，`DELETE /api/user/favorites/{id}`
+  - 浏览历史记录接口：`GET /api/user/history`，`DELETE /api/user/history/{id}`
+  - 用户积分管理接口：`GET /api/user/points`，`POST /api/user/points/exchange`
+
+- **商品API**：
+  - 商品分类获取接口：`GET /api/products/categories`
+  - 商品列表获取接口（支持分页、筛选、排序）：`GET /api/products`
+  - 商品详情获取接口：`GET /api/products/{id}`
+  - 商品搜索接口：`GET /api/products/search`
+  - 商品评价提交与获取接口：`GET /api/products/{id}/reviews`，`POST /api/products/{id}/reviews`
+  - 相关商品推荐接口：`GET /api/products/{id}/recommendations`
+
+- **购物车API**：
+  - 购物车商品添加接口：`POST /api/cart/items`
+  - 购物车商品修改接口：`PUT /api/cart/items/{id}`
+  - 购物车商品删除接口：`DELETE /api/cart/items/{id}`
+  - 购物车列表获取接口：`GET /api/cart`
+  - 购物车结算接口：`POST /api/cart/checkout`
+
+- **订单API**：
+  - 订单创建接口：`POST /api/orders`
+  - 订单支付接口：`POST /api/orders/{id}/pay`
+  - 订单状态查询接口：`GET /api/orders/{id}/status`
+  - 订单列表获取接口：`GET /api/orders`
+  - 订单详情获取接口：`GET /api/orders/{id}`
+  - 订单取消接口：`POST /api/orders/{id}/cancel`
+  - 订单评价接口：`POST /api/orders/{id}/review`
+  - 退款申请接口：`POST /api/orders/{id}/refund`
+
+- **支付API**：
+  - 微信支付统一下单接口：`POST /api/payment/wechat/create`
+  - 支付回调接口：`POST /api/payment/wechat/notify`
+  - 退款接口：`POST /api/payment/refund`
+  - 支付状态查询接口：`GET /api/payment/{id}/status`
+
+- **营销API**：
+  - 优惠券获取与使用接口：`GET /api/marketing/coupons`，`POST /api/marketing/coupons/{id}/claim`，`POST /api/marketing/coupons/use`
+  - 促销活动查询接口：`GET /api/marketing/promotions`
+  - 积分商城接口：`GET /api/marketing/points-mall`，`POST /api/marketing/points-mall/exchange`
+  - 拼团活动接口：`GET /api/marketing/group-buy`，`POST /api/marketing/group-buy/join`
+
+- **系统API**：
+  - 首页数据获取接口（轮播图、推荐商品等）：`GET /api/system/home`
+  - 系统配置获取接口：`GET /api/system/config`
+  - 公告获取接口：`GET /api/system/announcements`
+  - 意见反馈提交接口：`POST /api/system/feedback`
+
+

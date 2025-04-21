@@ -1,0 +1,254 @@
+# 商品模块数据库表设计
+
+## 1. product_categories (商品分类表)
+```sql
+CREATE TABLE `product_categories` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '分类ID',
+  `parent_id` int(11) UNSIGNED DEFAULT '0' COMMENT '父分类ID,0为一级分类',
+  `name` varchar(50) NOT NULL COMMENT '分类名称',
+  `icon` varchar(255) DEFAULT NULL COMMENT '分类图标',
+  `banner` varchar(255) DEFAULT NULL COMMENT '分类banner图',
+  `sort_order` int(11) DEFAULT '0' COMMENT '排序值,越小越靠前',
+  `level` tinyint(1) DEFAULT '1' COMMENT '分类级别',
+  `is_visible` tinyint(1) DEFAULT '1' COMMENT '是否显示:0否,1是',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_parent_id` (`parent_id`),
+  KEY `idx_sort` (`sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品分类表';
+```
+
+## 2. products (商品表)
+```sql
+CREATE TABLE `products` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '商品ID',
+  `category_id` int(11) UNSIGNED NOT NULL COMMENT '分类ID',
+  `name` varchar(100) NOT NULL COMMENT '商品名称',
+  `subtitle` varchar(200) DEFAULT NULL COMMENT '副标题',
+  `main_image` varchar(255) NOT NULL COMMENT '主图',
+  `sub_images` text DEFAULT NULL COMMENT '子图,JSON格式',
+  `detail` text DEFAULT NULL COMMENT '商品详情',
+  `price` decimal(10,2) NOT NULL COMMENT '商品价格',
+  `stock` int(11) NOT NULL COMMENT '库存',
+  `sale` int(11) DEFAULT '0' COMMENT '销量',
+  `unit` varchar(20) DEFAULT NULL COMMENT '单位',
+  `weight` decimal(10,2) DEFAULT NULL COMMENT '重量,单位g',
+  `is_hot` tinyint(1) DEFAULT '0' COMMENT '是否热门:0否,1是',
+  `is_new` tinyint(1) DEFAULT '0' COMMENT '是否新品:0否,1是',
+  `is_recommend` tinyint(1) DEFAULT '0' COMMENT '是否推荐:0否,1是',
+  `status` tinyint(1) DEFAULT '1' COMMENT '状态:0下架,1上架',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_category_id` (`category_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_sale` (`sale`),
+  KEY `idx_price` (`price`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品表';
+```
+
+## 3. product_attributes (商品属性表)
+```sql
+CREATE TABLE `product_attributes` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '属性ID',
+  `name` varchar(50) NOT NULL COMMENT '属性名称',
+  `category_id` int(11) UNSIGNED DEFAULT NULL COMMENT '所属分类ID,NULL表示通用属性',
+  `sort_order` int(11) DEFAULT '0' COMMENT '排序值',
+  `is_filter` tinyint(1) DEFAULT '0' COMMENT '是否可筛选:0否,1是',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_category_id` (`category_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品属性表';
+```
+
+## 4. product_attribute_values (商品属性值表)
+```sql
+CREATE TABLE `product_attribute_values` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '属性值ID',
+  `product_id` bigint(20) UNSIGNED NOT NULL COMMENT '商品ID',
+  `attribute_id` int(11) UNSIGNED NOT NULL COMMENT '属性ID',
+  `value` varchar(255) NOT NULL COMMENT '属性值',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_product_id` (`product_id`),
+  KEY `idx_attribute_id` (`attribute_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品属性值表';
+```
+
+## 5. product_specs (商品规格表)
+```sql
+CREATE TABLE `product_specs` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '规格ID',
+  `name` varchar(50) NOT NULL COMMENT '规格名称',
+  `category_id` int(11) UNSIGNED DEFAULT NULL COMMENT '所属分类ID,NULL表示通用规格',
+  `sort_order` int(11) DEFAULT '0' COMMENT '排序值',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_category_id` (`category_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品规格表';
+```
+
+## 6. product_spec_values (商品规格值表)
+```sql
+CREATE TABLE `product_spec_values` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '规格值ID',
+  `spec_id` int(11) UNSIGNED NOT NULL COMMENT '规格ID',
+  `value` varchar(50) NOT NULL COMMENT '规格值',
+  `sort_order` int(11) DEFAULT '0' COMMENT '排序值',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_spec_id` (`spec_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品规格值表';
+```
+
+## 7. product_skus (商品SKU表)
+```sql
+CREATE TABLE `product_skus` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'SKU ID',
+  `product_id` bigint(20) UNSIGNED NOT NULL COMMENT '商品ID',
+  `sku_code` varchar(50) DEFAULT NULL COMMENT 'SKU编码',
+  `spec_json` json NOT NULL COMMENT '规格JSON,格式:{spec_id:spec_value_id,...}',
+  `price` decimal(10,2) NOT NULL COMMENT 'SKU价格',
+  `stock` int(11) NOT NULL COMMENT 'SKU库存',
+  `sku_image` varchar(255) DEFAULT NULL COMMENT 'SKU图片',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_product_id` (`product_id`),
+  KEY `idx_sku_code` (`sku_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品SKU表';
+```
+
+## 8. product_reviews (商品评价表)
+```sql
+CREATE TABLE `product_reviews` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '评价ID',
+  `product_id` bigint(20) UNSIGNED NOT NULL COMMENT '商品ID',
+  `order_id` bigint(20) UNSIGNED NOT NULL COMMENT '订单ID',
+  `user_id` bigint(20) UNSIGNED NOT NULL COMMENT '用户ID',
+  `spec_info` varchar(255) DEFAULT NULL COMMENT '规格信息',
+  `rating` tinyint(1) NOT NULL DEFAULT '5' COMMENT '评分:1-5',
+  `content` text DEFAULT NULL COMMENT '评价内容',
+  `images` varchar(1000) DEFAULT NULL COMMENT '图片URL,多个以逗号分隔',
+  `reply` text DEFAULT NULL COMMENT '商家回复',
+  `reply_time` datetime DEFAULT NULL COMMENT '回复时间',
+  `is_anonymous` tinyint(1) DEFAULT '0' COMMENT '是否匿名:0否,1是',
+  `is_visible` tinyint(1) DEFAULT '1' COMMENT '是否显示:0否,1是',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_product_id` (`product_id`),
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品评价表';
+```
+
+## 9. products_recommend (商品推荐表)
+```sql
+CREATE TABLE `products_recommend` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '推荐ID',
+  `product_id` bigint(20) UNSIGNED NOT NULL COMMENT '商品ID',
+  `position` varchar(50) NOT NULL COMMENT '推荐位置:home,category,detail',
+  `sort_order` int(11) DEFAULT '0' COMMENT '排序值',
+  `start_time` datetime DEFAULT NULL COMMENT '开始时间',
+  `end_time` datetime DEFAULT NULL COMMENT '结束时间',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_product_id` (`product_id`),
+  KEY `idx_position` (`position`),
+  KEY `idx_sort_order` (`sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品推荐表';
+```
+
+## Redis缓存设计 - 商品模块
+
+1. **商品分类缓存**
+   ```
+   Key: product:categories
+   Value: Hash类型，包含所有分类信息
+   Expiry: 1天
+   ```
+
+2. **商品信息缓存**
+   ```
+   Key: product:info:{product_id}
+   Value: Hash类型，包含商品基本信息
+   Expiry: 1小时
+   ```
+
+3. **商品库存缓存**
+   ```
+   Key: product:stock:{product_id}
+   Value: Hash类型，SKU ID为field，库存为value
+   Expiry: 10分钟
+   ```
+
+4. **热门商品缓存**
+   ```
+   Key: product:hot
+   Value: Sorted Set类型，商品ID为member，热度为score
+   Expiry: 1小时
+   ```
+
+5. **推荐商品缓存**
+   ```
+   Key: product:recommend:{position}
+   Value: Sorted Set类型，商品ID为member，排序值为score
+   Expiry: 1小时
+   ```
+
+6. **商品评价统计缓存**
+   ```
+   Key: product:review:stats:{product_id}
+   Value: Hash类型，包含评分统计信息
+   Expiry: 1小时
+   ```
+
+## Elasticsearch 商品索引设计
+
+```json
+{
+  "mappings": {
+    "properties": {
+      "id": { "type": "long" },
+      "name": { 
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart" 
+      },
+      "subtitle": { 
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart"
+      },
+      "category_id": { "type": "integer" },
+      "category_path": { "type": "keyword" },
+      "price": { "type": "float" },
+      "stock": { "type": "integer" },
+      "sale": { "type": "integer" },
+      "is_hot": { "type": "boolean" },
+      "is_new": { "type": "boolean" },
+      "is_recommend": { "type": "boolean" },
+      "status": { "type": "byte" },
+      "attributes": {
+        "type": "nested",
+        "properties": {
+          "attribute_id": { "type": "integer" },
+          "attribute_name": { "type": "keyword" },
+          "attribute_value": { "type": "keyword" }
+        }
+      },
+      "created_at": { "type": "date" },
+      "updated_at": { "type": "date" }
+    }
+  }
+}
+``` 
