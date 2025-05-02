@@ -79,7 +79,7 @@
         </el-table-column>
         <el-table-column label="状态" width="100" align="center">
           <template #default="scope">
-            <el-tag :type="scope.row.status | statusFilter">{{ scope.row.status }}</el-tag>
+            <el-tag :type="getStatusType(scope.row.status)">{{ scope.row.status }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
@@ -125,7 +125,7 @@
     </el-card>
     
     <!-- 处理退款对话框 -->
-    <el-dialog title="处理退款申请" :visible.sync="dialogVisible" width="500px">
+    <el-dialog v-model="dialogVisible" title="处理退款申请" width="500px">
       <el-form :model="refundForm" label-width="100px">
         <el-form-item label="退款金额">
           <el-input-number v-model="refundForm.amount" :min="0" :precision="2" :step="0.01" />
@@ -134,134 +134,140 @@
           <el-input type="textarea" v-model="refundForm.remark" :rows="3" placeholder="请输入处理意见" />
         </el-form-item>
       </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitRefund">确 定</el-button>
-      </span>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="submitRefund">确 定</el-button>
+        </span>
+      </template>
     </el-dialog>
   </div>
 </template>
 
-<script>
-import { defineComponent, ref, reactive, toRefs } from 'vue'
-import Pagination from '@/components/Pagination'
+<script setup>
+import { ref, reactive, onMounted } from 'vue'
+import Pagination from '@/components/common/Pagination.vue'
+import { ElMessage } from 'element-plus'
 
-export default defineComponent({
-  name: 'OrderRefund',
-  components: { Pagination },
-  setup() {
-    const state = reactive({
-      list: [
-        {
-          refundNo: 'RF202305120001',
-          orderId: 1,
-          orderNo: 'OR202305120001',
-          applyTime: '2023-05-12 10:23:45',
-          amount: 99.99,
-          type: '仅退款',
-          reason: '不想要了',
-          status: '待处理'
-        },
-        {
-          refundNo: 'RF202305110002',
-          orderId: 2,
-          orderNo: 'OR202305110023',
-          applyTime: '2023-05-11 16:44:12',
-          amount: 299.00,
-          type: '退货退款',
-          reason: '商品质量问题',
-          status: '已通过'
-        },
-        {
-          refundNo: 'RF202305100003',
-          orderId: 3,
-          orderNo: 'OR202305100045',
-          applyTime: '2023-05-10 09:12:34',
-          amount: 59.90,
-          type: '仅退款',
-          reason: '重复购买',
-          status: '已拒绝'
-        }
-      ],
-      total: 3,
-      listLoading: false,
-      listQuery: {
-        page: 1,
-        limit: 10,
-        orderNo: '',
-        status: ''
-      },
-      statusOptions: [
-        { value: '待处理', label: '待处理' },
-        { value: '已通过', label: '已通过' },
-        { value: '已拒绝', label: '已拒绝' },
-        { value: '已完成', label: '已完成' }
-      ],
-      dateRange: [],
-      dialogVisible: false,
-      refundForm: {
-        id: null,
-        amount: 0,
-        remark: ''
-      }
-    })
-    
-    const fetchData = () => {
-      state.listLoading = true
-      // 模拟API请求
-      setTimeout(() => {
-        state.listLoading = false
-      }, 500)
-    }
-    
-    const handleFilter = () => {
-      state.listQuery.page = 1
-      fetchData()
-    }
-    
-    const resetFilter = () => {
-      state.listQuery.orderNo = ''
-      state.listQuery.status = ''
-      state.dateRange = []
-      fetchData()
-    }
-    
-    const handleProcess = (row) => {
-      state.refundForm.id = row.refundNo
-      state.refundForm.amount = row.amount
-      state.refundForm.remark = ''
-      state.dialogVisible = true
-    }
-    
-    const handleApprove = (row) => {
-      // 直接通过退款
-    }
-    
-    const handleReject = (row) => {
-      // 拒绝退款
-    }
-    
-    const handleDetail = (row) => {
-      // 查看退款详情
-    }
-    
-    const submitRefund = () => {
-      // 提交退款处理
-      state.dialogVisible = false
-    }
-    
-    return {
-      ...toRefs(state),
-      fetchData,
-      handleFilter,
-      resetFilter,
-      handleProcess,
-      handleApprove,
-      handleReject,
-      handleDetail,
-      submitRefund
-    }
+// 列表数据
+const list = ref([
+  {
+    refundNo: 'RF202305120001',
+    orderId: 1,
+    orderNo: 'OR202305120001',
+    applyTime: '2023-05-12 10:23:45',
+    amount: 99.99,
+    type: '仅退款',
+    reason: '不想要了',
+    status: '待处理'
+  },
+  {
+    refundNo: 'RF202305110002',
+    orderId: 2,
+    orderNo: 'OR202305110023',
+    applyTime: '2023-05-11 16:44:12',
+    amount: 299.00,
+    type: '退货退款',
+    reason: '商品质量问题',
+    status: '已通过'
+  },
+  {
+    refundNo: 'RF202305100003',
+    orderId: 3,
+    orderNo: 'OR202305100045',
+    applyTime: '2023-05-10 09:12:34',
+    amount: 59.90,
+    type: '仅退款',
+    reason: '重复购买',
+    status: '已拒绝'
   }
+])
+const total = ref(3)
+const listLoading = ref(false)
+const listQuery = reactive({
+  page: 1,
+  limit: 10,
+  orderNo: '',
+  status: ''
+})
+const statusOptions = [
+  { value: '待处理', label: '待处理' },
+  { value: '已通过', label: '已通过' },
+  { value: '已拒绝', label: '已拒绝' },
+  { value: '已完成', label: '已完成' }
+]
+const dateRange = ref([])
+const dialogVisible = ref(false)
+const refundForm = reactive({
+  id: null,
+  amount: 0,
+  remark: ''
+})
+
+const fetchData = () => {
+  listLoading.value = true
+  // 模拟API请求
+  setTimeout(() => {
+    listLoading.value = false
+  }, 500)
+}
+
+const handleFilter = () => {
+  listQuery.page = 1
+  fetchData()
+}
+
+const resetFilter = () => {
+  listQuery.orderNo = ''
+  listQuery.status = ''
+  dateRange.value = []
+  fetchData()
+}
+
+const handleProcess = (row) => {
+  refundForm.id = row.refundNo
+  refundForm.amount = row.amount
+  refundForm.remark = ''
+  dialogVisible.value = true
+}
+
+const handleApprove = (row) => {
+  // 直接通过退款
+  ElMessage.success(`已通过退款申请: ${row.refundNo}`)
+  fetchData()
+}
+
+const handleReject = (row) => {
+  // 拒绝退款
+  ElMessage.warning(`已拒绝退款申请: ${row.refundNo}`)
+  fetchData()
+}
+
+const handleDetail = (row) => {
+  // 查看退款详情
+  ElMessage.info(`查看退款详情: ${row.refundNo}`)
+}
+
+const submitRefund = () => {
+  // 提交退款处理
+  ElMessage.success(`已处理退款申请: ${refundForm.id}`)
+  dialogVisible.value = false
+  fetchData()
+}
+
+// 状态标签类型
+const getStatusType = (status) => {
+  const map = {
+    '待处理': 'warning',
+    '已通过': 'success',
+    '已拒绝': 'danger',
+    '已完成': 'info'
+  }
+  return map[status] || 'info'
+}
+
+onMounted(() => {
+  fetchData()
 })
 </script>
 

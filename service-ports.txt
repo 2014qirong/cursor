@@ -1,0 +1,26 @@
+# 商城开发环境服务端口信息
+# 更新时间：2024-04-24
+
+## 数据库服务
+- MySQL数据库: localhost:3306
+  - 用户名: dev_user
+  - 密码: admin123
+  - 数据库名: mall_dev
+
+## 缓存服务
+- Redis: localhost:6379
+  - 密码: admin123
+
+## 搜索服务
+- Elasticsearch: localhost:9200
+- Kibana: localhost:5601
+
+## 管理工具
+- Adminer(数据库管理): http://localhost:8080
+- Redis Commander: http://localhost:8081
+
+## 注意事项
+1. 所有服务都通过Docker Compose管理
+2. 配置文件位置: /Users/heytea/Desktop/cursor/docker-compose.dev.yml
+3. 启动脚本: /Users/heytea/Desktop/cursor/start-dev-env.sh
+4. 停止脚本: /Users/heytea/Desktop/cursor/stop-dev-env.sh 

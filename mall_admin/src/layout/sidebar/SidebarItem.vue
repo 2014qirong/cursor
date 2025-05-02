@@ -5,7 +5,6 @@
       <app-link 
         v-if="onlyOneChild.meta && onlyOneChild.meta.title" 
         :to="resolvePath(onlyOneChild.path)"
-        @click="handleItemClick(onlyOneChild)"
       >
         <el-menu-item :index="resolvePath(onlyOneChild.path)">
           <el-icon v-if="onlyOneChild.meta && onlyOneChild.meta.icon">
@@ -18,7 +17,7 @@
 
     <!-- 有子菜单的路由项 -->
     <el-sub-menu v-else-if="item && item.path" :index="resolvePath(item.path)" popper-append-to-body>
-      <template #title @click="handleSubmenuTitleClick(item)">
+      <template #title>
         <el-icon v-if="item.meta && item.meta.icon">
           <component :is="item.meta.icon"></component>
         </el-icon>
@@ -36,7 +35,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { isExternal } from '@/utils/validate'
 import AppLink from './Link.vue'
@@ -55,46 +54,6 @@ const props = defineProps({
 })
 
 const onlyOneChild = ref(null)
-
-// 调试信息
-onMounted(() => {
-  console.log('当前菜单项:', props.item)
-})
-
-// 点击菜单项
-const handleItemClick = (item) => {
-  if (!item || !item.path) return
-  
-  console.log('点击菜单项:', item)
-  const fullPath = resolvePath(item.path)
-  console.log('跳转路径:', fullPath)
-  
-  // 尝试通过编程式导航进行跳转
-  try {
-    router.push(fullPath)
-  } catch (err) {
-    console.error('路由跳转错误:', err)
-  }
-}
-
-// 点击子菜单标题
-const handleSubmenuTitleClick = (item) => {
-  if (!item || !item.path) return
-  
-  console.log('点击子菜单标题:', item)
-  
-  if (item.redirect) {
-    const redirectPath = isExternal(item.redirect) ? item.redirect : resolvePath(item.redirect)
-    console.log('重定向路径:', redirectPath)
-    
-    // 尝试跳转到重定向路径
-    try {
-      router.push(redirectPath)
-    } catch (err) {
-      console.error('重定向跳转错误:', err)
-    }
-  }
-}
 
 // 判断是否只有一个可显示的子路由
 const hasOneShowingChild = (children = [], parent) => {

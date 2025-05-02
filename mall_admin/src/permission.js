@@ -26,18 +26,14 @@ router.beforeEach(async (to, from, next) => {
       } else {
         // 判断是否已获取用户信息和角色
         const hasRoles = userStore.hasRoles
-        console.log('当前用户角色状态:', hasRoles, '用户角色:', userStore.roles)
         
         if (hasRoles) {
           next()
         } else {
           try {
             // 获取用户信息
-            const { roles } = await userStore.getUserInfo()
-            console.log('成功获取用户角色:', roles)
+            await userStore.getUserInfo()
             
-            // 所有路由已在router/index.js中注册
-            console.log('已注册的路由:', router.getRoutes().map(route => route.path))
             next({ ...to, replace: true })
           } catch (error) {
             // 获取用户信息失败，清除token并跳转到登录页

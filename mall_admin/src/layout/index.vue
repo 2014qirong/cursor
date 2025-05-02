@@ -41,12 +41,6 @@
       
       <!-- 主要内容 -->
       <div class="app-main">
-        <!-- 调试信息 -->
-        <div v-if="isDebug" class="debug-info">
-          <h3>路由调试信息</h3>
-          <pre>{{ JSON.stringify(allRoutes, null, 2) }}</pre>
-        </div>
-        
         <router-view v-slot="{ Component }">
           <transition name="fade-transform" mode="out-in">
             <keep-alive>
@@ -73,27 +67,26 @@ import { constantRoutes } from '@/router'
 const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
-const isDebug = ref(true) // 是否显示调试信息
+const isDebug = ref(false) // 设置为false以隐藏调试信息
 const allRoutes = ref([])
 
 // 侧边栏收起状态
 const isCollapse = computed(() => !appStore.sidebar.opened)
 
 onMounted(() => {
-  // 获取所有路由信息用于调试
-  allRoutes.value = router.getRoutes().map(route => ({
-    path: route.path,
-    name: route.name,
-    meta: route.meta,
-    children: route.children?.map(child => ({
-      path: child.path,
-      name: child.name,
-      meta: child.meta
+  // 获取所有路由信息用于调试 - 仅在开发环境需要
+  if (isDebug.value) {
+    allRoutes.value = router.getRoutes().map(route => ({
+      path: route.path,
+      name: route.name,
+      meta: route.meta,
+      children: route.children?.map(child => ({
+        path: child.path,
+        name: child.name,
+        meta: child.meta
+      }))
     }))
-  }))
-  
-  console.log('路由模块:', constantRoutes)
-  console.log('注册的路由:', router.getRoutes())
+  }
 })
 
 // 切换侧边栏展开/收起
@@ -214,20 +207,6 @@ const logout = () => {
   position: relative;
   overflow: hidden;
   min-height: calc(100vh - 50px);
-}
-
-.debug-info {
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #f8f8f8;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  
-  pre {
-    max-height: 300px;
-    overflow: auto;
-    font-size: 12px;
-  }
 }
 
 .fade-transform-enter-active,

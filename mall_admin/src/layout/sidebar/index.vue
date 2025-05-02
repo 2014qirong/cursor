@@ -1,14 +1,5 @@
 <template>
   <div class="sidebar-menu">
-    <!-- 调试信息显示 -->
-    <div v-if="isDebug" class="debug-panel">
-      <h4>菜单调试信息</h4>
-      <div class="debug-count">路由数量: {{ routes.length }}</div>
-      <div v-for="(route, index) in routes" :key="index" class="debug-item">
-        - {{ route.path }} ({{ route.meta?.title || '无标题' }})
-      </div>
-    </div>
-    
     <el-menu
       :default-active="activeMenu"
       :collapse="isCollapse"
@@ -30,16 +21,14 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import SidebarItem from './SidebarItem.vue'
 import { constantRoutes } from '@/router'
 import { useAppStore } from '@/store/modules/app'
 
 const appStore = useAppStore()
 const route = useRoute()
-const router = useRouter()
-const isDebug = ref(true) // 控制是否显示调试信息
 
 // 从布局组件传入的isCollapse状态
 const isCollapse = computed(() => !appStore.sidebar.opened)
@@ -69,11 +58,6 @@ const filteredRoutes = computed(() => {
     }
   })
 })
-
-onMounted(() => {
-  console.log('侧边栏路由:', routes.value)
-  console.log('路由器已注册路由:', router.getRoutes())
-})
 </script>
 
 <style lang="scss" scoped>
@@ -86,30 +70,6 @@ onMounted(() => {
   
   :deep(.el-menu--collapse) {
     width: 54px;
-  }
-}
-
-.debug-panel {
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.2);
-  color: #eee;
-  font-size: 12px;
-  
-  h4 {
-    margin-bottom: 5px;
-    color: #fff;
-  }
-  
-  .debug-count {
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  .debug-item {
-    padding: 2px 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 }
 </style> 

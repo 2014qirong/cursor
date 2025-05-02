@@ -1,8 +1,7 @@
 <template>
   <component 
     :is="type" 
-    v-bind="linkProps" 
-    @click="handleClick"
+    v-bind="linkProps"
   >
     <slot />
   </component>
@@ -10,10 +9,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { isExternal } from '@/utils/validate'
-
-const router = useRouter()
 
 const props = defineProps({
   to: {
@@ -21,8 +17,6 @@ const props = defineProps({
     required: true
   }
 })
-
-const emit = defineEmits(['click'])
 
 // 链接类型: 外部链接使用a标签，内部链接使用router-link
 const type = computed(() => {
@@ -42,18 +36,6 @@ const linkProps = computed(() => {
     to: props.to
   }
 })
-
-// 处理点击事件
-const handleClick = (e) => {
-  console.log('Link组件点击:', props.to)
-  
-  if (isExternal(props.to)) {
-    // 外部链接，保持默认行为
-  } else {
-    // 内部链接，触发click事件供父组件处理
-    emit('click', e)
-  }
-}
 </script>
 
 <style scoped>

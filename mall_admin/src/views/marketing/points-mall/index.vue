@@ -164,10 +164,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import Pagination from '@/components/Pagination/index.vue'
+import Pagination from '@/components/common/Pagination.vue'
 
 // 模拟API，实际项目中应该从API获取数据
 const getPointsMallList = (params) => {

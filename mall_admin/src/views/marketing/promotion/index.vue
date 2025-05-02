@@ -320,7 +320,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, defineExpose } from 'vue'
 
 // 加载状态
 const loading = ref(false)
@@ -611,7 +611,7 @@ const getProductNameById = (productId) => {
   return product ? product.name : `商品#${productId}`
 }
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (promotionForm.timeRange && promotionForm.timeRange.length === 2) {
     promotionForm.startTime = promotionForm.timeRange[0]
     promotionForm.endTime = promotionForm.timeRange[1]
@@ -626,6 +626,13 @@ const handleSubmit = () => {
 onMounted(() => {
   // TODO: 加载初始数据
   console.log('组件已挂载，加载数据')
+})
+
+// 导出方法供父组件使用
+defineExpose({
+  handleSearch,
+  resetSearch,
+  openAddDialog
 })
 </script>
 
@@ -674,4 +681,3 @@ onMounted(() => {
   margin-bottom: 10px;
 }
 </style>
-</rewritten_file>

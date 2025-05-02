@@ -96,8 +96,8 @@
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { getOrderList, updateOrderStatus, printOrder } from '@/api/order'
-import Pagination from '@/components/Pagination/index.vue'
+import { getOrderList, updateOrderStatus } from '@/api/order'
+import Pagination from '@/components/common/Pagination.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
@@ -182,10 +182,31 @@ const getList = async () => {
   listLoading.value = true
   try {
     const response = await getOrderList(listQuery)
-    list.value = response.data.items
-    total.value = response.data.total
+    // 检查响应结构，避免undefined错误
+    if (response && response.data) {
+      // 如果是期望的数据结构
+      if (response.data.items) {
+        list.value = response.data.items
+        total.value = response.data.total || 0
+      } else if (Array.isArray(response.data)) {
+        // 如果直接返回数组
+        list.value = response.data
+        total.value = response.data.length
+      } else {
+        // 其他情况
+        list.value = []
+        total.value = 0
+        console.warn('订单数据结构异常:', response)
+      }
+    } else {
+      list.value = []
+      total.value = 0
+      console.warn('返回数据为空')
+    }
   } catch (error) {
     console.error('获取订单列表失败:', error)
+    list.value = []
+    total.value = 0
     ElMessage.error('获取订单列表失败')
   } finally {
     listLoading.value = false
@@ -251,24 +272,14 @@ const handleCancel = (row) => {
       console.error('取消订单失败:', error)
       ElMessage.error('取消订单失败')
     }
-  }).catch(() => {})
+  }).catch(() => {
+    // 取消操作，不做处理
+  })
 }
 
 // 处理打印订单
-const handlePrint = async (row) => {
-  try {
-    const res = await printOrder(row.id)
-    // 创建Blob对象并下载
-    const blob = new Blob([res], { type: 'application/pdf' })
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = `订单-${row.orderSn}.pdf`
-    link.click()
-    URL.revokeObjectURL(link.href)
-  } catch (error) {
-    console.error('打印订单失败:', error)
-    ElMessage.error('打印订单失败')
-  }
+const handlePrint = (row) => {
+  ElMessage.info('打印订单功能开发中...')
 }
 
 onMounted(() => {

@@ -1,3 +1,4 @@
+-- Active: 1745072478064@@127.0.0.1@3306@mall_dev
 -- 创建订单表
 CREATE TABLE IF NOT EXISTS `orders` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '订单ID',

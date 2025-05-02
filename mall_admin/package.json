@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "start": "node app.js",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src"
@@ -11,9 +12,11 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
     "@tinymce/tinymce-vue": "^5.1.1",
-    "axios": "^1.6.2",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
     "echarts": "^5.4.3",
     "element-plus": "^2.4.3",
+    "express": "^5.1.0",
     "file-saver": "^2.0.5",
     "js-cookie": "^3.0.5",
     "nprogress": "^0.2.0",
@@ -26,6 +29,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.1",
+    "axios": "^1.8.4",
     "eslint": "^8.54.0",
     "eslint-plugin-vue": "^9.18.1",
     "sass": "^1.69.5",

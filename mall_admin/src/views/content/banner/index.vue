@@ -216,13 +216,13 @@ const bannerRules = {
     { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
   ],
   imgUrl: [
-    { required: true, message: '请上传轮播图片', trigger: 'change' }
+    { required: false, message: '请上传轮播图片或填写链接地址', trigger: 'change' }
   ],
   type: [
     { required: true, message: '请选择轮播类型', trigger: 'change' }
   ],
   url: [
-    { required: true, message: '请输入链接地址', trigger: 'blur' }
+    { required: false, message: '请输入链接地址或上传轮播图片', trigger: 'blur' }
   ]
 }
 
@@ -292,6 +292,12 @@ const handleImageChange = (file) => {
 // 提交表单
 const submitForm = () => {
   if (!bannerFormRef.value) return
+  
+  // 自定义验证：确保至少填写了图片或链接地址
+  if (!bannerForm.imgUrl && !bannerForm.url) {
+    ElMessage.error('请上传轮播图片或填写链接地址')
+    return
+  }
   
   bannerFormRef.value.validate((valid) => {
     if (valid) {
