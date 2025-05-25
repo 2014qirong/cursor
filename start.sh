@@ -6,6 +6,7 @@ export DB_PORT=3306
 export DB_USER=dev_user
 export DB_PASSWORD=admin123
 export DB_DATABASE=mall_dev
+export PORT=3000
 
 # 启动服务器
 node app.js 

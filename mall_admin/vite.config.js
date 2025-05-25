@@ -36,19 +36,19 @@ export default defineConfig({
     cors: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:3003',
+        target: 'http://localhost:3000',
         changeOrigin: true,
         rewrite: (path) => path
       },
       '/product': {
-        target: 'http://localhost:3003',
+        target: 'http://localhost:3000',
         changeOrigin: true,
         rewrite: (path) => path
       },
       '/user': {
-        target: 'http://localhost:3002',
+        target: 'http://localhost:3000',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/user/, '/user')
+        rewrite: (path) => path
       },
       '/order': {
         target: 'http://localhost:3002',
