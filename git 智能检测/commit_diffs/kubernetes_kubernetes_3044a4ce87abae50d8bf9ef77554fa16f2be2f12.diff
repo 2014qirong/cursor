@@ -1,0 +1,92 @@
+diff --git a/.go-version b/.go-version
+index e4a973f913f4f..ae96cc7310aaa 100644
+--- a/.go-version
++++ b/.go-version
+@@ -1 +1 @@
+-1.24.2
++1.24.3
+diff --git a/build/build-image/cross/VERSION b/build/build-image/cross/VERSION
+index 83d855c8a702e..aa724b826cb60 100644
+--- a/build/build-image/cross/VERSION
++++ b/build/build-image/cross/VERSION
+@@ -1 +1 @@
+-v1.33.0-go1.24.2-bullseye.0
++v1.34.0-go1.24.3-bullseye.0
+diff --git a/build/common.sh b/build/common.sh
+index 65e93430df0a1..10d5289330e2a 100755
+--- a/build/common.sh
++++ b/build/common.sh
+@@ -97,8 +97,8 @@ readonly KUBE_RSYNC_PORT="${KUBE_RSYNC_PORT:-}"
+ readonly KUBE_CONTAINER_RSYNC_PORT=8730
+ 
+ # These are the default versions (image tags) for their respective base images.
+-readonly __default_distroless_iptables_version=v0.7.4
+-readonly __default_go_runner_version=v2.4.0-go1.24.2-bookworm.0
++readonly __default_distroless_iptables_version=v0.7.5
++readonly __default_go_runner_version=v2.4.0-go1.24.3-bookworm.0
+ readonly __default_setcap_version=bookworm-v1.0.4
+ 
+ # These are the base images for the Docker-wrapped binaries.
+diff --git a/build/dependencies.yaml b/build/dependencies.yaml
+index dc966291d2bfa..9af7e3300cdd2 100644
+--- a/build/dependencies.yaml
++++ b/build/dependencies.yaml
+@@ -117,7 +117,7 @@ dependencies:
+   # Golang
+   # TODO: this should really be eliminated and controlled by .go-version
+   - name: "golang: upstream version"
+-    version: 1.24.2
++    version: 1.24.3
+     refPaths:
+     - path: .go-version
+     - path: build/build-image/cross/VERSION
+@@ -138,7 +138,7 @@ dependencies:
+       match: minimum_go_version=go([0-9]+\.[0-9]+)
+ 
+   - name: "registry.k8s.io/kube-cross: dependents"
+-    version: v1.33.0-go1.24.2-bullseye.0
++    version: v1.34.0-go1.24.3-bullseye.0
+     refPaths:
+     - path: build/build-image/cross/VERSION
+ 
+@@ -176,7 +176,7 @@ dependencies:
+       match: registry\.k8s\.io\/build-image\/debian-base:[a-zA-Z]+\-v((([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)
+ 
+   - name: "registry.k8s.io/distroless-iptables: dependents"
+-    version: v0.7.4
++    version: v0.7.5
+     refPaths:
+     - path: build/common.sh
+       match: __default_distroless_iptables_version=
+@@ -184,7 +184,7 @@ dependencies:
+       match: configs\[DistrolessIptables\] = Config{list\.BuildImageRegistry, "distroless-iptables", "v([0-9]+)\.([0-9]+)\.([0-9]+)"}
+ 
+   - name: "registry.k8s.io/go-runner: dependents"
+-    version: v2.4.0-go1.24.2-bookworm.0
++    version: v2.4.0-go1.24.3-bookworm.0
+     refPaths:
+     - path: build/common.sh
+       match: __default_go_runner_version=
+diff --git a/staging/publishing/rules.yaml b/staging/publishing/rules.yaml
+index dba02d41439d4..0786beb25090e 100644
+--- a/staging/publishing/rules.yaml
++++ b/staging/publishing/rules.yaml
+@@ -2425,4 +2425,4 @@ rules:
+       - staging/src/k8s.io/externaljwt
+ recursive-delete-patterns:
+ - '*/.gitattributes'
+-default-go-version: 1.24.2
++default-go-version: 1.24.3
+diff --git a/test/utils/image/manifest.go b/test/utils/image/manifest.go
+index 2e646ff92131a..c982f810d4dcc 100644
+--- a/test/utils/image/manifest.go
++++ b/test/utils/image/manifest.go
+@@ -223,7 +223,7 @@ func initImageConfigs(list RegistryList) (map[ImageID]Config, map[ImageID]Config
+ 	configs[APIServer] = Config{list.PromoterE2eRegistry, "sample-apiserver", "1.29.2"}
+ 	configs[AppArmorLoader] = Config{list.PromoterE2eRegistry, "apparmor-loader", "1.4"}
+ 	configs[BusyBox] = Config{list.PromoterE2eRegistry, "busybox", "1.37.0-1"}
+-	configs[DistrolessIptables] = Config{list.BuildImageRegistry, "distroless-iptables", "v0.7.4"}
++	configs[DistrolessIptables] = Config{list.BuildImageRegistry, "distroless-iptables", "v0.7.5"}
+ 	configs[Etcd] = Config{list.GcEtcdRegistry, "etcd", "3.5.21-0"}
+ 	configs[Httpd] = Config{list.PromoterE2eRegistry, "httpd", "2.4.38-4"}
+ 	configs[HttpdNew] = Config{list.PromoterE2eRegistry, "httpd", "2.4.39-4"}

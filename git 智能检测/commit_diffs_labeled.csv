@@ -1,0 +1,530 @@
+file,diff,add_lines,del_lines,file_count,has_k8s,label
+kubernetes_kubernetes_3044a4ce87abae50d8bf9ef77554fa16f2be2f12.diff,"diff --git a/.go-version b/.go-version
+index e4a973f913f4f..ae96cc7310aaa 100644
+--- a/.go-version
++++ b/.go-version
+@@ -1 +1 @@
+-1.24.2
++1.24.3
+diff --git a/build/build-image/cross/VERSION b/build/build-image/cross/VERSION
+index 83d855c8a702e..aa724b826cb60 100644
+--- a/build/build-image/cross/VERSION
++++ b/build/build-image/cross/VERSION
+@@ -1 +1 @@
+-v1.33.0-go1.24.2-bullseye.0
++v1.34.0-go1.24.3-bullseye.0
+diff --git a/build/common.sh b/build/common.sh
+index 65e93430df0a1..10d5289330e2a 100755
+--- a/build/common.sh
++++ b/build/common.sh
+@@ -97,8 +97,8 @@ readonly KUBE_RSYNC_PORT=""${KUBE_RSYNC_PORT:-}""
+ readonly KUBE_CONTAINER_RSYNC_PORT=8730
+ 
+ # These are the default versions (image tags) for their respective base images.
+-readonly __default_distroless_iptables_version=v0.7.4
+-readonly __default_go_runner_version=v2.4.0-go1.24.2-bookworm.0
++readonly __default_distroless_iptables_version=v0.7.5
++readonly __default_go_runner_version=v2.4.0-go1.24.3-bookworm.0
+ readonly __default_setcap_version=bookworm-v1.0.4
+ 
+ # These are the base images for the Docker-wrapped binaries.
+diff --git a/build/dependencies.yaml b/build/dependencies.yaml
+index dc966291d2bfa..9af7e3300cdd2 100644
+--- a/build/dependencies.yaml
++++ b/build/dependencies.yaml
+@@ -117,7 +117,7 @@ dependencies:
+   # Golang
+   # TODO: this should really be eliminated and controlled by .go-version
+   - name: ""golang: upstream version""
+-    version: 1.24.2
++    version: 1.24.3
+     refPaths:
+     - path: .go-version
+     - path: build/build-image/cross/VERSION
+@@ -138,7 +138,7 @@ dependencies:
+       match: minimum_go_version=go([0-9]+\.[0-9]+)
+ 
+   - name: ""registry.k8s.io/kube-cross: dependents""
+-    version: v1.33.0-go1.24.2-bullseye.0
++    version: v1.34.0-go1.24.3-bullseye.0
+     refPaths:
+     - path: build/build-image/cross/VERSION
+ 
+@@ -176,7 +176,7 @@ dependencies:
+       match: registry\.k8s\.io\/build-image\/debian-base:[a-zA-Z]+\-v((([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)
+ 
+   - name: ""registry.k8s.io/distroless-iptables: dependents""
+-    version: v0.7.4
++    version: v0.7.5
+     refPaths:
+     - path: build/common.sh
+       match: __default_distroless_iptables_version=
+@@ -184,7 +184,7 @@ dependencies:
+       match: configs\[DistrolessIptables\] = Config{list\.BuildImageRegistry, ""distroless-iptables"", ""v([0-9]+)\.([0-9]+)\.([0-9]+)""}
+ 
+   - name: ""registry.k8s.io/go-runner: dependents""
+-    version: v2.4.0-go1.24.2-bookworm.0
++    version: v2.4.0-go1.24.3-bookworm.0
+     refPaths:
+     - path: build/common.sh
+       match: __default_go_runner_version=
+diff --git a/staging/publishing/rules.yaml b/staging/publishing/rules.yaml
+index dba02d41439d4..0786beb25090e 100644
+--- a/staging/publishing/rules.yaml
++++ b/staging/publishing/rules.yaml
+@@ -2425,4 +2425,4 @@ rules:
+       - staging/src/k8s.io/externaljwt
+ recursive-delete-patterns:
+ - '*/.gitattributes'
+-default-go-version: 1.24.2
++default-go-version: 1.24.3
+diff --git a/test/utils/image/manifest.go b/test/utils/image/manifest.go
+index 2e646ff92131a..c982f810d4dcc 100644
+--- a/test/utils/image/manifest.go
++++ b/test/utils/image/manifest.go
+@@ -223,7 +223,7 @@ func initImageConfigs(list RegistryList) (map[ImageID]Config, map[ImageID]Config
+ 	configs[APIServer] = Config{list.PromoterE2eRegistry, ""sample-apiserver"", ""1.29.2""}
+ 	configs[AppArmorLoader] = Config{list.PromoterE2eRegistry, ""apparmor-loader"", ""1.4""}
+ 	configs[BusyBox] = Config{list.PromoterE2eRegistry, ""busybox"", ""1.37.0-1""}
+-	configs[DistrolessIptables] = Config{list.BuildImageRegistry, ""distroless-iptables"", ""v0.7.4""}
++	configs[DistrolessIptables] = Config{list.BuildImageRegistry, ""distroless-iptables"", ""v0.7.5""}
+ 	configs[Etcd] = Config{list.GcEtcdRegistry, ""etcd"", ""3.5.21-0""}
+ 	configs[Httpd] = Config{list.PromoterE2eRegistry, ""httpd"", ""2.4.38-4""}
+ 	configs[HttpdNew] = Config{list.PromoterE2eRegistry, ""httpd"", ""2.4.39-4""}
+",10,16,6,0,低危
+argoproj_argo-cd_f138b35889c5028c631a2c9e503480484e208f1d.diff,"diff --git a/.github/workflows/ci-build.yaml b/.github/workflows/ci-build.yaml
+index 1308d26d81dd3..526cdc7c9fedc 100644
+--- a/.github/workflows/ci-build.yaml
++++ b/.github/workflows/ci-build.yaml
+@@ -32,7 +32,7 @@ jobs:
+       docs: ${{ steps.filter.outputs.docs_any_changed }}
+     steps:
+       - uses: actions/checkout@8410ad0602e1e429cee44a835ae9f77f654a6694 # v4.0.0
+-      - uses: tj-actions/changed-files@bab30c2299617f6615ec02a68b9a40d10bd21366 # v45.0.5
++      - uses: tj-actions/changed-files@3981e4f74104e7a4c67a835e1e5dd5d9eb0f0a57 # v46.0.5
+         id: filter
+         with:
+           # Any file which is not under docs/, ui/ or is not a markdown file is counted as a backend file
+",1,2,1,0,低危
+argoproj_argo-cd_81c17cbcdd44d0f104bc3eaff83ae63d9a6eb5fc.diff,"diff --git a/.github/workflows/image-reuse.yaml b/.github/workflows/image-reuse.yaml
+index 197263997485f..ee516ec1418b7 100644
+--- a/.github/workflows/image-reuse.yaml
++++ b/.github/workflows/image-reuse.yaml
+@@ -142,7 +142,7 @@ jobs:
+ 
+       - name: Build and push container image
+         id: image
+-        uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355 #v6.10.0
++        uses: docker/build-push-action@1dc73863535b631f98b2378be8619f83b136f4a0 #v6.17.0
+         with:
+           context: .
+           platforms: ${{ inputs.platforms }}
+",1,2,1,0,低危
+argoproj_argo-cd_6dc031987f11577fdfc65771baddb60a9d3fb263.diff,"diff --git a/.github/workflows/image-reuse.yaml b/.github/workflows/image-reuse.yaml
+index ee516ec1418b7..19d865cdfd83c 100644
+--- a/.github/workflows/image-reuse.yaml
++++ b/.github/workflows/image-reuse.yaml
+@@ -75,7 +75,7 @@ jobs:
+       - name: Install cosign
+         uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # v3.8.2
+ 
+-      - uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3.2.0
++      - uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
+       - uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
+ 
+       - name: Setup tags for container image as a CSV type
+",1,2,1,0,低危
+argoproj_argo-cd_df9ea614242c3e403def86db966cc004a91ceda1.diff,"diff --git a/test/e2e/multiarch-container/Dockerfile b/test/e2e/multiarch-container/Dockerfile
+index 6d07fdd8d37d8..aef9795648d22 100644
+--- a/test/e2e/multiarch-container/Dockerfile
++++ b/test/e2e/multiarch-container/Dockerfile
+@@ -1,2 +1,2 @@
+-FROM docker.io/library/busybox@sha256:37f7b378a29ceb4c551b1b5582e27747b855bbfaa73fa11914fe0df028dc581f
++FROM docker.io/library/busybox@sha256:3308bdfbc80b8e960219232df14f233a3c56979f392f56b0d9a8bc290c7dfd76
+ CMD exec sh -c ""trap : TERM INT; echo 'Hi' && tail -f /dev/null""
+",1,2,1,0,低危
+kubernetes_kubernetes_0405568a53ae811823a3526fae830a4913b355f3.diff,"diff --git a/go.mod b/go.mod
+index 8ea194abc4c36..501f77a56ccc3 100644
+--- a/go.mod
++++ b/go.mod
+@@ -115,7 +115,7 @@ require (
+ 	k8s.io/mount-utils v0.0.0
+ 	k8s.io/pod-security-admission v0.0.0
+ 	k8s.io/sample-apiserver v0.0.0
+-	k8s.io/system-validators v1.10.0
++	k8s.io/system-validators v1.10.1
+ 	k8s.io/utils v0.0.0-20250502105355-0f33e8f1c979
+ 	sigs.k8s.io/knftables v0.0.17
+ 	sigs.k8s.io/randfill v1.0.0
+diff --git a/go.sum b/go.sum
+index 6ea1ae8367c44..0a4a8963d2a4f 100644
+--- a/go.sum
++++ b/go.sum
+@@ -479,8 +479,8 @@ k8s.io/klog/v2 v2.130.1 h1:n9Xl7H1Xvksem4KFG4PYbdQCQxqc/tTUyrgXaOhHSzk=
+ k8s.io/klog/v2 v2.130.1/go.mod h1:3Jpz1GvMt720eyJH1ckRHK1EDfpxISzJ7I9OYgaDtPE=
+ k8s.io/kube-openapi v0.0.0-20250318190949-c8a335a9a2ff h1:/usPimJzUKKu+m+TE36gUyGcf03XZEP0ZIKgKj35LS4=
+ k8s.io/kube-openapi v0.0.0-20250318190949-c8a335a9a2ff/go.mod h1:5jIi+8yX4RIb8wk3XwBo5Pq2ccx4FP10ohkbSKCZoK8=
+-k8s.io/system-validators v1.10.0 h1:JaevkALQp54cKsm1/KzuwXVWCTqL1Ds0zysbFjj/J8I=
+-k8s.io/system-validators v1.10.0/go.mod h1:awfSS706v9R12VC7u7K89FKfqVy44G+E0L1A0FX9Wmw=
++k8s.io/system-validators v1.10.1 h1:bIO3YRgxJkh/W3ghcd5ViXNPGmjwQKlHk/ySPdw6K00=
++k8s.io/system-validators v1.10.1/go.mod h1:awfSS706v9R12VC7u7K89FKfqVy44G+E0L1A0FX9Wmw=
+ k8s.io/utils v0.0.0-20250502105355-0f33e8f1c979 h1:jgJW5IePPXLGB8e/1wvd0Ich9QE97RvvF3a8J3fP/Lg=
+ k8s.io/utils v0.0.0-20250502105355-0f33e8f1c979/go.mod h1:OLgZIPagt7ERELqWJFomSt595RzquPNLL48iOWgYOg0=
+ sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.31.2 h1:jpcvIRr3GLoUoEKRkHKSmGjxb6lWwrBlJsXc+eUYQHM=
+diff --git a/vendor/k8s.io/system-validators/validators/kernel_validator.go b/vendor/k8s.io/system-validators/validators/kernel_validator.go
+index b4d88a1d0b4b2..ffad14994a61f 100644
+--- a/vendor/k8s.io/system-validators/validators/kernel_validator.go
++++ b/vendor/k8s.io/system-validators/validators/kernel_validator.go
+@@ -65,9 +65,9 @@ func (k *KernelValidator) Validate(spec SysSpec) ([]error, []error) {
+ 		return nil, []error{fmt.Errorf(""failed to get kernel release: %w"", err)}
+ 	}
+ 	k.kernelRelease = release
+-	var errs []error
+-	if err = k.validateKernelVersion(spec.KernelSpec); err != nil {
+-		errs = append(errs, err)
++	var errs, warns []error
++	if warn := k.validateKernelVersion(spec.KernelSpec); warn != nil {
++		warns = append(warns, warn)
+ 	}
+ 	// only validate kernel config when necessary (currently no kernel config for windows)
+ 	if len(spec.KernelSpec.Required) > 0 || len(spec.KernelSpec.Forbidden) > 0 || len(spec.KernelSpec.Optional) > 0 {
+@@ -75,7 +75,7 @@ func (k *KernelValidator) Validate(spec SysSpec) ([]error, []error) {
+ 			errs = append(errs, err)
+ 		}
+ 	}
+-	return nil, errs
++	return warns, errs
+ }
+ 
+ // validateKernelVersion validates the kernel version.
+diff --git a/vendor/modules.txt b/vendor/modules.txt
+index b4ff76350f588..b8e753de8a734 100644
+--- a/vendor/modules.txt
++++ b/vendor/modules.txt
+@@ -1152,7 +1152,7 @@ k8s.io/kube-openapi/pkg/validation/validate
+ ## explicit; go 1.24.0
+ # k8s.io/sample-apiserver v0.0.0 => ./staging/src/k8s.io/sample-apiserver
+ ## explicit; go 1.24.0
+-# k8s.io/system-validators v1.10.0
++# k8s.io/system-validators v1.10.1
+ ## explicit; go 1.16
+ k8s.io/system-validators/validators
+ # k8s.io/utils v0.0.0-20250502105355-0f33e8f1c979
+",8,12,4,0,低危
+argoproj_argo-cd_2ed3ebe8076a6133b0695251a22e3de7eee87318.diff,"diff --git a/.github/workflows/ci-build.yaml b/.github/workflows/ci-build.yaml
+index 65d0fbfc8a9ae..1308d26d81dd3 100644
+--- a/.github/workflows/ci-build.yaml
++++ b/.github/workflows/ci-build.yaml
+@@ -82,7 +82,7 @@ jobs:
+         with:
+           go-version: ${{ env.GOLANG_VERSION }}
+       - name: Restore go build cache
+-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
++        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+         with:
+           path: ~/.cache/go-build
+           key: ${{ runner.os }}-go-build-v1-${{ github.run_id }}
+@@ -153,7 +153,7 @@ jobs:
+         run: |
+           echo ""/usr/local/bin"" >> $GITHUB_PATH
+       - name: Restore go build cache
+-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
++        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+         with:
+           path: ~/.cache/go-build
+           key: ${{ runner.os }}-go-build-v1-${{ github.run_id }}
+@@ -217,7 +217,7 @@ jobs:
+         run: |
+           echo ""/usr/local/bin"" >> $GITHUB_PATH
+       - name: Restore go build cache
+-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
++        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+         with:
+           path: ~/.cache/go-build
+           key: ${{ runner.os }}-go-build-v1-${{ github.run_id }}
+@@ -311,7 +311,7 @@ jobs:
+           node-version: '22.9.0'
+       - name: Restore node dependency cache
+         id: cache-dependencies
+-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
++        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+         with:
+           path: ui/node_modules
+           key: ${{ runner.os }}-node-dep-v2-${{ hashFiles('**/yarn.lock') }}
+@@ -360,7 +360,7 @@ jobs:
+           fetch-depth: 0
+       - name: Restore node dependency cache
+         id: cache-dependencies
+-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
++        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+         with:
+           path: ui/node_modules
+           key: ${{ runner.os }}-node-dep-v2-${{ hashFiles('**/yarn.lock') }}
+@@ -468,7 +468,7 @@ jobs:
+           sudo chmod go-r $HOME/.kube/config
+           kubectl version
+       - name: Restore go build cache
+-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
++        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+         with:
+           path: ~/.cache/go-build
+           key: ${{ runner.os }}-go-build-v1-${{ github.run_id }}
+",6,7,1,0,低危
+kubernetes_kubernetes_488c94735cebe16fd04e017310bb8c3c38086879.diff,"diff --git a/.go-version b/.go-version
+index e4a973f913f4f..ae96cc7310aaa 100644
+--- a/.go-version
++++ b/.go-version
+@@ -1 +1 @@
+-1.24.2
++1.24.3
+diff --git a/build/build-image/cross/VERSION b/build/build-image/cross/VERSION
+index 83d855c8a702e..aa724b826cb60 100644
+--- a/build/build-image/cross/VERSION
++++ b/build/build-image/cross/VERSION
+@@ -1 +1 @@
+-v1.33.0-go1.24.2-bullseye.0
++v1.34.0-go1.24.3-bullseye.0
+diff --git a/build/common.sh b/build/common.sh
+index 65e93430df0a1..10d5289330e2a 100755
+--- a/build/common.sh
++++ b/build/common.sh
+@@ -97,8 +97,8 @@ readonly KUBE_RSYNC_PORT=""${KUBE_RSYNC_PORT:-}""
+ readonly KUBE_CONTAINER_RSYNC_PORT=8730
+ 
+ # These are the default versions (image tags) for their respective base images.
+-readonly __default_distroless_iptables_version=v0.7.4
+-readonly __default_go_runner_version=v2.4.0-go1.24.2-bookworm.0
++readonly __default_distroless_iptables_version=v0.7.5
++readonly __default_go_runner_version=v2.4.0-go1.24.3-bookworm.0
+ readonly __default_setcap_version=bookworm-v1.0.4
+ 
+ # These are the base images for the Docker-wrapped binaries.
+diff --git a/build/dependencies.yaml b/build/dependencies.yaml
+index dc966291d2bfa..9af7e3300cdd2 100644
+--- a/build/dependencies.yaml
++++ b/build/dependencies.yaml
+@@ -117,7 +117,7 @@ dependencies:
+   # Golang
+   # TODO: this should really be eliminated and controlled by .go-version
+   - name: ""golang: upstream version""
+-    version: 1.24.2
++    version: 1.24.3
+     refPaths:
+     - path: .go-version
+     - path: build/build-image/cross/VERSION
+@@ -138,7 +138,7 @@ dependencies:
+       match: minimum_go_version=go([0-9]+\.[0-9]+)
+ 
+   - name: ""registry.k8s.io/kube-cross: dependents""
+-    version: v1.33.0-go1.24.2-bullseye.0
++    version: v1.34.0-go1.24.3-bullseye.0
+     refPaths:
+     - path: build/build-image/cross/VERSION
+ 
+@@ -176,7 +176,7 @@ dependencies:
+       match: registry\.k8s\.io\/build-image\/debian-base:[a-zA-Z]+\-v((([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)
+ 
+   - name: ""registry.k8s.io/distroless-iptables: dependents""
+-    version: v0.7.4
++    version: v0.7.5
+     refPaths:
+     - path: build/common.sh
+       match: __default_distroless_iptables_version=
+@@ -184,7 +184,7 @@ dependencies:
+       match: configs\[DistrolessIptables\] = Config{list\.BuildImageRegistry, ""distroless-iptables"", ""v([0-9]+)\.([0-9]+)\.([0-9]+)""}
+ 
+   - name: ""registry.k8s.io/go-runner: dependents""
+-    version: v2.4.0-go1.24.2-bookworm.0
++    version: v2.4.0-go1.24.3-bookworm.0
+     refPaths:
+     - path: build/common.sh
+       match: __default_go_runner_version=
+diff --git a/staging/publishing/rules.yaml b/staging/publishing/rules.yaml
+index dba02d41439d4..0786beb25090e 100644
+--- a/staging/publishing/rules.yaml
++++ b/staging/publishing/rules.yaml
+@@ -2425,4 +2425,4 @@ rules:
+       - staging/src/k8s.io/externaljwt
+ recursive-delete-patterns:
+ - '*/.gitattributes'
+-default-go-version: 1.24.2
++default-go-version: 1.24.3
+diff --git a/test/utils/image/manifest.go b/test/utils/image/manifest.go
+index 2e646ff92131a..c982f810d4dcc 100644
+--- a/test/utils/image/manifest.go
++++ b/test/utils/image/manifest.go
+@@ -223,7 +223,7 @@ func initImageConfigs(list RegistryList) (map[ImageID]Config, map[ImageID]Config
+ 	configs[APIServer] = Config{list.PromoterE2eRegistry, ""sample-apiserver"", ""1.29.2""}
+ 	configs[AppArmorLoader] = Config{list.PromoterE2eRegistry, ""apparmor-loader"", ""1.4""}
+ 	configs[BusyBox] = Config{list.PromoterE2eRegistry, ""busybox"", ""1.37.0-1""}
+-	configs[DistrolessIptables] = Config{list.BuildImageRegistry, ""distroless-iptables"", ""v0.7.4""}
++	configs[DistrolessIptables] = Config{list.BuildImageRegistry, ""distroless-iptables"", ""v0.7.5""}
+ 	configs[Etcd] = Config{list.GcEtcdRegistry, ""etcd"", ""3.5.21-0""}
+ 	configs[Httpd] = Config{list.PromoterE2eRegistry, ""httpd"", ""2.4.38-4""}
+ 	configs[HttpdNew] = Config{list.PromoterE2eRegistry, ""httpd"", ""2.4.39-4""}
+",10,16,6,0,低危
+kubernetes_kubernetes_7f74d2b4071d52a8a185f13781c7cc5c07b8b42f.diff,"diff --git a/cmd/kube-apiserver/app/server.go b/cmd/kube-apiserver/app/server.go
+index 042ddc9714a09..61ef5e90a6e62 100644
+--- a/cmd/kube-apiserver/app/server.go
++++ b/cmd/kube-apiserver/app/server.go
+@@ -110,6 +110,8 @@ cluster's shared state through which all other components interact.`,
+ 			}
+ 			// add feature enablement metrics
+ 			featureGate.(featuregate.MutableFeatureGate).AddMetrics()
++			// add component version metrics
++			s.GenericServerRunOptions.ComponentGlobalsRegistry.AddMetrics()
+ 			return Run(ctx, completedOptions)
+ 		},
+ 		Args: func(cmd *cobra.Command, args []string) error {
+diff --git a/cmd/kube-controller-manager/app/controllermanager.go b/cmd/kube-controller-manager/app/controllermanager.go
+index fea90182b2605..ce6b43fee0d41 100644
+--- a/cmd/kube-controller-manager/app/controllermanager.go
++++ b/cmd/kube-controller-manager/app/controllermanager.go
+@@ -144,6 +144,8 @@ controller, and serviceaccounts controller.`,
+ 			// add feature enablement metrics
+ 			fg := s.ComponentGlobalsRegistry.FeatureGateFor(basecompatibility.DefaultKubeComponent)
+ 			fg.(featuregate.MutableFeatureGate).AddMetrics()
++			// add component version metrics
++			s.ComponentGlobalsRegistry.AddMetrics()
+ 			return Run(ctx, c.Complete())
+ 		},
+ 		Args: func(cmd *cobra.Command, args []string) error {
+diff --git a/cmd/kube-scheduler/app/server.go b/cmd/kube-scheduler/app/server.go
+index c9ab27027cf96..bf5a3077552d0 100644
+--- a/cmd/kube-scheduler/app/server.go
++++ b/cmd/kube-scheduler/app/server.go
+@@ -160,6 +160,9 @@ func runCommand(cmd *cobra.Command, opts *options.Options, registryOptions ...Op
+ 	}
+ 	// add feature enablement metrics
+ 	fg.(featuregate.MutableFeatureGate).AddMetrics()
++	// add component version metrics
++	opts.ComponentGlobalsRegistry.AddMetrics()
++
+ 	return Run(ctx, cc, sched)
+ }
+ 
+diff --git a/staging/src/k8s.io/component-base/compatibility/registry.go b/staging/src/k8s.io/component-base/compatibility/registry.go
+index cdff77b07ecce..ceb52f2142fa8 100644
+--- a/staging/src/k8s.io/component-base/compatibility/registry.go
++++ b/staging/src/k8s.io/component-base/compatibility/registry.go
+@@ -17,6 +17,7 @@ limitations under the License.
+ package compatibility
+ 
+ import (
++	""context""
+ 	""fmt""
+ 	""sort""
+ 	""strings""
+@@ -27,6 +28,7 @@ import (
+ 	""k8s.io/apimachinery/pkg/util/version""
+ 	cliflag ""k8s.io/component-base/cli/flag""
+ 	""k8s.io/component-base/featuregate""
++	""k8s.io/component-base/metrics/prometheus/compatversion""
+ 	""k8s.io/klog/v2""
+ )
+ 
+@@ -89,6 +91,8 @@ type ComponentGlobalsRegistry interface {
+ 	// and cannot be set from cmd flags anymore.
+ 	// For a given component, its emulation version can only depend on one other component, no multiple dependency is allowed.
+ 	SetEmulationVersionMapping(fromComponent, toComponent string, f VersionMapping) error
++	// AddMetrics adds metrics for the emulation version of a component.
++	AddMetrics()
+ }
+ 
+ type componentGlobalsRegistry struct {
+@@ -117,6 +121,16 @@ func NewComponentGlobalsRegistry() *componentGlobalsRegistry {
+ 	}
+ }
+ 
++func (r *componentGlobalsRegistry) AddMetrics() {
++	for name, globals := range r.componentGlobals {
++		effectiveVersion := globals.effectiveVersion
++		if effectiveVersion == nil {
++			continue
++		}
++		compatversion.RecordCompatVersionInfo(context.Background(), name, effectiveVersion.BinaryVersion().String(), effectiveVersion.EmulationVersion().String(), effectiveVersion.MinCompatibilityVersion().String())
++	}
++}
++
+ func (r *componentGlobalsRegistry) Reset() {
+ 	r.mutex.Lock()
+ 	defer r.mutex.Unlock()
+diff --git a/staging/src/k8s.io/component-base/compatibility/registry_test.go b/staging/src/k8s.io/component-base/compatibility/registry_test.go
+index 90c7bd8aaac29..b95c6e4c745b1 100644
+--- a/staging/src/k8s.io/component-base/compatibility/registry_test.go
++++ b/staging/src/k8s.io/component-base/compatibility/registry_test.go
+@@ -26,6 +26,8 @@ import (
+ 	utilruntime ""k8s.io/apimachinery/pkg/util/runtime""
+ 	""k8s.io/apimachinery/pkg/util/version""
+ 	""k8s.io/component-base/featuregate""
++	""k8s.io/component-base/metrics/legacyregistry""
++	""k8s.io/component-base/metrics/testutil""
+ )
+ 
+ const (
+@@ -444,6 +446,30 @@ func TestVersionMappingWithCyclicDependency(t *testing.T) {
+ 	}
+ }
+ 
++func TestAddMetrics(t *testing.T) {
++	r := NewComponentGlobalsRegistry()
++	ver1 := NewEffectiveVersionFromString(""0.58"", """", """")
++	ver2 := NewEffectiveVersionFromString(""1.2"", ""1.1"", """")
++
++	if err := r.Register(""comp1"", ver1, nil); err != nil {
++		t.Fatalf(""expected no error to register new component, but got err: %v"", err)
++	}
++	if err := r.Register(""comp2"", ver2, nil); err != nil {
++		t.Fatalf(""expected no error to register new component, but got err: %v"", err)
++	}
++	r.AddMetrics()
++
++	expectedOutput := `# HELP version_info [ALPHA] Provides the compatibility version info of the component. The component label is the name of the component, usually kube, but is relevant for aggregated-apiservers.
++    # TYPE version_info gauge
++    version_info{binary=""0.58"",component",138,7,7,1,高危
+kubernetes_kubernetes_35c3bdc2e3b627cb5db1b19ee0cdcc4439c384fd.diff,"diff --git a/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/doc.go b/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/doc.go
+index 4541ad0143de1..973dee227065b 100644
+--- a/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/doc.go
++++ b/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/doc.go
+@@ -57,8 +57,9 @@ limitations under the License.
+ // the node the DaemonSet runs on supports that. Trying
+ // to do a rolling update with a kubelet which does not support it yet
+ // will fail because shutting down the old Pod unregisters the driver
+-// even though the new Pod is running. See https://github.com/kubernetes/kubernetes/pull/129832
+-// for details (TODO: link to doc after merging instead).
++// even though the new Pod is running. See
++// https://github.com/kubernetes/kubernetes/blob/v1.33.0/pkg/kubelet/pluginmanager/pluginwatcher/README.md#seamless-upgrade
++// for details.
+ //
+ // A DRA driver can either require 1.33 as minimal Kubernetes version or
+ // provide two variants of its DaemonSet deployment. In the variant with
+diff --git a/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/draplugin.go b/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/draplugin.go
+index bf6c984b67c23..97ec6842105f2 100644
+--- a/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/draplugin.go
++++ b/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/draplugin.go
+@@ -100,6 +100,12 @@ type DRAPlugin interface {
+ 	// It is the responsibility of the DRA driver to cache whatever additional
+ 	// information it might need about prepared resources.
+ 	//
++	// The DRA driver cannot assume that the matching PrepareResourceClaims
++	// call was handled by the same process:
++	// - The driver might have been restarted in the meantime.
++	// - [RollingUpdate], if enabled, can lead to PrepareResourceClaims being
++	//   called in one driver instance and UnprepareResourceClaims in another.
++	//
+ 	// This call must be idempotent because the kubelet might have to ask
+ 	// for un-preparation multiple times, for example if it gets restarted.
+ 	// Therefore it is not an error if this gets called for a ResourceClaim
+@@ -626,11 +632,6 @@ func (d *Helper) PublishResources(_ context.Context, resources resourceslice.Dri
+ 		// our background context, not the one passed into this
+ 		// function, and thus is connected to the lifecycle of the
+ 		// plugin.
+-		//
+-		// TODO: don't delete ResourceSlices, not even on a clean shutdown.
+-		// We either support rolling updates and want to hand over seamlessly
+-		// or don't and then perhaps restart the pod quickly enough that
+-		// the kubelet hasn't deleted ResourceSlices yet.
+ 		controllerCtx := d.backgroundCtx
+ 		controllerLogger := klog.FromContext(controllerCtx)
+ 		controllerLogger = klog.LoggerWithName(controllerLogger, ""ResourceSlice controller"")
+",9,9,2,1,高危

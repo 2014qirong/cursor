@@ -1,0 +1,10 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index a53bd55511..a6004e0352 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,4 +1,4 @@
+-## 1.38.3 (Unreleased)
++## 1.38.3 (July 13, 2020)
+ 
+ ENHANCEMENTS:
+ 

@@ -1,0 +1,22 @@
+diff --git a/.changelog/42726.txt b/.changelog/42726.txt
+new file mode 100644
+index 000000000000..e2cb51068835
+--- /dev/null
++++ b/.changelog/42726.txt
+@@ -0,0 +1,3 @@
++```release-note:bug
++resource/aws_elasticache_replication_group: Fix crash during read operations where configuration endpoint and node groups are nil and empty, respectively
++```
+diff --git a/internal/service/elasticache/replication_group.go b/internal/service/elasticache/replication_group.go
+index 9a2e7e328cd6..a2ef372f2220 100644
+--- a/internal/service/elasticache/replication_group.go
++++ b/internal/service/elasticache/replication_group.go
+@@ -715,7 +715,7 @@ func resourceReplicationGroupRead(ctx context.Context, d *schema.ResourceData, m
+ 	if rgp.ConfigurationEndpoint != nil {
+ 		d.Set(names.AttrPort, rgp.ConfigurationEndpoint.Port)
+ 		d.Set("configuration_endpoint_address", rgp.ConfigurationEndpoint.Address)
+-	} else {
++	} else if len(rgp.NodeGroups) > 0 {
+ 		log.Printf("[DEBUG] ElastiCache Replication Group (%s) Configuration Endpoint is nil", d.Id())
+ 
+ 		if rgp.NodeGroups[0].PrimaryEndpoint != nil {

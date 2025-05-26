@@ -1,0 +1,45 @@
+diff --git a/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/doc.go b/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/doc.go
+index 4541ad0143de1..973dee227065b 100644
+--- a/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/doc.go
++++ b/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/doc.go
+@@ -57,8 +57,9 @@ limitations under the License.
+ // the node the DaemonSet runs on supports that. Trying
+ // to do a rolling update with a kubelet which does not support it yet
+ // will fail because shutting down the old Pod unregisters the driver
+-// even though the new Pod is running. See https://github.com/kubernetes/kubernetes/pull/129832
+-// for details (TODO: link to doc after merging instead).
++// even though the new Pod is running. See
++// https://github.com/kubernetes/kubernetes/blob/v1.33.0/pkg/kubelet/pluginmanager/pluginwatcher/README.md#seamless-upgrade
++// for details.
+ //
+ // A DRA driver can either require 1.33 as minimal Kubernetes version or
+ // provide two variants of its DaemonSet deployment. In the variant with
+diff --git a/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/draplugin.go b/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/draplugin.go
+index bf6c984b67c23..97ec6842105f2 100644
+--- a/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/draplugin.go
++++ b/staging/src/k8s.io/dynamic-resource-allocation/kubeletplugin/draplugin.go
+@@ -100,6 +100,12 @@ type DRAPlugin interface {
+ 	// It is the responsibility of the DRA driver to cache whatever additional
+ 	// information it might need about prepared resources.
+ 	//
++	// The DRA driver cannot assume that the matching PrepareResourceClaims
++	// call was handled by the same process:
++	// - The driver might have been restarted in the meantime.
++	// - [RollingUpdate], if enabled, can lead to PrepareResourceClaims being
++	//   called in one driver instance and UnprepareResourceClaims in another.
++	//
+ 	// This call must be idempotent because the kubelet might have to ask
+ 	// for un-preparation multiple times, for example if it gets restarted.
+ 	// Therefore it is not an error if this gets called for a ResourceClaim
+@@ -626,11 +632,6 @@ func (d *Helper) PublishResources(_ context.Context, resources resourceslice.Dri
+ 		// our background context, not the one passed into this
+ 		// function, and thus is connected to the lifecycle of the
+ 		// plugin.
+-		//
+-		// TODO: don't delete ResourceSlices, not even on a clean shutdown.
+-		// We either support rolling updates and want to hand over seamlessly
+-		// or don't and then perhaps restart the pod quickly enough that
+-		// the kubelet hasn't deleted ResourceSlices yet.
+ 		controllerCtx := d.backgroundCtx
+ 		controllerLogger := klog.FromContext(controllerCtx)
+ 		controllerLogger = klog.LoggerWithName(controllerLogger, "ResourceSlice controller")

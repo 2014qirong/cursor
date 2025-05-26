@@ -1,0 +1,67 @@
+diff --git a/go.mod b/go.mod
+index 8ea194abc4c36..501f77a56ccc3 100644
+--- a/go.mod
++++ b/go.mod
+@@ -115,7 +115,7 @@ require (
+ 	k8s.io/mount-utils v0.0.0
+ 	k8s.io/pod-security-admission v0.0.0
+ 	k8s.io/sample-apiserver v0.0.0
+-	k8s.io/system-validators v1.10.0
++	k8s.io/system-validators v1.10.1
+ 	k8s.io/utils v0.0.0-20250502105355-0f33e8f1c979
+ 	sigs.k8s.io/knftables v0.0.17
+ 	sigs.k8s.io/randfill v1.0.0
+diff --git a/go.sum b/go.sum
+index 6ea1ae8367c44..0a4a8963d2a4f 100644
+--- a/go.sum
++++ b/go.sum
+@@ -479,8 +479,8 @@ k8s.io/klog/v2 v2.130.1 h1:n9Xl7H1Xvksem4KFG4PYbdQCQxqc/tTUyrgXaOhHSzk=
+ k8s.io/klog/v2 v2.130.1/go.mod h1:3Jpz1GvMt720eyJH1ckRHK1EDfpxISzJ7I9OYgaDtPE=
+ k8s.io/kube-openapi v0.0.0-20250318190949-c8a335a9a2ff h1:/usPimJzUKKu+m+TE36gUyGcf03XZEP0ZIKgKj35LS4=
+ k8s.io/kube-openapi v0.0.0-20250318190949-c8a335a9a2ff/go.mod h1:5jIi+8yX4RIb8wk3XwBo5Pq2ccx4FP10ohkbSKCZoK8=
+-k8s.io/system-validators v1.10.0 h1:JaevkALQp54cKsm1/KzuwXVWCTqL1Ds0zysbFjj/J8I=
+-k8s.io/system-validators v1.10.0/go.mod h1:awfSS706v9R12VC7u7K89FKfqVy44G+E0L1A0FX9Wmw=
++k8s.io/system-validators v1.10.1 h1:bIO3YRgxJkh/W3ghcd5ViXNPGmjwQKlHk/ySPdw6K00=
++k8s.io/system-validators v1.10.1/go.mod h1:awfSS706v9R12VC7u7K89FKfqVy44G+E0L1A0FX9Wmw=
+ k8s.io/utils v0.0.0-20250502105355-0f33e8f1c979 h1:jgJW5IePPXLGB8e/1wvd0Ich9QE97RvvF3a8J3fP/Lg=
+ k8s.io/utils v0.0.0-20250502105355-0f33e8f1c979/go.mod h1:OLgZIPagt7ERELqWJFomSt595RzquPNLL48iOWgYOg0=
+ sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.31.2 h1:jpcvIRr3GLoUoEKRkHKSmGjxb6lWwrBlJsXc+eUYQHM=
+diff --git a/vendor/k8s.io/system-validators/validators/kernel_validator.go b/vendor/k8s.io/system-validators/validators/kernel_validator.go
+index b4d88a1d0b4b2..ffad14994a61f 100644
+--- a/vendor/k8s.io/system-validators/validators/kernel_validator.go
++++ b/vendor/k8s.io/system-validators/validators/kernel_validator.go
+@@ -65,9 +65,9 @@ func (k *KernelValidator) Validate(spec SysSpec) ([]error, []error) {
+ 		return nil, []error{fmt.Errorf("failed to get kernel release: %w", err)}
+ 	}
+ 	k.kernelRelease = release
+-	var errs []error
+-	if err = k.validateKernelVersion(spec.KernelSpec); err != nil {
+-		errs = append(errs, err)
++	var errs, warns []error
++	if warn := k.validateKernelVersion(spec.KernelSpec); warn != nil {
++		warns = append(warns, warn)
+ 	}
+ 	// only validate kernel config when necessary (currently no kernel config for windows)
+ 	if len(spec.KernelSpec.Required) > 0 || len(spec.KernelSpec.Forbidden) > 0 || len(spec.KernelSpec.Optional) > 0 {
+@@ -75,7 +75,7 @@ func (k *KernelValidator) Validate(spec SysSpec) ([]error, []error) {
+ 			errs = append(errs, err)
+ 		}
+ 	}
+-	return nil, errs
++	return warns, errs
+ }
+ 
+ // validateKernelVersion validates the kernel version.
+diff --git a/vendor/modules.txt b/vendor/modules.txt
+index b4ff76350f588..b8e753de8a734 100644
+--- a/vendor/modules.txt
++++ b/vendor/modules.txt
+@@ -1152,7 +1152,7 @@ k8s.io/kube-openapi/pkg/validation/validate
+ ## explicit; go 1.24.0
+ # k8s.io/sample-apiserver v0.0.0 => ./staging/src/k8s.io/sample-apiserver
+ ## explicit; go 1.24.0
+-# k8s.io/system-validators v1.10.0
++# k8s.io/system-validators v1.10.1
+ ## explicit; go 1.16
+ k8s.io/system-validators/validators
+ # k8s.io/utils v0.0.0-20250502105355-0f33e8f1c979

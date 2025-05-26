@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+pymysql
+scikit-learn
+transformers
+lime
+requests
+python-dotenv
+httpx
+celery
+pika
+opa-python-client

@@ -1,0 +1,64 @@
+# 后端设计文档
+
+## 一、整体架构与技术选型
+- 语言：Python
+- Web框架：FastAPI（推荐）
+- 规则引擎：OPA（Open Policy Agent）
+- 分类模型：Scikit-learn
+- NLP模型：Hugging Face Transformers（BERT）
+- 模型解释：LIME
+- 数据库：MySQL
+- 消息队列：RabbitMQ
+- 通知集成：钉钉开放平台API
+- 可视化数据推送：Grafana HTTP API
+
+## 二、主要服务与模块
+1. **变更捕获服务**
+   - 监听GitHub Webhook，拉取并解析变更（git diff）
+   - 存储变更记录
+2. **AI风险分析服务**
+   - Scikit-learn分类模型：结构化特征风险分类
+   - Transformers（BERT）NLP模型：文本语义风险识别
+   - 结果合并与标准化输出
+3. **模型解释服务**
+   - LIME对AI模型输出进行可解释性分析
+4. **规则决策服务**
+   - OPA进行策略决策，输出允许/阻断/警告
+5. **人工审核与通知服务**
+   - 审核流程管理，钉钉消息推送
+6. **可视化数据服务**
+   - 向Grafana推送分析、决策、审核等数据
+7. **用户与权限管理服务**
+   - 用户认证、角色权限、操作日志
+
+## 三、关键数据结构与数据库设计
+- 变更记录表：id, repo, commit_id, diff, 提交人, 时间, 风险等级, 审核状态等
+- 用户表：id, 用户名, 密码hash, 角色, 创建时间等
+- 审核记录表：id, 变更id, 审核人, 结果, 备注, 时间
+- 通知表：id, 类型, 内容, 接收人, 状态, 时间
+
+## 四、API接口设计
+- RESTful API
+- 主要接口示例：
+  - `POST /api/github/webhook`：接收GitHub变更Webhook
+  - `GET /api/changes`、`GET /api/changes/{id}`：变更及分析详情
+  - `POST /api/changes/{id}/review`：提交审核结果
+  - `GET /api/visualization`：Grafana可视化数据接口
+  - `POST /api/notify`：发送钉钉通知
+  - `POST /api/login`、`GET /api/user`：用户认证与信息
+- 数据格式：JSON
+- 安全：Token认证、权限校验、接口限流
+
+## 五、安全与权限控制
+- JWT Token或Session认证
+- 细粒度角色权限控制（普通用户/审核员/管理员）
+- 审计日志、异常告警
+
+## 六、部署与运维建议
+- 容器化部署（Docker）
+- 日志采集与监控（Prometheus/Grafana）
+- 自动化CI/CD（GitHub Actions等）
+- 定期模型与策略更新
+
+---
+如需进一步细化接口文档或数据库ER图，可补充说明。 

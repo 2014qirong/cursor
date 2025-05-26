@@ -1,0 +1,11 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 43730a327269..223486a98398 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,4 @@
+-## 6.1.0 (Unreleased)
+-## 5.99.0 (May 22, 2025)
++## 5.99.0 (Unreleased)
+ 
+ FEATURES:
+ 

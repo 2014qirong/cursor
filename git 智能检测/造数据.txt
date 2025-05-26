@@ -1,0 +1,91 @@
+# 自构造diff数据并进行标准化、训练处理的流程
+
+## 1. 构造典型diff样本
+
+手动编写典型高危/低危diff片段，内容覆盖关心的高危场景（如域名变更、ingress调整、云资源变更等）。
+
+### 示例1：域名变更diff
+```diff
+diff --git a/ingress.yaml b/ingress.yaml
+--- a/ingress.yaml
++++ b/ingress.yaml
+@@ -5,7 +5,7 @@
+-  host: old.domain.com
++  host: new.domain.com
+```
+
+### 示例2：ingress调整diff
+```diff
+diff --git a/ingress.yaml b/ingress.yaml
+--- a/ingress.yaml
++++ b/ingress.yaml
+@@ -10,7 +10,8 @@
+-    path: /api/v1
++    path: /api/v2
+```
+
+### 示例3：云资源高危变更diff
+```diff
+diff --git a/main.tf b/main.tf
+--- a/main.tf
++++ b/main.tf
+@@ -20,7 +20,8 @@
+-resource "alicloud_vpc" "main" {
+-  cidr_block = "192.168.0.0/16"
++resource "alicloud_vpc" "main" {
++  cidr_block = "10.0.0.0/8"
+```
+
+### 示例4：低危普通变更diff
+```diff
+diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -1,3 +1,4 @@
++# update doc
+```
+
+---
+
+## 2. 保存为diff文件
+
+将上述内容分别保存为 `.diff` 文件，放入 `commit_diffs/` 或 `terraform_commit_diffs/` 目录。
+如：
+- `manual_domain_change.diff`
+- `manual_ingress_update.diff`
+- `manual_vpc_change.diff`
+- `manual_doc_update.diff`
+
+---
+
+## 3. 特征提取与自动标注
+
+运行已有的特征提取与标注脚本（如 `parse_and_label_diff.py` 或 `parse_and_label_terraform_diff.py`），自动生成带特征和标签的CSV训练集。
+
+```bash
+python3 project-backend/app/ml/parse_and_label_diff.py
+# 或
+python3 project-backend/app/ml/parse_and_label_terraform_diff.py
+```
+
+---
+
+## 4. 检查输出训练集
+
+输出的CSV文件（如 `commit_diffs_labeled.csv` 或 `terraform_commit_diffs_labeled.csv`）将包含：
+- diff文件名
+- diff内容
+- 特征（如新增/删除行数、文件数、是否包含高危关键词等）
+- 自动标注的高危/低危标签
+
+---
+
+## 5. 用于模型训练
+
+可直接用该CSV作为训练集，进行特征工程、模型训练、验证等AI流程。
+
+---
+
+## 备注
+- 可根据实际业务场景不断补充、丰富自构造diff样本，提升模型对关键场景的识别能力。
+- 也可结合真实抓取数据与自构造数据，合成更丰富的训练集。 
