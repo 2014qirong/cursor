@@ -37,47 +37,83 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        # 显示安装的包版本
+        pip freeze
+        
+    - name: Check directory structure
+      run: |
+        echo "当前工作目录:"
+        pwd
+        echo "目录结构:"
+        ls -R
         
     - name: Get changed files
       id: changed-files
       run: |
+        echo "获取变更文件..."
         git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changed_files.txt
+        echo "变更文件列表:"
+        cat changed_files.txt
+        
+    - name: Setup services
+      run: |
+        echo "设置 InfluxDB..."
+        # 等待 InfluxDB 启动
+        timeout 30 bash -c 'until curl -s http://localhost:8086/ping; do sleep 1; done'
+        
+        echo "启动 AI 推理服务..."
+        cd ai_infer_service
+        # 检查目录内容
+        ls -la
+        python -m uvicorn main:app --host 0.0.0.0 --port 8001 &
+        
+        echo "启动 LIME 解释服务..."
+        cd ../lime_explain_service
+        # 检查目录内容
+        ls -la
+        python -m uvicorn main:app --host 0.0.0.0 --port 8002 &
+        
+        # 等待服务启动
+        sleep 10
+        
+        # 检查服务是否正常运行
+        curl -s http://localhost:8001/health || echo "AI 推理服务未正常运行"
+        curl -s http://localhost:8002/health || echo "LIME 解释服务未正常运行"
         
     - name: Run risk assessment
       run: |
-        # 启动服务
-        cd ai_infer_service
-        python -m uvicorn main:app --host 0.0.0.0 --port 8001 &
-        cd ../lime_explain_service
-        python -m uvicorn main:app --host 0.0.0.0 --port 8002 &
-        sleep 5  # 等待服务启动
-        
-        # 读取变更的文件并进行风险评估
+        echo "开始风险评估..."
         while IFS= read -r file; do
           if [ -f "$file" ]; then
-            diff_content=$(git diff ${{ github.event.before }} ${{ github.sha }} -- "$file")
             echo "正在评估文件: $file"
+            diff_content=$(git diff ${{ github.event.before }} ${{ github.sha }} -- "$file")
+            echo "Diff 内容:"
+            echo "$diff_content"
+            
             # 调用风险评估服务
-            curl -X POST http://localhost:8001/predict \
+            response=$(curl -s -X POST http://localhost:8001/predict \
               -H "Content-Type: application/json" \
-              -d "{\"diff_content\": \"$diff_content\"}"
-            echo ""
+              -d "{\"diff_content\": \"$diff_content\"}")
+            echo "评估结果:"
+            echo "$response"
           fi
         done < changed_files.txt
       
     - name: Generate risk report
       run: |
+        echo "生成风险评估报告..."
         echo "## 风险评估报告" > risk_report.md
         echo "### 评估时间: $(date)" >> risk_report.md
         echo "### 变更文件列表:" >> risk_report.md
         cat changed_files.txt >> risk_report.md
         echo "" >> risk_report.md
         echo "### 详细评估结果:" >> risk_report.md
-        # 从 InfluxDB 查询最新的评估结果
+        
+        echo "查询 InfluxDB..."
         influx query 'from(bucket:"risk_assessment")
           |> range(start: -1h)
           |> filter(fn: (r) => r._measurement == "risk_assessment")
-          |> last()' >> risk_report.md
+          |> last()' >> risk_report.md || echo "InfluxDB 查询失败"
           
     - name: Upload risk report
       uses: actions/upload-artifact@v2

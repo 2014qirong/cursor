@@ -129,6 +129,13 @@ async def explain_risk(request: DiffRequest):
         print(f"解释失败: {e}")
         return {"error": str(e)}
 
+@app.get("/health")
+def health_check():
+    """
+    健康检查端点
+    """
+    return {"status": "healthy"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8002) 
