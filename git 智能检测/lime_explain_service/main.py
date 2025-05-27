@@ -46,11 +46,11 @@ class ExplainResponse(BaseModel):
 #     ['risk_level']
 # )
 
-# InfluxDB 配置占位符
-INFLUXDB_URL = "http://localhost:8086"
-INFLUXDB_TOKEN = "z93DtbjAJLbms5UU13x6o7PxEBLIFDaDEZ5fAniMGXdJorIvGQGvmFC8b3xQWTRvdcFx8gV_mELEDm8WtbS3lQ=="
-INFLUXDB_ORG = "my-org"
-INFLUXDB_BUCKET = "risk_assessment"
+# InfluxDB 配置从环境变量获取
+INFLUXDB_URL = os.getenv("INFLUXDB_URL", "http://localhost:8086")
+INFLUXDB_TOKEN = os.getenv("INFLUXDB_TOKEN", "my-super-secret-auth-token")
+INFLUXDB_ORG = os.getenv("INFLUXDB_ORG", "my-org")
+INFLUXDB_BUCKET = os.getenv("INFLUXDB_BUCKET", "risk_assessment")
 
 # 初始化 InfluxDB 客户端
 try:

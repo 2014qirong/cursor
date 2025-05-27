@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  INFLUXDB_URL: http://localhost:8086
+  INFLUXDB_TOKEN: ${{ secrets.INFLUXDB_TOKEN }}
+  INFLUXDB_ORG: my-org
+  INFLUXDB_BUCKET: risk_assessment
+
 jobs:
   assess-risk:
     runs-on: ubuntu-latest
