@@ -43,8 +43,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        # 安装 InfluxDB 命令行工具
+        wget https://dl.influxdata.com/influxdb/releases/influxdb2-client-2.7.3-linux-amd64.tar.gz
+        tar xvzf influxdb2-client-2.7.3-linux-amd64.tar.gz
+        sudo cp influxdb2-client-2.7.3-linux-amd64/influx /usr/local/bin/
         # 显示安装的包版本
         pip freeze
+        influx version
         
     - name: Check directory structure
       run: |
@@ -66,6 +71,14 @@ jobs:
         echo "设置 InfluxDB..."
         # 等待 InfluxDB 启动
         timeout 30 bash -c 'until curl -s http://localhost:8086/ping; do sleep 1; done'
+        
+        # 配置 InfluxDB CLI
+        influx config create \
+          --config-name default \
+          --host-url http://localhost:8086 \
+          --org my-org \
+          --token ${{ env.INFLUXDB_TOKEN }} \
+          --active
         
         echo "启动 AI 推理服务..."
         cd ai_infer_service
@@ -118,7 +131,8 @@ jobs:
         echo "查询 InfluxDB..."
         influx query 'from(bucket:"risk_assessment")
           |> range(start: -1h)
-          |> filter(fn: (r) => r._measurement == "risk_assessment")
+          |> filter(fn: (r) => r["_measurement"] == "risk_assessment")
+          |> filter(fn: (r) => r["_field"] == "probability")
           |> last()' >> risk_report.md || echo "InfluxDB 查询失败"
           
     - name: Upload risk report
