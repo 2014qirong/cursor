@@ -1,0 +1,86 @@
+name: Git Risk Assessment
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  assess-risk:
+    runs-on: ubuntu-latest
+    
+    services:
+      influxdb:
+        image: influxdb:2.7
+        ports:
+          - 8086:8086
+        env:
+          DOCKER_INFLUXDB_INIT_MODE: setup
+          DOCKER_INFLUXDB_INIT_USERNAME: admin
+          DOCKER_INFLUXDB_INIT_PASSWORD: adminadmin
+          DOCKER_INFLUXDB_INIT_ORG: my-org
+          DOCKER_INFLUXDB_INIT_BUCKET: risk_assessment
+          DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-super-secret-auth-token
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # 获取完整的git历史
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Get changed files
+      id: changed-files
+      run: |
+        git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changed_files.txt
+        
+    - name: Run risk assessment
+      run: |
+        # 启动服务
+        cd ai_infer_service
+        python -m uvicorn main:app --host 0.0.0.0 --port 8001 &
+        cd ../lime_explain_service
+        python -m uvicorn main:app --host 0.0.0.0 --port 8002 &
+        sleep 5  # 等待服务启动
+        
+        # 读取变更的文件并进行风险评估
+        while IFS= read -r file; do
+          if [ -f "$file" ]; then
+            diff_content=$(git diff ${{ github.event.before }} ${{ github.sha }} -- "$file")
+            echo "正在评估文件: $file"
+            # 调用风险评估服务
+            curl -X POST http://localhost:8001/predict \
+              -H "Content-Type: application/json" \
+              -d "{\"diff_content\": \"$diff_content\"}"
+            echo ""
+          fi
+        done < changed_files.txt
+      
+    - name: Generate risk report
+      run: |
+        echo "## 风险评估报告" > risk_report.md
+        echo "### 评估时间: $(date)" >> risk_report.md
+        echo "### 变更文件列表:" >> risk_report.md
+        cat changed_files.txt >> risk_report.md
+        echo "" >> risk_report.md
+        echo "### 详细评估结果:" >> risk_report.md
+        # 从 InfluxDB 查询最新的评估结果
+        influx query 'from(bucket:"risk_assessment")
+          |> range(start: -1h)
+          |> filter(fn: (r) => r._measurement == "risk_assessment")
+          |> last()' >> risk_report.md
+          
+    - name: Upload risk report
+      uses: actions/upload-artifact@v2
+      with:
+        name: risk-assessment-report
+        path: risk_report.md 
