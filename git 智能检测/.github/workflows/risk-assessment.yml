@@ -5,6 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 env:
   INFLUXDB_URL: http://localhost:8086
@@ -15,6 +16,10 @@ env:
 jobs:
   assess-risk:
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      actions: write
     
     services:
       influxdb:
@@ -30,9 +35,24 @@ jobs:
           DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: A__zIBb1iT9wWi6lN4VqIlNcADsOmmCp4WRfx0pzPAw8YO8WFeJCEKi24G2IovwP4Ooj4dZt9wjjK53kkZNysw==
 
     steps:
+    - name: Debug Info
+      run: |
+        echo "运行环境信息："
+        echo "GitHub Workspace: $GITHUB_WORKSPACE"
+        echo "GitHub Event Name: $GITHUB_EVENT_NAME"
+        echo "GitHub Ref: $GITHUB_REF"
+        echo "GitHub SHA: $GITHUB_SHA"
+        
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0  # 获取完整的git历史
+    
+    - name: Repository Info
+      run: |
+        echo "仓库信息："
+        git remote -v
+        git branch
+        git status
     
     - name: Set up Python
       uses: actions/setup-python@v2
