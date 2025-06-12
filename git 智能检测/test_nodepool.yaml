@@ -1,0 +1,48 @@
+# 腾讯云TKE集群节点池扩容变更
+
+变更描述：
+修改生产环境腾讯云TKE集群的节点池配置，以应对业务增长需求。
+
+---
+# 集群节点池定义 - 变更前
+kind: NodePool
+apiVersion: eks.tke.cloud.tencent.com/v1
+metadata:
+  name: np-standard-workers
+  labels:
+    app: production
+    environment: prod
+spec:
+  autoscaling:
+    enabled: true
+    minSize: 3
+    maxSize: 10
+  nodeTemplate:
+    instanceType: SA2.LARGE16
+    systemDisk:
+      diskType: CLOUD_PREMIUM
+      diskSize: 100
+---
+# 集群节点池定义 - 变更后
+kind: NodePool
+apiVersion: eks.tke.cloud.tencent.com/v1
+metadata:
+  name: np-standard-workers
+  labels:
+    app: production
+    environment: prod
+spec:
+  autoscaling:
+    enabled: true
+    minSize: 5
+    maxSize: 20
+  nodeTemplate:
+    instanceType: SA2.2XLARGE32
+    systemDisk:
+      diskType: CLOUD_SSD
+      diskSize: 200
+
+执行命令：
+```bash
+tcloud tke update-node-pool --cluster-id cls-m8s7sgth --name np-standard-workers --min-size 5 --max-size 20 --instance-types SA2.2XLARGE32 --disk-type CLOUD_SSD --disk-size 200
+``` 

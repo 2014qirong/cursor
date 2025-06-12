@@ -1,0 +1,24 @@
+{
+  "Version": "1",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": [
+        "oss:GetObject",
+        "oss:PutObject"
+      ],
+      "Resource": [
+        "acs:oss:*:*:my-bucket/*"
+      ],
+      "Condition": {
+        "IpAddress": {
+          "acs:SourceIp": [
+            "0.0.0.0/0"
+          ]
+        }
+      }
+    }
+  ],
+  "desc": "该策略将OSS Bucket开放到全网，存在高风险的数据泄露可能。"
+} 

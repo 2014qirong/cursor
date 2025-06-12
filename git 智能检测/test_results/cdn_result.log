@@ -1,0 +1,4 @@
+识别到的资源类型: loadbalancer, cdn, waf
+初始化语义模型: paraphrase-multilingual-MiniLM-L12-v2...
+语义模型初始化完成，知识库条目数: 29
+未能识别到相关风险场景。请人工评估。

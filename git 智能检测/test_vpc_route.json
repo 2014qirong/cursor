@@ -1,0 +1,14 @@
+{
+  "RouteTableId": "rtb-1234567890abcdef0",
+  "Routes": [
+    {
+      "DestinationCidrBlock": "0.0.0.0/0",
+      "GatewayId": "igw-12345678"
+    },
+    {
+      "DestinationCidrBlock": "10.0.0.0/8",
+      "GatewayId": "vgw-87654321"
+    }
+  ],
+  "desc": "该路由表将0.0.0.0/0指向公网网关，存在内网暴露到公网的高风险。"
+} 

@@ -1,0 +1,20 @@
+/Users/heytea/Desktop/cursor/git 智能检测/ai_infer_service/main.py:98: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+INFO:     Started server process [76591]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+加载模型...
+模型加载成功
+InfluxDB client initialized.
+模型加载成功
+INFO:     127.0.0.1:63907 - "POST /predict HTTP/1.1" 500 Internal Server Error
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [76591]

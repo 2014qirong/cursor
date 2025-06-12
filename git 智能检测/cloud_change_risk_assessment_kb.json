@@ -1,0 +1,711 @@
+{
+    "change_items": [
+      {
+        "type": "AWS_ROUTE53_RECORD_UPDATE_TF",
+        "description": "通过Terraform更新AWS Route53中的DNS记录 (A, CNAME, MX等)。",
+        "cloud_providers": ["AWS"],
+        "management_tools": ["Terraform", "CloudAPI"],
+        "risk_level": "High",
+        "assessment_factors": [
+          "影响域名解析，可能导致服务中断或访问错误",
+          "Terraform apply错误可能导致配置漂移或删除非预期记录",
+          "DNS全球生效延迟"
+        ],
+        "key_metrics_to_monitor": [
+          "Route53健康检查状态 (如配置)",
+          "应用访问成功率和延迟 (CloudWatch Metrics)",
+          "外部DNS监测点的解析结果和延迟"
+        ],
+        "pre_change_checklist": [
+          "Review `terraform plan`的输出，确认变更范围和内容符合预期",
+          "确保Terraform state文件是最新的，无漂移",
+          "备份当前的Route53 Zone文件 (可选，通过AWS CLI)",
+          "选择业务低峰期进行变更",
+          "通知相关团队，准备好回滚方案 (terraform apply之前的commit)"
+        ],
+        "post_change_verification": [
+          "执行 `terraform apply` 后检查输出无错误",
+          "通过AWS控制台或CLI确认Route53记录已按预期更新",
+          "使用`dig`或在线DNS工具从不同区域验证解析结果",
+          "监控应用关键指标1小时无异常"
+        ],
+        "potential_impacts": [
+          "服务不可用或解析到错误IP/CNAME",
+          "邮件服务中断 (如修改MX记录错误)",
+          "Terraform state与实际资源不一致"
+        ],
+        "mitigation_strategies": [
+          "Revert到Terraform的上一个commit并重新apply",
+          "手动通过AWS控制台或CLI修正错误的DNS记录",
+          "如果Terraform state损坏，尝试从备份恢复或进行 `terraform import`"
+        ]
+      },
+      {
+        "type": "TENCENTCLOUD_K8S_INGRESS_UPDATE_HELM_ARGOCD",
+        "description": "通过Helm Chart并由ArgoCD同步，更新腾讯云TKE集群中的Ingress规则。",
+        "cloud_providers": ["TencentCloud"],
+        "management_tools": ["Helm", "ArgoCD"],
+        "risk_level": "High",
+        "assessment_factors": [
+          "直接影响TKE集群南北向流量入口",
+          "Helm Chart或values文件配置错误",
+          "ArgoCD同步问题或配置漂移检测延迟"
+        ],
+        "key_metrics_to_monitor": [
+          "Tencent Cloud CLB (关联Ingress) 健康状态和QPS",
+          "Ingress Controller Pods (如Nginx Ingress) 日志和资源利用率 (Tencent Cloud Monitor)",
+          "后端服务HTTP成功率和延迟"
+        ],
+        "pre_change_checklist": [
+          "本地 `helm template . -f values.yaml` 渲染并检查输出的YAML",
+          "`helm lint .` 检查Chart语法",
+          "在ArgoCD中查看变更的diff预览，确认符合预期",
+          "确保ArgoCD Application处于健康和同步状态",
+          "准备好Helm rollback命令或ArgoCD回滚操作"
+        ],
+        "post_change_verification": [
+          "ArgoCD显示Application同步成功且健康",
+          "`helm history <release-name>` 确认新版本已部署",
+          "测试所有受影响的域名和路径是否按预期工作",
+          "检查Ingress Controller日志和Tencent Cloud CLB监控"
+        ],
+        "potential_impacts": [
+          "服务通过Ingress无法访问或路由错误",
+          "TLS证书问题导致连接失败",
+          "ArgoCD持续尝试同步失败的配置，可能导致循环错误"
+        ],
+        "mitigation_strategies": [
+          "通过ArgoCD界面或CLI执行快速回滚到上一个健康的commit/revision",
+          "执行 `helm rollback <release-name> <previous-revision>`",
+          "暂停ArgoCD的自动同步，手动修复Helm Chart或values文件后重新同步"
+        ]
+      },
+      {
+        "type": "ALICLOUD_ECS_SG_RULE_CHANGE_TF",
+        "description": "通过Terraform修改阿里云ECS实例关联的安全组规则。",
+        "cloud_providers": ["AliCloud"],
+        "management_tools": ["Terraform"],
+        "risk_level": "Medium",
+        "assessment_factors": [
+          "错误配置可能导致端口意外暴露或正常访问被阻止",
+          "Terraform对安全组规则的更新可能是替换式而非追加式，需注意写法",
+          "影响范围可能涉及多个ECS实例"
+        ],
+        "key_metrics_to_monitor": [
+          "目标ECS实例的网络流入/流出流量 (Alibaba Cloud Monitor)",
+          "特定端口的连通性测试结果",
+          "应用层日志中的连接错误"
+        ],
+        "pre_change_checklist": [
+          "仔细审查 `terraform plan` 中安全组规则的变更详情",
+          "确认规则的源/目标IP、端口、协议正确无误",
+          "遵循最小权限原则",
+          "如果可能，先在测试环境验证Terraform脚本"
+        ],
+        "post_change_verification": [
+          "`terraform apply` 成功后，在阿里云控制台确认安全组规则已更新",
+          "从预期源测试到目标ECS实例和端口的连通性",
+          "从非预期源测试确保访问被拒绝",
+          "检查相关应用或服务功能是否正常"
+        ],
+        "potential_impacts": [
+          "ECS实例无法被正常访问或无法访问外部依赖",
+          "安全漏洞，实例遭受攻击",
+          "业务中断"
+        ],
+        "mitigation_strategies": [
+          "Revert Terraform代码到上一版本并重新apply",
+          "通过阿里云控制台手动修正或删除错误的安全组规则",
+          "临时将安全组规则设置为更宽松的策略以恢复访问，然后定位并修复问题规则"
+        ]
+      },
+      {
+        "type": "AWS_EKS_NODE_GROUP_SCALING_TF",
+        "description": "通过Terraform调整AWS EKS集群中节点组（Node Group）的期望数量、最小或最大数量。",
+        "cloud_providers": ["AWS"],
+        "management_tools": ["Terraform"],
+        "risk_level": "Medium",
+        "assessment_factors": ["可能导致Pod重新调度，短暂影响应用可用性", "自动扩缩容配置不当可能导致资源浪费或不足", "节点启动和注册到集群需要时间"],
+        "key_metrics_to_monitor": ["EKS节点组实例数量", "Pod调度成功率和Pending Pod数量", "应用响应延迟和错误率", "节点CPU/内存利用率 (CloudWatch)"],
+        "pre_change_checklist": ["Review `terraform plan`确认节点数量变更符合预期", "检查EKS集群和节点组健康状态", "确保PodDisruptionBudgets (PDBs) 配置正确以减少应用中断", "评估当前集群资源利用率，判断扩缩容的必要性"],
+        "post_change_verification": ["`terraform apply` 成功后，在AWS控制台或CLI确认节点组数量已更新", "检查新节点是否成功注册到EKS集群并处于Ready状态", "观察Pod调度情况，确认应用实例在新节点上正常运行", "监控应用性能指标和集群资源利用率"],
+        "potential_impacts": ["应用实例因Pod重新调度而短暂中断", "节点资源不足导致Pod Pending", "节点配置错误导致新节点无法加入集群"],
+        "mitigation_strategies": ["Revert Terraform代码到上一版本并重新apply", "手动调整节点组数量 (如果Terraform失败)", "检查节点启动脚本和用户数据是否有误", "调整PDBs以允许更平滑的节点替换"]
+      },
+      {
+        "type": "ALICLOUD_ACK_CONTROL_PLANE_UPGRADE_CONSOLE",
+        "description": "通过阿里云控制台升级ACK (Alibaba Cloud Container Service for Kubernetes) 集群的控制平面版本。",
+        "cloud_providers": ["AliCloud"],
+        "management_tools": ["Console", "CloudAPI"],
+        "risk_level": "High",
+        "assessment_factors": ["控制平面是集群核心，升级失败影响整个集群管理", "API版本兼容性问题可能影响现有工具和脚本", "升级过程可能需要几十分钟，期间集群管理功能受限"],
+        "key_metrics_to_monitor": ["ACK集群状态 (控制台)", "kube-apiserver健康状态和延迟", "etcd集群健康状态", "核心组件 (coredns, scheduler, controller-manager) 日志"],
+        "pre_change_checklist": ["详细阅读阿里云官方的ACK版本升级指南和兼容性说明", "备份etcd数据 (如果云厂商支持或有自定义方案)", "确保所有Worker节点版本与目标控制平面版本兼容或在升级路径上", "通知所有集群用户，在维护窗口期进行操作", "检查集群中是否有已弃用的API版本被使用"],
+        "post_change_verification": ["在阿里云控制台确认控制平面升级成功，集群状态正常", "执行`kubectl get nodes` 和 `kubectl get pods -A` 检查集群基本功能", "测试部署新应用和管理现有应用", "检查核心组件日志无异常报错"],
+        "potential_impacts": ["控制平面升级失败，集群不可管理", "API不兼容导致应用部署或管理失败", "升级过程耗时过长，超出维护窗口"],
+        "mitigation_strategies": ["联系阿里云技术支持寻求帮助", "如果可能且云厂商支持，尝试回滚到升级前快照 (通常控制平面升级不可直接回滚)", "根据错误信息排查，修复后重试升级 (如果允许)"]
+      },
+      {
+        "type": "TENCENTCLOUD_TKE_POD_REPLICAS_UPDATE_ARGOCD",
+        "description": "通过ArgoCD同步Helm Chart或Kustomize配置，调整腾讯云TKE集群中Deployment或StatefulSet的Pod副本数。",
+        "cloud_providers": ["TencentCloud"],
+        "management_tools": ["ArgoCD", "Helm", "Kustomize"],
+        "risk_level": "Low",
+        "assessment_factors": ["副本数调整是常见操作，影响范围可控", "ArgoCD提供回滚机制", "不当的副本数可能导致资源浪费或性能瓶颈"],
+        "key_metrics_to_monitor": ["Deployment/StatefulSet的Ready副本数", "Pod启动时间和健康状态", "应用QPS、延迟、错误率", "节点资源利用率 (CPU/Memory)"],
+        "pre_change_checklist": ["在ArgoCD中预览变更的副本数", "确认集群有足够资源支持新的副本数 (特别是增加副本时)", "检查HPA (Horizontal Pod Autoscaler) 配置，避免冲突", "对于StatefulSet缩容，确认数据持久化和迁移策略"],
+        "post_change_verification": ["ArgoCD显示同步成功，Deployment/StatefulSet达到目标副本数且Ready", "检查新Pod日志无异常", "监控应用性能指标，确认符合预期"],
+        "potential_impacts": ["资源不足导致Pod Pending (增加副本时)", "应用性能下降或过载 (减少副本时)", "StatefulSet缩容可能导致数据丢失 (如果处理不当)"],
+        "mitigation_strategies": ["通过ArgoCD回滚到上一个健康的配置", "手动调整Deployment/StatefulSet副本数 (`kubectl scale`)", "调整节点池大小以提供更多资源"]
+      },
+      {
+        "type": "AWS_WAF_RULE_ADD_TF",
+        "description": "通过Terraform向AWS WAF WebACL中添加新的规则（如SQL注入防护、速率限制）。",
+        "cloud_providers": ["AWS"],
+        "management_tools": ["Terraform"],
+        "risk_level": "Medium",
+        "assessment_factors": ["错误配置的WAF规则可能误拦截正常用户流量", "规则过于宽松可能无法有效防护攻击", "规则生效需要时间"],
+        "key_metrics_to_monitor": ["WAF日志中Blocked请求和Allowed请求数量", "关联资源 (ALB, API Gateway, CloudFront) 的HTTP 4xx/5xx错误率", "应用访问延迟", "特定攻击类型的拦截率"],
+        "pre_change_checklist": ["Review `terraform plan`确认WAF规则配置正确", "先在Count模式下测试新规则，观察匹配情况，避免直接Block", "确保规则条件和优先级设置合理", "备份当前WAF WebACL配置 (通过AWS CLI或Terraform state)"],
+        "post_change_verification": ["`terraform apply`成功后，在AWS控制台确认WAF规则已添加并生效", "监控WAF日志，确认规则按预期工作 (拦截恶意请求，放行正常请求)", "测试应用功能，确保无正常用户被误拦截"],
+        "potential_impacts": ["正常用户请求被WAF误拦截，导致业务受损", "新规则未生效或配置错误，无法防护预期攻击", "WAF规则冲突导致意外行为"],
+        "mitigation_strategies": ["Revert Terraform代码并重新apply", "手动在AWS控制台将问题规则的Action从Block改为Count，或直接删除规则", "调整规则优先级或条件以修复问题"]
+      },
+      {
+        "type": "ALICLOUD_CDN_DOMAIN_CONFIG_UPDATE_CONSOLE",
+        "description": "通过阿里云控制台修改CDN加速域名的配置，如回源策略、缓存策略、HTTPS设置。",
+        "cloud_providers": ["AliCloud"],
+        "management_tools": ["Console", "CloudAPI"],
+        "risk_level": "High",
+        "assessment_factors": ["CDN配置直接影响用户访问速度和体验", "错误的回源配置可能导致源站压力过大或内容获取失败", "缓存策略不当可能导致用户获取到过期内容或缓存命中率低"],
+        "key_metrics_to_monitor": ["CDN命中率", "回源带宽和请求数", "用户访问延迟 (按区域)", "CDN节点返回的HTTP状态码 (2xx, 3xx, 4xx, 5xx)", "源站服务器负载"],
+        "pre_change_checklist": ["详细了解各项配置参数的含义和影响", "备份当前CDN域名配置 (截图或记录关键参数)", "选择业务低峰期进行变更", "准备好快速回滚方案", "如果修改HTTPS配置，确保证书有效且已上传"],
+        "post_change_verification": ["在阿里云控制台确认配置已保存并开始生效 (部分配置全球生效有延迟)", "从不同网络和地区测试加速域名访问，验证配置是否生效 (如缓存时间、HTTPS)", "监控CDN和源站关键指标，对比变更前后数据"],
+        "potential_impacts": ["用户访问缓慢或失败", "源站过载", "用户获取到错误或过期的内容", "HTTPS访问异常"],
+        "mitigation_strategies": ["立即在阿里云控制台将配置改回变更前状态", "临时暂停CDN加速，让用户直接访问源站 (如果可行)", "针对性调整导致问题的具体配置项"]
+      },
+      {
+        "type": "TENCENTCLOUD_CLB_LISTENER_RULE_UPDATE_TF",
+        "description": "通过Terraform修改腾讯云CLB (Cloud Load Balancer) 监听器的转发规则，如域名、URL路径、后端服务器权重。",
+        "cloud_providers": ["TencentCloud"],
+        "management_tools": ["Terraform"],
+        "risk_level": "Medium",
+        "assessment_factors": ["转发规则直接决定请求如何分配到后端服务器", "错误配置可能导致请求无法到达正确后端或负载不均", "健康检查配置不当可能导致流量转发到故障实例"],
+        "key_metrics_to_monitor": ["CLB健康检查成功率", "后端服务器连接数和响应时间", "CLB的QPS、带宽、新建连接数", "应用层HTTP成功率和错误率"],
+        "pre_change_checklist": ["Review `terraform plan`确认监听器和转发规则变更符合预期", "确保后端服务器已准备好接收流量且健康检查配置正确", "备份当前CLB配置 (通过Terraform state或控制台截图)", "如果修改权重，逐步调整以观察影响"],
+        "post_change_verification": ["`terraform apply`成功后，在腾讯云控制台确认CLB配置已更新", "测试通过CLB访问应用，验证转发规则是否按预期工作", "监控CLB和后端服务器指标，确认流量分配和应用健康"],
+        "potential_impacts": ["部分或全部用户请求失败 (404, 502, 503)", "流量未按预期转发，导致业务逻辑错误", "后端服务器过载或空闲"],
+        "mitigation_strategies": ["Revert Terraform代码并重新apply", "手动在腾讯云控制台修改CLB配置回滚变更", "临时将故障后端服务器权重调低或移除"]
+      },
+      {
+        "type": "AWS_RDS_INSTANCE_CLASS_CHANGE_TF",
+        "description": "通过Terraform修改AWS RDS数据库实例的规格 (Instance Class)。",
+        "cloud_providers": ["AWS"],
+        "management_tools": ["Terraform"],
+        "risk_level": "High",
+        "assessment_factors": ["数据库是核心组件，规格变更可能导致服务中断 (通常有维护窗口)", "新规格性能不符合预期或与工作负载不匹配", "变更过程可能耗时较长"],
+        "key_metrics_to_monitor": ["RDS CPU利用率、内存利用率、磁盘IOPS、网络吞吐", "数据库连接数、查询延迟、慢查询数量", "应用层数据库相关错误率"],
+        "pre_change_checklist": ["Review `terraform plan`确认实例规格变更正确", "在AWS文档中确认变更是否需要停机，以及预计停机时间", "选择业务低峰期或维护窗口进行操作", "执行数据库备份或确保自动备份已启用且最新", "通知相关应用团队"],
+        "post_change_verification": ["`terraform apply`成功后，在AWS控制台确认RDS实例规格已更新且状态正常", "应用连接数据库并执行核心业务操作，验证功能正常", "监控RDS和应用性能指标，对比变更前后数据，确保性能符合预期或有提升"],
+        "potential_impacts": ["数据库服务中断时间超出预期", "新规格性能不足导致应用缓慢或超时", "数据迁移或规格变更过程中发生错误导致数据不一致 (较罕见，但需注意)"],
+        "mitigation_strategies": ["如果Terraform变更卡住或失败，联系AWS支持", "如果新规格性能不佳，尽快计划改回原规格或选择其他合适规格 (可能再次需要停机)", "从备份恢复数据 (极端情况)"]
+      },
+      {
+        "type": "ALICLOUD_OSS_BUCKET_POLICY_UPDATE_API",
+        "description": "通过阿里云API直接修改OSS (Object Storage Service) Bucket的授权策略 (Bucket Policy)。",
+        "cloud_providers": ["AliCloud"],
+        "management_tools": ["CloudAPI", "SDK", "aliyun-cli"],
+        "risk_level": "High",
+        "assessment_factors": ["Bucket Policy直接控制对存储桶中对象的访问权限", "错误配置可能导致数据泄露或正常访问被拒绝", "策略语法复杂，容易出错"],
+        "key_metrics_to_monitor": ["OSS Bucket的访问日志 (请求来源、操作类型、HTTP状态码)", "应用层访问OSS的成功率和错误率", "数据安全监控告警 (如敏感数据异常访问)"],
+        "pre_change_checklist": ["仔细编写和审查新的Bucket Policy JSON文档", "使用阿里云提供的策略模拟器或校验工具验证策略的有效性和预期效果", "备份当前的Bucket Policy", "明确变更的影响范围，通知相关用户或应用"],
+        "post_change_verification": ["API调用成功后，尝试从不同身份 (授权用户、未授权用户、匿名用户) 访问Bucket中的对象，验证权限是否符合预期", "检查应用访问OSS功能是否正常", "监控OSS访问日志，确认无异常访问行为"],
+        "potential_impacts": ["敏感数据被公开访问或泄露", "合法用户或应用无法访问OSS资源，导致功能中断", "策略配置过于复杂导致难以维护和审计"],
+        "mitigation_strategies": ["立即通过API或控制台将Bucket Policy恢复到备份的版本", "如果问题策略影响范围小，可先删除或修改有问题的Statement", "临时移除整个Bucket Policy以恢复默认权限 (通常是私有)，然后重新配置"]
+      },
+      {
+        "type": "TENCENTCLOUD_CVM_IMAGE_UPDATE_TF",
+        "description": "通过Terraform更新腾讯云CVM (Cloud Virtual Machine) 实例或启动配置使用的镜像ID。",
+        "cloud_providers": ["TencentCloud"],
+        "management_tools": ["Terraform"],
+        "risk_level": "High",
+        "assessment_factors": ["更换镜像是重大变更，相当于重装操作系统，实例上的数据会丢失 (除非数据盘分离)", "新镜像可能存在兼容性问题或未包含必要软件", "实例重建需要时间"],
+        "key_metrics_to_monitor": ["CVM实例状态和启动时间", "应用在新实例上的健康状态和性能指标", "操作系统日志和应用日志中的错误信息"],
+        "pre_change_checklist": ["Review `terraform plan`确认镜像ID变更正确，并了解Terraform会销毁并重建实例", "确保新镜像经过充分测试，包含所有依赖的软件包和配置", "对现有实例上的重要数据进行备份或迁移 (如果数据在系统盘)", "如果用于伸缩组，确保启动配置更新策略合理 (如先创建新实例再删除旧实例)"],
+        "post_change_verification": ["`terraform apply`成功后，在腾讯云控制台确认CVM实例已使用新镜像重建并运行正常", "登录新实例检查操作系统和应用环境是否符合预期", "执行应用功能测试，确保服务恢复正常", "监控应用性能和错误日志"],
+        "potential_impacts": ["实例无法启动或启动后应用无法运行", "数据丢失 (如果未备份系统盘数据)", "新镜像存在安全漏洞或性能问题"],
+        "mitigation_strategies": ["Revert Terraform代码到使用旧镜像ID的commit并重新apply (会再次重建实例)", "如果新实例有问题，手动创建使用旧镜像的实例并迁移应用 (如果Terraform回滚困难)", "检查新镜像的制作过程或选择其他稳定镜像版本"]
+      },
+      {
+        "type": "AWS_EKS_CONTROL_PLANE_LOGGING_UPDATE",
+        "description": "修改 AWS EKS 控制平面日志记录配置 (例如，启用/禁用 API server, authenticator, controller manager, scheduler 日志)。",
+        "cloud_providers": ["AWS"],
+        "management_tools": ["Terraform", "AWS Console", "AWS CLI"],
+        "risk_level": "Medium",
+        "assessment_factors": ["对审计跟踪的影响", "日志量和成本影响", "故障排查能力"],
+        "key_metrics_to_monitor": ["控制平面 API 延迟", "控制平面组件错误率", "日志接收速率和存储"],
+        "pre_change_checklist": ["验证当前日志记录状态", "确认日志配置更改的 IAM 权限", "通知相关团队日志记录变更", "了解新日志类型/量的成本影响"],
+        "post_change_verification": ["确认新的日志记录配置已激活", "检查日志是否按预期流向配置的目标 (例如 CloudWatch Logs)", "监控控制平面健康状况"],
+        "potential_impacts": ["如果禁用日志，可能导致审计数据丢失", "如果启用过多日志，可能导致成本增加", "如果关键日志缺失，可能延迟事件响应"],
+        "mitigation_strategies": ["逐步启用日志记录", "为日志错误或高成本设置告警", "确保日志保留策略到位"]
+      },
+      {
+        "type": "TENCENTCLOUD_TKE_CLUSTER_AUDIT_POLICY_CHANGE",
+        "description": "修改腾讯云 TKE 集群审计策略或启用/禁用审计日志记录。",
+        "cloud_providers": ["TencentCloud"],
+        "management_tools": ["TencentCloud Console", "CloudAPI"],
+        "risk_level": "Medium",
+        "assessment_factors": ["安全合规要求", "对审计日志存储和分析的影响", "集群活动可见性"],
+        "key_metrics_to_monitor": ["审计日志生成速率", "审计日志存储消耗", "API 服务器性能"],
+        "pre_change_checklist": ["审查当前审计策略", "了解新审计规则的影响 (例如性能、日志量)", "确保审计日志有足够的存储空间", "如适用，备份现有审计策略"],
+        "post_change_verification": ["验证新审计策略已生效", "检查审计日志是否根据新策略生成", "监控任何意外的 API 服务器行为"],
+        "potential_impacts": ["如果策略过于严格，审计跟踪可能不完整", "如果策略过于宽松，可能导致性能下降或日志量过大", "如果未审计关键事件，可能存在安全漏洞"],
+        "mitigation_strategies": ["在非生产环境中测试审计策略更改", "分阶段推广新审计规则", "为审计日志实施日志轮转和归档"]
+      },
+      {
+        "type": "ALICLOUD_ACK_MASTER_COMPONENT_PARAMETER_MODIFY",
+        "description": "修改阿里云 ACK Master组件的高级参数，如 kube-apiserver 的参数 (例如，特性门控，准入控制器配置)。",
+        "cloud_providers": ["AlibabaCloud"],
+        "management_tools": ["AlibabaCloud Console", "Terraform"],
+        "risk_level": "High",
+        "assessment_factors": ["集群稳定性和可用性", "参数更改的安全影响", "与工作负载和其他组件的兼容性"],
+        "key_metrics_to_monitor": ["API 服务器请求延迟和错误率", "节点就绪状态", "Pod 调度和启动时间", "Controller manager 和 scheduler 健康状况"],
+        "pre_change_checklist": ["彻底研究特定参数更改的影响", "查阅阿里云文档和最佳实践", "如可能，备份集群配置", "在维护窗口执行更改", "准备回滚计划"],
+        "post_change_verification": ["验证集群健康且所有 Master 组件均正常运行", "测试关键集群功能 (例如 Pod 部署、服务暴露)", "密切监控关键指标"],
+        "potential_impacts": ["集群不稳定或不可用", "API 服务器无响应", "工作负载部署失败", "安全漏洞"],
+        "mitigation_strategies": ["首先在预发/开发 ACK 集群中测试更改", "如可能，逐步应用更改", "准备好立即恢复到先前配置", "如果出现问题，联系阿里云支持"]
+      },
+      {
+        "type": "AWS_RDS_MAJOR_VERSION_UPGRADE",
+        "description": "为 AWS RDS 实例执行主要版本升级 (例如 MySQL 5.7 升级到 8.0)。",
+        "cloud_providers": ["AWS"],
+        "management_tools": ["AWS Console", "Terraform", "AWS CLI"],
+        "risk_level": "High",
+        "assessment_factors": ["应用程序与新数据库版本的兼容性", "停机时间要求", "数据迁移过程", "回滚复杂性"],
+        "key_metrics_to_monitor": ["数据库 CPU/内存/IOPS 利用率", "查询延迟", "复制延迟 (如果适用)", "应用程序错误率"],
+        "pre_change_checklist": ["在预发环境中对应用程序与新数据库版本进行彻底的兼容性测试", "创建数据库快照/备份", "阅读 AWS 关于特定升级路径的文档", "规划潜在的停机时间并与利益相关者沟通", "验证回滚过程"],
+        "post_change_verification": ["确认数据库实例正在运行新版本", "验证应用程序连接性和功能", "监控性能指标", "检查数据库日志或应用程序日志中是否有任何错误"],
+        "potential_impacts": ["应用程序不兼容导致错误或中断", "停机时间延长", "数据损坏或丢失 (罕见，但如果不小心可能发生)", "性能下降"],
+        "mitigation_strategies": ["如可能，对数据库使用蓝/绿部署策略 (例如使用只读副本)", "在非高峰时段执行升级", "制定经过充分测试的回滚计划 (例如从快照恢复)", "升级后密切监控并准备好解决问题"]
+      },
+      {
+        "type": "REDIS_FLUSHALL_FLUSHDB_EXECUTION",
+        "description": "在生产 Redis 实例上执行 `FLUSHALL` (清除所有数据库) 或 `FLUSHDB` (清除当前数据库)。",
+        "cloud_providers": ["Any"],
+        "management_tools": ["redis-cli", "Application Code"],
+        "risk_level": "Critical",
+        "assessment_factors": ["对应用程序性能和功能的影响 (缓存数据丢失)", "Redis 的数据持久化配置", "操作的必要性"],
+        "key_metrics_to_monitor": ["应用程序响应时间", "缓存命中/未命中率", "数据库负载 (因为应用程序可能更频繁地访问数据库)"],
+        "pre_change_checklist": ["确认命令的绝对必要性", "了解哪些应用程序/服务依赖此 Redis 实例", "通知所有利益相关者", "如果启用了持久化且数据至关重要，则备份 Redis 数据 (RDB 快照/AOF)", "限制执行此类命令的访问权限"],
+        "post_change_verification": ["监控应用程序行为，查找与缓存数据丢失相关的问题", "观察缓存重新填充模式"],
+        "potential_impacts": ["严重的应用程序性能下降", "如果应用程序严重依赖缓存数据，则可能导致应用程序错误或不可用", "后端数据库/服务负载增加"],
+        "mitigation_strategies": ["除非绝对不可避免且已计划，否则避免在生产环境执行 `FLUSHALL`/`FLUSHDB`", "如果只需要删除特定键，则使用有针对性的删除操作", "在应用程序中实现强大的缓存重新填充机制", "确保对 Redis 实例的严格访问控制"]
+      },
+      {
+        "type": "RABBITMQ_VHOST_DELETION",
+        "description": "从 RabbitMQ 集群中删除虚拟主机 (vhost)。",
+        "cloud_providers": ["Any"],
+        "management_tools": ["rabbitmqctl", "RabbitMQ Management Plugin"],
+        "risk_level": "High",
+        "assessment_factors": ["使用该 vhost 的应用程序和服务", "vhost 内的队列、交换器和绑定", "消息持久性和数据丢失可能性"],
+        "key_metrics_to_monitor": ["与消息传递相关的应用程序错误率", "队列深度 (其他 vhost，以确保没有意外影响)", "RabbitMQ 集群健康状况"],
+        "pre_change_checklist": ["识别连接到该 vhost 的所有应用程序/服务", "确保所有应用程序已从该 vhost 迁移或已停用", "验证该 vhost 内的队列中没有剩余关键消息 (或者它们已备份/迁移)", "将删除操作通知相关团队", "备份 RabbitMQ 配置"],
+        "post_change_verification": ["确认 vhost 不再列出", "验证以前使用该 vhost 的应用程序已关闭或已正确重新配置并使用替代方案正常运行"],
+        "potential_impacts": ["依赖已删除 vhost 的服务中断", "如果队列不为空且消息未处理/迁移，则可能丢失消息", "应用程序连接错误"],
+        "mitigation_strategies": ["在删除前提供充分通知", "在删除前将应用程序和数据迁移到新的 vhost 或替代解决方案", "在维护窗口执行删除", "备份 RabbitMQ 配置"]
+      },
+      {
+        "type": "KAFKA_TOPIC_DELETION",
+        "description": "从生产 Kafka 集群中删除 Kafka 主题。",
+        "cloud_providers": ["Any"],
+        "management_tools": ["kafka-topics.sh", "AdminClient API"],
+        "risk_level": "High",
+        "assessment_factors": ["主题的生产者和消费者", "主题中数据的数据保留和重要性", "对下游数据管道和分析的影响"],
+        "key_metrics_to_monitor": ["生产者错误率 (对于已删除的主题，应停止)", "消费者延迟和错误率 (对于已删除主题的消费者)", "整体集群健康状况"],
+        "pre_change_checklist": ["确认没有活动的生产者或消费者仍在使用该主题", "验证该主题中的数据不再需要或已归档/迁移", "与可能与该主题交互的所有团队沟通", "确保代理配置中 `delete.topic.enable` 为 true (如果适用)"],
+        "post_change_verification": ["验证该主题不再在集群中列出", "监控以前使用该主题的应用程序，以确保它们能正常处理其缺失或已停用"],
+        "potential_impacts": ["如果主题包含关键的未处理数据，则可能导致数据丢失", "尝试写入不存在主题的生产者应用程序失败", "尝试从不存在主题读取的消费者应用程序失败", "数据流中断"],
+        "mitigation_strategies": ["实施明确的主题生命周期管理流程", "使用主题命名约定来指示状态 (例如 `_to_delete`)", "如果数据有任何可能被需要的机会，则在删除前归档主题数据", "在删除主题之前尽早停止该主题的所有生产者和消费者"]
+      },
+      {
+        "type": "CLOUD_CDN_DOMAIN_CONFIG_UPDATE",
+        "description": "通过自动化工具（如控制台/API/CLI）修改云平台CDN（如AWS CloudFront、阿里云CDN、腾讯云CDN）加速域名的配置，包括回源策略、缓存策略、HTTPS设置等。",
+        "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+        "management_tools": ["Console", "CloudAPI", "CLI"],
+        "risk_level": "High",
+        "assessment_factors": [
+          "CDN配置直接影响用户访问速度和体验",
+          "错误的回源配置可能导致源站压力过大或内容获取失败",
+          "缓存策略不当可能导致用户获取到过期内容或缓存命中率低"
+        ],
+        "key_metrics_to_monitor": [
+          "CDN命中率",
+          "回源带宽和请求数",
+          "用户访问延迟 (按区域)",
+          "CDN节点返回的HTTP状态码 (2xx, 3xx, 4xx, 5xx)",
+          "源站服务器负载"
+        ],
+        "pre_change_checklist": [
+          "详细了解各项配置参数的含义和影响",
+          "备份当前CDN域名配置",
+          "选择业务低峰期进行变更",
+          "准备好快速回滚方案",
+          "如果修改HTTPS配置，确保证书有效且已上传"
+        ],
+        "post_change_verification": [
+          "确认配置已保存并开始生效 (部分配置全球生效有延迟)",
+          "从不同网络和地区测试加速域名访问，验证配置是否生效",
+          "监控CDN和源站关键指标，对比变更前后数据"
+        ],
+        "potential_impacts": [
+          "用户访问缓慢或失败",
+          "源站过载",
+          "用户获取到错误或过期的内容",
+          "HTTPS访问异常"
+        ],
+        "mitigation_strategies": [
+          "立即将配置改回变更前状态",
+          "临时暂停CDN加速，让用户直接访问源站 (如果可行)",
+          "针对性调整导致问题的具体配置项"
+        ]
+      },
+      {
+        "type": "CLOUD_MESSAGE_QUEUE_TOPIC_DELETE",
+        "description": "通过自动化工具（如控制台/CLI/API）删除云平台消息队列（如AWS MSK/Kafka、阿里云消息队列Kafka、腾讯云CKafka、RabbitMQ）中的Topic或vhost。",
+        "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+        "management_tools": ["Console", "CLI", "CloudAPI"],
+        "risk_level": "High",
+        "assessment_factors": [
+          "消息队列Topic/vhost删除会影响所有生产者和消费者",
+          "数据保留和消息持久性",
+          "对下游数据管道和分析的影响"
+        ],
+        "key_metrics_to_monitor": [
+          "生产者/消费者错误率",
+          "队列深度或分区Lag",
+          "集群健康状况"
+        ],
+        "pre_change_checklist": [
+          "确认没有活动的生产者或消费者仍在使用该Topic/vhost",
+          "验证数据不再需要或已归档/迁移",
+          "与相关团队沟通，确保影响可控",
+          "备份消息队列配置"
+        ],
+        "post_change_verification": [
+          "确认Topic/vhost已删除",
+          "监控以前使用该Topic/vhost的应用，确保能正常处理其缺失或已停用"
+        ],
+        "potential_impacts": [
+          "数据丢失或消息未处理",
+          "应用程序连接错误或数据流中断",
+          "下游数据分析或管道失败"
+        ],
+        "mitigation_strategies": [
+          "实施明确的Topic/vhost生命周期管理流程",
+          "如有需要，提前归档数据",
+          "如有问题，及时恢复配置或新建Topic/vhost"
+        ]
+      },
+      {
+        "type": "CLOUD_OBJECT_STORAGE_BUCKET_POLICY_UPDATE",
+        "description": "通过自动化工具（如API/控制台/CLI）修改云平台对象存储（如AWS S3、阿里云OSS、腾讯云COS）Bucket的授权策略。",
+        "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+        "management_tools": ["CloudAPI", "SDK", "Console"],
+        "risk_level": "High",
+        "assessment_factors": [
+          "Bucket Policy直接控制对存储桶中对象的访问权限",
+          "错误配置可能导致数据泄露或正常访问被拒绝",
+          "策略语法复杂，容易出错"
+        ],
+        "key_metrics_to_monitor": [
+          "对象存储访问日志（请求来源、操作类型、HTTP状态码）",
+          "应用层访问对象存储的成功率和错误率",
+          "数据安全监控告警"
+        ],
+        "pre_change_checklist": [
+          "仔细编写和审查新的Bucket Policy文档",
+          "使用云厂商提供的策略模拟器或校验工具验证策略的有效性和预期效果",
+          "备份当前的Bucket Policy",
+          "明确变更的影响范围，通知相关用户或应用"
+        ],
+        "post_change_verification": [
+          "尝试从不同身份访问Bucket中的对象，验证权限是否符合预期",
+          "检查应用访问对象存储功能是否正常",
+          "监控对象存储访问日志，确认无异常访问行为"
+        ],
+        "potential_impacts": [
+          "敏感数据被公开访问或泄露",
+          "合法用户或应用无法访问对象存储资源，导致功能中断",
+          "策略配置过于复杂导致难以维护和审计"
+        ],
+        "mitigation_strategies": [
+          "立即恢复到备份的策略版本",
+          "临时移除策略以恢复默认权限，然后重新配置"
+        ]
+      },
+      {
+        "type": "CLOUD_CACHE_FLUSHALL_EXECUTION",
+        "description": "在生产环境通过自动化工具（如CLI/SDK/控制台）对云平台缓存服务（如AWS ElastiCache Redis、阿里云Redis、腾讯云Redis）执行FLUSHALL/FLUSHDB等清空操作。",
+        "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+        "management_tools": ["CLI", "SDK", "Console"],
+        "risk_level": "Critical",
+        "assessment_factors": [
+          "对应用程序性能和功能的影响（缓存数据丢失）",
+          "缓存服务的数据持久化配置",
+          "操作的必要性"
+        ],
+        "key_metrics_to_monitor": [
+          "应用程序响应时间",
+          "缓存命中/未命中率",
+          "数据库负载（因为应用程序可能更频繁地访问数据库）"
+        ],
+        "pre_change_checklist": [
+          "确认命令的绝对必要性",
+          "了解哪些应用程序/服务依赖此缓存实例",
+          "通知所有利益相关者",
+          "如启用持久化且数据重要，先备份缓存数据",
+          "限制执行此类命令的访问权限"
+        ],
+        "post_change_verification": [
+          "监控应用程序行为，查找与缓存数据丢失相关的问题",
+          "观察缓存重新填充模式"
+        ],
+        "potential_impacts": [
+          "严重的应用程序性能下降",
+          "如果应用程序严重依赖缓存数据，则可能导致应用程序错误或不可用",
+          "后端数据库/服务负载增加"
+        ],
+        "mitigation_strategies": [
+          "除非绝对不可避免且已计划，否则避免在生产环境执行清空操作",
+          "如只需删除特定键，则使用有针对性的删除操作",
+          "在应用程序中实现强大的缓存重新填充机制",
+          "确保对缓存服务的严格访问控制"
+        ]
+      },
+      {
+        "type": "CLOUD_GLOBAL_ACCELERATOR_CONFIG_UPDATE",
+        "description": "通过自动化工具（如控制台/API/CLI）修改云平台全球加速（如AWS Global Accelerator、阿里云全球加速GA、腾讯云GA）实例的监听器、加速区域、后端组等配置。",
+        "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+        "management_tools": ["Console", "CloudAPI", "CLI"],
+        "risk_level": "High",
+        "assessment_factors": [
+          "全球加速配置影响跨地域访问质量和可用性",
+          "监听器或后端组配置错误可能导致业务不可用",
+          "加速区域变更可能影响用户体验"
+        ],
+        "key_metrics_to_monitor": [
+          "加速流量带宽和延迟",
+          "后端健康检查状态",
+          "全球各区域的访问成功率"
+        ],
+        "pre_change_checklist": [
+          "详细了解各项加速配置参数的含义和影响",
+          "备份当前GA实例配置",
+          "选择业务低峰期进行变更",
+          "准备好快速回滚方案"
+        ],
+        "post_change_verification": [
+          "确认配置已保存并生效",
+          "从全球不同区域测试加速访问效果",
+          "监控加速流量和后端健康状态"
+        ],
+        "potential_impacts": [
+          "全球用户访问变慢或失败",
+          "后端服务不可用",
+          "加速流量未按预期分配"
+        ],
+        "mitigation_strategies": [
+          "立即回滚到变更前配置",
+          "手动修正监听器或后端组配置",
+          "如有必要，联系云厂商技术支持"
+        ]
+      },
+      {
+        "type": "CLOUD_VPC_ROUTER_ROUTE_UPDATE",
+        "description": "通过自动化工具（如控制台/API/CLI）修改云平台VPC路由器（如AWS VPC Route Table、阿里云路由器、腾讯云VPC路由表）的路由条目。",
+        "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+        "management_tools": ["Console", "CloudAPI", "CLI"],
+        "risk_level": "High",
+        "assessment_factors": [
+          "路由表配置直接影响网络连通性",
+          "错误的路由条目可能导致业务中断或数据泄露",
+          "跨VPC/子网通信依赖路由配置"
+        ],
+        "key_metrics_to_monitor": [
+          "目标子网/实例的连通性",
+          "网络流量异常告警",
+          "路由表命中率"
+        ],
+        "pre_change_checklist": [
+          "详细审查路由变更内容和影响范围",
+          "备份当前路由表配置",
+          "通知相关团队，准备好回滚方案"
+        ],
+        "post_change_verification": [
+          "确认路由表已按预期更新",
+          "测试关键业务路径的网络连通性",
+          "监控网络流量和异常告警"
+        ],
+        "potential_impacts": [
+          "业务系统无法访问关键资源",
+          "数据流量被错误路由到不安全区域",
+          "跨VPC/子网通信中断"
+        ],
+        "mitigation_strategies": [
+          "立即回滚到变更前的路由配置",
+          "手动修正错误路由条目",
+          "如有必要，联系云厂商技术支持"
+        ]
+      },
+      {
+        "type": "CLOUD_ENTERPRISE_NETWORK_ATTACHMENT_UPDATE",
+        "description": "通过自动化工具（如控制台/API/CLI）修改云平台企业级网络互联（如AWS Transit Gateway、阿里云云企业网CEN、腾讯云云联网CCN）的实例绑定、路由、带宽等配置。",
+        "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+        "management_tools": ["Console", "CloudAPI", "CLI"],
+        "risk_level": "High",
+        "assessment_factors": [
+          "企业级网络互联配置影响多VPC/多地域互通",
+          "错误的绑定或路由配置可能导致大范围业务中断",
+          "带宽调整影响跨地域流量质量"
+        ],
+        "key_metrics_to_monitor": [
+          "互联带宽利用率",
+          "跨VPC/地域的网络连通性",
+          "互联实例健康状态"
+        ],
+        "pre_change_checklist": [
+          "详细了解互联实例和路由的变更影响",
+          "备份当前互联配置",
+          "通知所有相关业务方，准备好回滚方案"
+        ],
+        "post_change_verification": [
+          "确认互联配置已按预期生效",
+          "测试所有关键VPC/地域的互通性",
+          "监控带宽和互联健康状态"
+        ],
+        "potential_impacts": [
+          "多VPC/多地域业务大面积中断",
+          "跨地域流量异常或丢包",
+          "互联实例健康异常"
+        ],
+        "mitigation_strategies": [
+          "立即回滚到变更前配置",
+          "手动修正互联绑定或路由",
+          "如有必要，联系云厂商技术支持"
+        ]
+      },
+      {
+        "type": "CLOUD_IAM_USER_CREATE_OVER_PRIVILEGE",
+        "description": "在云平台（如AWS IAM、阿里云RAM、腾讯云CAM）创建用户时，分配了过大的权限（如AdministratorAccess、*:*:*等），未根据精细化和最小化原则进行权限限制。常见风险如误授全局管理员、授予所有资源的所有操作权限。",
+        "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+        "management_tools": ["Console", "CloudAPI", "CLI"],
+        "risk_level": "High",
+        "assessment_factors": [
+          "用户权限过大，可能导致误操作、数据泄露或安全事件",
+          "未遵循最小权限原则，增加攻击面",
+          "如授予AdministratorAccess或*:*:*等全局权限，风险极高"
+        ],
+        "key_metrics_to_monitor": [
+          "用户操作日志（如CloudTrail、ActionTrail、操作审计）",
+          "敏感资源的访问和变更记录",
+          "异常操作告警"
+        ],
+        "pre_change_checklist": [
+          "明确用户的业务需求，按需分配权限",
+          "避免直接授予管理员或全局权限，优先使用自定义策略",
+          "定期评审和收紧已有用户权限"
+        ],
+        "post_change_verification": [
+          "验证用户仅能访问和操作授权范围内的资源",
+          "监控用户操作日志，及时发现异常行为"
+        ],
+        "potential_impacts": [
+          "用户误操作导致资源损坏或数据丢失",
+          "敏感数据泄露或被恶意利用",
+          "云平台账号被攻击后造成大范围影响"
+        ],
+        "mitigation_strategies": [
+          "立即收回多余权限，调整为最小化所需权限",
+          "启用多因素认证（MFA）",
+          "定期审计和优化权限策略"
+        ]
+      },
+      {
+        "type": "CLOUD_AKSK_CREATE_OVER_PRIVILEGE",
+        "description": "在云平台（如AWS IAM、阿里云RAM、腾讯云CAM）创建访问密钥（AK/SK）时，分配了过大的权限（如AdministratorAccess、*:*:*等），未根据精细化和最小化原则进行限制。常见风险如AK/SK泄露后可操作所有资源。",
+        "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+        "management_tools": ["Console", "CloudAPI", "CLI"],
+        "risk_level": "Critical",
+        "assessment_factors": [
+          "AK/SK权限过大，泄露后可造成严重安全事件",
+          "未遵循最小权限原则，AK/SK可操作所有资源",
+          "如授予AdministratorAccess或*:*:*等全局权限，风险极高"
+        ],
+        "key_metrics_to_monitor": [
+          "AK/SK调用日志和异常告警",
+          "敏感操作和资源变更记录",
+          "AK/SK活跃度和异常使用情况"
+        ],
+        "pre_change_checklist": [
+          "仅为必要的用户或服务创建AK/SK，按需分配权限",
+          "避免为AK/SK分配管理员或全局权限，优先使用自定义策略",
+          "启用AK/SK使用范围和IP白名单限制（如支持）"
+        ],
+        "post_change_verification": [
+          "监控AK/SK的调用行为，及时发现异常操作",
+          "定期轮换和禁用不再使用的AK/SK"
+        ],
+        "potential_impacts": [
+          "AK/SK泄露导致云平台资源被恶意操作或删除",
+          "敏感数据被窃取或篡改",
+          "云平台账号被攻击后造成大范围业务中断"
+        ],
+        "mitigation_strategies": [
+          "立即禁用或删除高权限AK/SK，重新分配最小化权限",
+          "启用多因素认证（MFA）",
+          "定期审计和轮换AK/SK"
+        ]
+      },
+      {
+        "type": "TENCENTCLOUD_TKE_NODE_POOL_UPDATE",
+        "description": "修改腾讯云TKE集群的节点池配置，包括伸缩容量、实例类型或磁盘配置。",
+        "cloud_providers": ["TencentCloud"],
+        "management_tools": ["CloudAPI", "TCloud CLI", "Terraform"],
+        "risk_level": "Medium",
+        "assessment_factors": [
+          "节点配置变更可能导致工作负载重新调度",
+          "新节点加入集群过程中可能出现资源不足或调度问题",
+          "节点规格变更可能影响应用性能和资源利用率"
+        ],
+        "key_metrics_to_monitor": [
+          "节点CPU、内存利用率和压力 (Tencent Cloud Monitor)",
+          "Pod调度成功率和事件",
+          "应用响应时间和错误率",
+          "集群节点健康状态"
+        ],
+        "potential_impacts": [
+          "应用服务短暂不可用",
+          "集群自动扩容可能触发计费增加",
+          "节点池配置不当可能导致容量不足或资源浪费"
+        ],
+        "mitigation_strategies": [
+          "逐步进行节点池更新，先验证一小批节点",
+          "调整Pod干扰预算(PDB)确保服务高可用",
+          "回滚到原始节点池配置"
+        ],
+        "pre_change_checklist": [
+          "确认新节点规格与当前工作负载兼容",
+          "验证集群有足够的配额支持新节点",
+          "检查应用的资源请求和限制设置是否合理",
+          "备份当前节点池配置",
+          "选择业务低峰期执行变更"
+        ],
+        "post_change_verification": [
+          "监控节点池创建和加入集群过程",
+          "检查新节点上的Pod是否正常运行",
+          "验证应用负载在新节点上的性能表现",
+          "确认集群整体健康状态和资源利用率"
+        ]
+      }
+    ]
+  }

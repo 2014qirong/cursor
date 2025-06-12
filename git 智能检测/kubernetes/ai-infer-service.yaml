@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-infer-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-infer-service
+  template:
+    metadata:
+      labels:
+        app: ai-infer-service
+    spec:
+      containers:
+      - name: ai-infer-service
+        image: ai-infer-service:latest
+        ports:
+        - containerPort: 8001
+        env:
+        - name: INFLUXDB_URL
+          value: "http://influxdb:8086"
+        - name: INFLUXDB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: influxdb-secrets
+              key: token
+        - name: INFLUXDB_ORG
+          value: "my-org"
+        - name: INFLUXDB_BUCKET
+          value: "risk_assessment"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-infer-service
+spec:
+  selector:
+    app: ai-infer-service
+  ports:
+  - port: 8001
+    targetPort: 8001
+  type: ClusterIP 

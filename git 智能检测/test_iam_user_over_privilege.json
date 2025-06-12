@@ -1,0 +1,13 @@
+{
+  "UserName": "devops-admin",
+  "Description": "DevOps自动化用户，授予全局管理员权限（不符合最小权限原则）",
+  "Policies": [
+    {
+      "PolicyName": "AdministratorAccess",
+      "PolicyType": "System"
+    }
+  ],
+  "Tags": [
+    {"Key": "Environment", "Value": "production"}
+  ]
+} 

@@ -1,0 +1,13 @@
+{
+  "AccessKeyId": "AKIAEXAMPLE123456",
+  "SecretAccessKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+  "UserName": "ci-cd-bot",
+  "Description": "CI/CD自动化机器人，AK/SK绑定全局管理员权限（不符合最小权限原则）",
+  "Policies": [
+    {
+      "PolicyName": "AdministratorAccess",
+      "PolicyType": "System"
+    }
+  ],
+  "Status": "Active"
+} 

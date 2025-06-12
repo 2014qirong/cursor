@@ -1,0 +1,237 @@
+{
+  "risk_patterns": [
+    {
+      "type": "CLOUD_CDN_DOMAIN_CONFIG_UPDATE",
+      "description": "通过自动化工具（如控制台/API/CLI）修改云平台CDN（如AWS CloudFront、阿里云CDN、腾讯云CDN）的域名配置，包括源站设置、缓存策略、HTTPS配置、WAF防护、速率限制等。",
+      "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+      "management_tools": ["Console", "CloudAPI", "CLI"],
+      "risk_level": "High",
+      "assessment_factors": [
+        "CDN配置直接影响网站访问性能、安全性和可用性",
+        "WAF防护和速率限制等安全功能的变更可能增加安全风险",
+        "源站配置变更可能影响高可用性和容灾能力",
+        "缓存策略变更可能影响源站负载和用户体验"
+      ],
+      "key_metrics_to_monitor": [
+        "CDN流量和带宽使用情况",
+        "源站响应时间和状态码",
+        "缓存命中率",
+        "安全防护拦截事件"
+      ],
+      "pre_change_checklist": [
+        "详细了解CDN配置参数的含义和影响",
+        "备份当前CDN配置",
+        "评估变更对安全性的影响，特别是WAF和速率限制等安全功能",
+        "选择业务低峰期进行变更",
+        "准备好快速回滚方案"
+      ],
+      "post_change_verification": [
+        "确认配置已保存并生效",
+        "测试网站访问是否正常",
+        "监控CDN流量、源站负载和缓存命中率",
+        "验证安全防护功能是否正常工作"
+      ],
+      "potential_impacts": [
+        "禁用WAF防护：网站可能面临SQL注入、XSS等攻击风险",
+        "关闭速率限制：可能导致DDoS攻击风险增加，资源耗尽",
+        "禁用备用源站：降低高可用性，单点故障风险增加",
+        "API请求不缓存：可能增加源站负载，影响性能",
+        "修改缓存策略：可能影响缓存命中率和用户体验"
+      ],
+      "mitigation_strategies": [
+        "立即回滚到变更前配置",
+        "重新启用WAF防护和速率限制等安全功能",
+        "恢复备用源站配置，确保高可用性",
+        "优化缓存策略，平衡源站负载和内容新鲜度",
+        "如有必要，联系云厂商技术支持"
+      ]
+    },
+    {
+      "type": "CLOUD_CDN_WAF_PROTECTION_DISABLE",
+      "description": "在云平台CDN配置中禁用WAF（Web应用防火墙）防护功能，移除对网站的安全防护层。",
+      "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+      "management_tools": ["Console", "CloudAPI", "CLI"],
+      "risk_level": "High",
+      "assessment_factors": [
+        "WAF防护是CDN安全防护的重要组成部分",
+        "禁用WAF会移除对SQL注入、XSS等常见Web攻击的防护",
+        "可能违反安全合规要求"
+      ],
+      "key_metrics_to_monitor": [
+        "Web攻击尝试次数",
+        "异常请求模式",
+        "安全事件告警"
+      ],
+      "pre_change_checklist": [
+        "确认是否有其他安全防护措施可以替代WAF",
+        "评估禁用WAF的安全风险",
+        "通知安全团队并获得批准",
+        "准备好快速回滚方案"
+      ],
+      "post_change_verification": [
+        "监控网站是否受到攻击",
+        "检查安全日志是否有异常",
+        "验证其他安全防护措施是否生效"
+      ],
+      "potential_impacts": [
+        "网站可能面临SQL注入、XSS等攻击风险",
+        "敏感数据可能被窃取或篡改",
+        "可能导致安全事件或违规"
+      ],
+      "mitigation_strategies": [
+        "立即重新启用WAF防护",
+        "实施其他安全防护措施，如源站WAF或应用层防护",
+        "加强安全监控和告警"
+      ]
+    },
+    {
+      "type": "CLOUD_CDN_RATE_LIMITING_DISABLE",
+      "description": "在云平台CDN配置中禁用速率限制功能，移除对请求频率的限制。",
+      "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+      "management_tools": ["Console", "CloudAPI", "CLI"],
+      "risk_level": "Medium",
+      "assessment_factors": [
+        "速率限制是防止DDoS攻击和资源耗尽的重要手段",
+        "禁用速率限制可能导致源站过载",
+        "可能影响服务可用性和性能"
+      ],
+      "key_metrics_to_monitor": [
+        "请求频率和流量峰值",
+        "源站负载和响应时间",
+        "异常流量模式"
+      ],
+      "pre_change_checklist": [
+        "评估禁用速率限制的风险",
+        "确认源站是否有足够的容量处理可能增加的负载",
+        "准备好快速回滚方案"
+      ],
+      "post_change_verification": [
+        "监控请求频率和源站负载",
+        "检查是否有异常流量或攻击",
+        "验证服务性能和可用性"
+      ],
+      "potential_impacts": [
+        "可能导致DDoS攻击风险增加",
+        "源站可能因负载过高而响应缓慢或不可用",
+        "服务质量下降，用户体验受影响"
+      ],
+      "mitigation_strategies": [
+        "重新启用速率限制功能",
+        "优化速率限制策略，平衡安全性和用户体验",
+        "实施其他流量控制措施，如源站限流或负载均衡"
+      ]
+    },
+    {
+      "type": "CLOUD_CDN_BACKUP_ORIGIN_DISABLE",
+      "description": "在云平台CDN配置中禁用备用源站或将备用源站权重设置为0，降低高可用性。",
+      "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+      "management_tools": ["Console", "CloudAPI", "CLI"],
+      "risk_level": "Medium",
+      "assessment_factors": [
+        "备用源站是确保CDN高可用性的重要手段",
+        "禁用备用源站会增加单点故障风险",
+        "可能影响服务可用性和灾难恢复能力"
+      ],
+      "key_metrics_to_monitor": [
+        "主源站可用性和健康状态",
+        "CDN回源失败率",
+        "服务可用性监控"
+      ],
+      "pre_change_checklist": [
+        "评估禁用备用源站的风险",
+        "确认主源站的可靠性和容量",
+        "准备好快速回滚方案"
+      ],
+      "post_change_verification": [
+        "监控主源站健康状态",
+        "测试主源站故障场景下的行为",
+        "验证服务可用性"
+      ],
+      "potential_impacts": [
+        "主源站故障时无法切换到备用源站，导致服务中断",
+        "降低系统容灾能力和高可用性",
+        "可能影响SLA达成"
+      ],
+      "mitigation_strategies": [
+        "重新启用备用源站",
+        "优化主备源站配置，确保高可用性",
+        "实施其他高可用性措施，如多区域部署"
+      ]
+    },
+    {
+      "type": "CLOUD_CDN_API_CACHE_DISABLE",
+      "description": "在云平台CDN配置中禁用API请求缓存或将API路径的缓存TTL设置为0，导致所有API请求直接回源。",
+      "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+      "management_tools": ["Console", "CloudAPI", "CLI"],
+      "risk_level": "Low",
+      "assessment_factors": [
+        "API缓存是减轻源站负载的重要手段",
+        "禁用API缓存会增加源站负载",
+        "可能影响API响应时间和性能"
+      ],
+      "key_metrics_to_monitor": [
+        "API请求量和回源率",
+        "源站负载和响应时间",
+        "API错误率和超时"
+      ],
+      "pre_change_checklist": [
+        "评估禁用API缓存的影响",
+        "确认源站是否有足够的容量处理增加的负载",
+        "准备好快速回滚方案"
+      ],
+      "post_change_verification": [
+        "监控API请求量和源站负载",
+        "测试API响应时间和性能",
+        "验证API功能是否正常"
+      ],
+      "potential_impacts": [
+        "源站负载增加，可能导致响应缓慢",
+        "API响应时间增加，用户体验下降",
+        "高峰期可能出现性能瓶颈"
+      ],
+      "mitigation_strategies": [
+        "重新启用API缓存",
+        "优化缓存策略，平衡数据新鲜度和源站负载",
+        "实施其他性能优化措施，如源站扩容或负载均衡"
+      ]
+    },
+    {
+      "type": "CLOUD_CDN_CACHE_POLICY_MODIFY",
+      "description": "在云平台CDN配置中修改缓存策略，包括缓存TTL、缓存键规则、查询参数处理等。",
+      "cloud_providers": ["AWS", "AliCloud", "TencentCloud"],
+      "management_tools": ["Console", "CloudAPI", "CLI"],
+      "risk_level": "Low",
+      "assessment_factors": [
+        "缓存策略直接影响内容新鲜度和缓存命中率",
+        "不当的缓存策略可能导致内容过期或缓存效率低下",
+        "可能影响用户体验和源站负载"
+      ],
+      "key_metrics_to_monitor": [
+        "缓存命中率和未命中率",
+        "源站负载和响应时间",
+        "内容过期和刷新频率"
+      ],
+      "pre_change_checklist": [
+        "详细了解缓存策略参数的含义和影响",
+        "备份当前缓存策略",
+        "评估变更对内容新鲜度和缓存效率的影响",
+        "准备好快速回滚方案"
+      ],
+      "post_change_verification": [
+        "监控缓存命中率和源站负载",
+        "测试内容更新后的缓存行为",
+        "验证用户访问体验"
+      ],
+      "potential_impacts": [
+        "缓存命中率下降，源站负载增加",
+        "内容过期或不一致，影响用户体验",
+        "缓存空间利用率低下，成本增加"
+      ],
+      "mitigation_strategies": [
+        "回滚到原有缓存策略",
+        "优化缓存策略，平衡内容新鲜度和缓存效率",
+        "实施内容预热和主动刷新机制"
+      ]
+    }
+  ]
+}

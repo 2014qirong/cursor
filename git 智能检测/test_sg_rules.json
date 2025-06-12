@@ -1,0 +1,107 @@
+{
+  "SecurityGroupId": "sg-01234567890abcdef",
+  "GroupName": "app-server-sg",
+  "Description": "Security group for application servers",
+  "IpPermissions": [
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 22,
+      "ToPort": 22,
+      "IpRanges": [
+        {
+          "CidrIp": "0.0.0.0/0",  // 原为公司IP 10.0.0.0/16，现改为全网开放
+          "Description": "SSH access"
+        }
+      ]
+    },
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 80,
+      "ToPort": 80,
+      "IpRanges": [
+        {
+          "CidrIp": "0.0.0.0/0",
+          "Description": "HTTP access"
+        }
+      ]
+    },
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 443,
+      "ToPort": 443,
+      "IpRanges": [
+        {
+          "CidrIp": "0.0.0.0/0",
+          "Description": "HTTPS access"
+        }
+      ]
+    },
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 3306,
+      "ToPort": 3306,  // 新开放MySQL端口
+      "IpRanges": [
+        {
+          "CidrIp": "0.0.0.0/0",  // 对全网开放数据库端口
+          "Description": "MySQL access"
+        }
+      ]
+    },
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 6379,
+      "ToPort": 6379,  // 新开放Redis端口
+      "IpRanges": [
+        {
+          "CidrIp": "0.0.0.0/0",  // 对全网开放缓存端口
+          "Description": "Redis access"
+        }
+      ]
+    },
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 8080,
+      "ToPort": 8090,  // 开放一个端口范围
+      "IpRanges": [
+        {
+          "CidrIp": "0.0.0.0/0",
+          "Description": "Application ports"
+        }
+      ]
+    },
+    {
+      "IpProtocol": "all",  // 允许所有协议
+      "FromPort": -1,
+      "ToPort": -1,
+      "IpRanges": [
+        {
+          "CidrIp": "10.0.0.0/8",  // 对内网开放所有协议和端口
+          "Description": "Internal network access"
+        }
+      ]
+    }
+  ],
+  "IpPermissionsEgress": [
+    {
+      "IpProtocol": "-1",
+      "FromPort": -1,
+      "ToPort": -1,
+      "IpRanges": [
+        {
+          "CidrIp": "0.0.0.0/0",
+          "Description": "Allow all outbound traffic"
+        }
+      ]
+    }
+  ],
+  "Tags": [
+    {
+      "Key": "Name",
+      "Value": "AppServerSG"
+    },
+    {
+      "Key": "Environment",
+      "Value": "Production"
+    }
+  ]
+} 

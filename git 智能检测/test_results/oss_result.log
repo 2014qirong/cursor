@@ -1,0 +1,5 @@
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+识别到的资源类型: objectstorage
+初始化语义模型: paraphrase-multilingual-MiniLM-L12-v2...
+语义模型初始化完成，知识库条目数: 26
+未能识别到相关风险场景。请人工评估。

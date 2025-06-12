@@ -1,0 +1,187 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  INFLUXDB_URL: http://localhost:8086
+  INFLUXDB_TOKEN: ${{ secrets.INFLUXDB_TOKEN }}
+  INFLUXDB_ORG: my-org
+  INFLUXDB_BUCKET: risk_assessment
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.9"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest
+        pip install -r requirements.txt
+    - name: Run tests
+      run: |
+        pytest tests/
+
+  test-and-assess:
+    runs-on: ubuntu-latest
+    
+    services:
+      influxdb:
+        image: influxdb:2.7
+        ports:
+          - 8086:8086
+        env:
+          DOCKER_INFLUXDB_INIT_MODE: setup
+          DOCKER_INFLUXDB_INIT_USERNAME: admin
+          DOCKER_INFLUXDB_INIT_PASSWORD: adminadmin
+          DOCKER_INFLUXDB_INIT_ORG: my-org
+          DOCKER_INFLUXDB_INIT_BUCKET: risk_assessment
+          DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${{ secrets.INFLUXDB_TOKEN }}
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # 获取完整的git历史
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+        # 安装 InfluxDB CLI
+        wget https://dl.influxdata.com/influxdb/releases/influxdb2-client-2.7.3-linux-amd64.tar.gz
+        tar xvzf influxdb2-client-2.7.3-linux-amd64.tar.gz
+        sudo cp influxdb2-client-2.7.3-linux-amd64/influx /usr/local/bin/
+    
+    - name: Run tests with coverage
+      run: |
+        pytest tests/ --cov=. --cov-report=xml
+    
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: coverage.xml
+
+    - name: Setup InfluxDB
+      run: |
+        echo "配置 InfluxDB..."
+        influx config create \
+          --config-name default \
+          --host-url http://localhost:8086 \
+          --org my-org \
+          --token ${{ secrets.INFLUXDB_TOKEN }} \
+          --active
+
+    - name: Start services
+      run: |
+        echo "启动 AI 推理服务..."
+        cd ai_infer_service
+        python -m uvicorn main:app --host 0.0.0.0 --port 8001 &
+        
+        echo "启动 LIME 解释服务..."
+        cd ../lime_explain_service
+        python -m uvicorn main:app --host 0.0.0.0 --port 8002 &
+        
+        sleep 10
+        
+        curl -s http://localhost:8001/health || echo "AI 推理服务未正常运行"
+        curl -s http://localhost:8002/health || echo "LIME 解释服务未正常运行"
+
+    - name: Run risk assessment
+      run: |
+        echo "执行风险评估..."
+        git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changed_files.txt
+        
+        while IFS= read -r file; do
+          if [ -f "$file" ]; then
+            echo "评估文件: $file"
+            diff_content=$(git diff ${{ github.event.before }} ${{ github.sha }} -- "$file")
+            
+            response=$(curl -s -X POST http://localhost:8001/predict \
+              -H "Content-Type: application/json" \
+              -d "{\"diff_content\": \"$diff_content\"}")
+            
+            echo "评估结果: $response"
+          fi
+        done < changed_files.txt
+
+    - name: Generate risk report
+      run: |
+        echo "## 风险评估报告" > risk_report.md
+        echo "### 评估时间: $(date)" >> risk_report.md
+        echo "### 变更文件列表:" >> risk_report.md
+        cat changed_files.txt >> risk_report.md
+        echo "" >> risk_report.md
+        echo "### 详细评估结果:" >> risk_report.md
+        
+        influx query 'from(bucket:"risk_assessment")
+          |> range(start: -1h)
+          |> filter(fn: (r) => r["_measurement"] == "risk_assessment")
+          |> filter(fn: (r) => r["_field"] == "probability")
+          |> last()' >> risk_report.md
+
+    - name: Upload risk report
+      uses: actions/upload-artifact@v3
+      with:
+        name: risk-assessment-report
+        path: risk_report.md
+
+  deploy:
+    needs: test-and-assess
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-1
+    
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    
+    - name: Build and push Docker images
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # 构建并推送 AI 推理服务
+        docker build -t $ECR_REGISTRY/ai-infer-service:$IMAGE_TAG ./ai_infer_service
+        docker push $ECR_REGISTRY/ai-infer-service:$IMAGE_TAG
+        
+        # 构建并推送 LIME 解释服务
+        docker build -t $ECR_REGISTRY/lime-explain-service:$IMAGE_TAG ./lime_explain_service
+        docker push $ECR_REGISTRY/lime-explain-service:$IMAGE_TAG
+    
+    - name: Update kube config
+      run: aws eks update-kubeconfig --name my-cluster --region ap-northeast-1
+    
+    - name: Deploy to EKS
+      run: |
+        # 更新 deployment 配置中的镜像版本
+        sed -i "s|image:.*|image: $ECR_REGISTRY/ai-infer-service:$IMAGE_TAG|" kubernetes/ai-infer-service.yaml
+        sed -i "s|image:.*|image: $ECR_REGISTRY/lime-explain-service:$IMAGE_TAG|" kubernetes/lime-explain-service.yaml
+        
+        # 应用 Kubernetes 配置
+        kubectl apply -f kubernetes/ 

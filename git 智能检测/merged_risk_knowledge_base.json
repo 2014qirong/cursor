@@ -1,0 +1,289 @@
+{
+  "risk_patterns": [
+    {
+      "description": "禁用WAF防护",
+      "cloud_providers": ["AWS", "Azure", "GCP", "TencentCloud", "AliCloud"],
+      "risk_level": "高",
+      "assessment_factors": [
+        "当前安全威胁等级",
+        "流量来源分析",
+        "应用敏感度评估",
+        "备用安全措施"
+      ],
+      "key_metrics": [
+        "恶意请求拦截率",
+        "安全事件数量",
+        "流量异常检测",
+        "攻击尝试频率"
+      ],
+      "checklist": [
+        "确认是否有其他安全防护措施",
+        "评估当前威胁环境",
+        "制定应急响应计划",
+        "设置监控告警"
+      ],
+      "potential_impacts": [
+        "暴露于网络攻击",
+        "数据泄露风险",
+        "服务可用性下降",
+        "合规性问题"
+      ],
+      "mitigation_strategies": [
+        "启用备用安全服务",
+        "加强监控和告警",
+        "限制访问来源",
+        "定期安全评估"
+      ]
+    },
+    {
+      "description": "禁用限流保护",
+      "cloud_providers": ["AWS", "Azure", "GCP", "TencentCloud", "AliCloud"],
+      "risk_level": "中",
+      "assessment_factors": [
+        "历史流量峰值",
+        "服务器承载能力",
+        "业务重要性",
+        "用户访问模式"
+      ],
+      "key_metrics": [
+        "请求频率",
+        "响应时间",
+        "错误率",
+        "服务器负载"
+      ],
+      "checklist": [
+        "评估服务器容量",
+        "分析历史流量数据",
+        "准备扩容方案",
+        "设置性能监控"
+      ],
+      "potential_impacts": [
+        "服务过载",
+        "响应时间增加",
+        "系统崩溃风险",
+        "用户体验下降"
+      ],
+      "mitigation_strategies": [
+        "实施应用层限流",
+        "准备自动扩容",
+        "优化缓存策略",
+        "负载均衡配置"
+      ]
+    },
+    {
+      "description": "禁用备用源站",
+      "cloud_providers": ["AWS", "Azure", "GCP", "TencentCloud", "AliCloud"],
+      "risk_level": "中",
+      "assessment_factors": [
+        "主源站稳定性",
+        "业务连续性要求",
+        "故障恢复时间",
+        "用户影响范围"
+      ],
+      "key_metrics": [
+        "源站可用性",
+        "故障切换时间",
+        "服务中断时长",
+        "用户访问成功率"
+      ],
+      "checklist": [
+        "确认主源站稳定性",
+        "评估业务影响",
+        "准备快速恢复方案",
+        "通知相关团队"
+      ],
+      "potential_impacts": [
+        "单点故障风险",
+        "服务中断",
+        "用户无法访问",
+        "业务损失"
+      ],
+      "mitigation_strategies": [
+        "加强主源站监控",
+        "准备快速切换方案",
+        "定期健康检查",
+        "建立告警机制"
+      ]
+    },
+    {
+      "description": "API请求不缓存",
+      "cloud_providers": ["AWS", "Azure", "GCP", "TencentCloud", "AliCloud"],
+      "risk_level": "低",
+      "assessment_factors": [
+        "API调用频率",
+        "数据实时性要求",
+        "服务器处理能力",
+        "成本考虑"
+      ],
+      "key_metrics": [
+        "API响应时间",
+        "服务器负载",
+        "带宽使用量",
+        "缓存命中率"
+      ],
+      "checklist": [
+        "分析API调用模式",
+        "评估性能影响",
+        "考虑成本效益",
+        "制定缓存策略"
+      ],
+      "potential_impacts": [
+        "响应时间增加",
+        "服务器负载上升",
+        "带宽成本增加",
+        "用户体验下降"
+      ],
+      "mitigation_strategies": [
+        "优化API性能",
+        "实施智能缓存",
+        "负载均衡",
+        "监控性能指标"
+      ]
+    },
+    {
+      "description": "修改缓存策略",
+      "cloud_providers": ["AWS", "Azure", "GCP", "TencentCloud", "AliCloud"],
+      "risk_level": "低",
+      "assessment_factors": [
+        "内容更新频率",
+        "用户访问模式",
+        "存储成本",
+        "性能要求"
+      ],
+      "key_metrics": [
+        "缓存命中率",
+        "内容新鲜度",
+        "存储使用量",
+        "访问延迟"
+      ],
+      "checklist": [
+        "分析内容特性",
+        "评估缓存效果",
+        "测试新策略",
+        "监控性能变化"
+      ],
+      "potential_impacts": [
+        "缓存效率变化",
+        "内容一致性问题",
+        "性能波动",
+        "成本变化"
+      ],
+      "mitigation_strategies": [
+        "渐进式部署",
+        "A/B测试",
+        "性能监控",
+        "回滚准备"
+      ]
+    }
+  ],
+  "cloud_change_risk_assessment": [
+    {
+      "description": "AWS Route53 DNS记录变更",
+      "cloud_providers": ["AWS"],
+      "management_tools": ["Terraform", "CloudFormation", "AWS CLI"],
+      "risk_level": "高",
+      "assessment_factors": [
+        "DNS传播时间",
+        "TTL设置",
+        "流量切换影响",
+        "依赖服务数量"
+      ],
+      "key_metrics": [
+        "DNS解析成功率",
+        "响应时间",
+        "流量分布",
+        "错误率"
+      ],
+      "checklist": [
+        "确认新记录正确性",
+        "评估TTL影响",
+        "准备回滚方案",
+        "通知相关团队"
+      ],
+      "potential_impacts": [
+        "服务不可访问",
+        "流量丢失",
+        "用户体验下降",
+        "业务中断"
+      ],
+      "mitigation_strategies": [
+        "分阶段切换",
+        "降低TTL",
+        "监控DNS解析",
+        "准备快速回滚"
+      ]
+    },
+    {
+      "description": "腾讯云TKE集群节点扩缩容",
+      "cloud_providers": ["TencentCloud"],
+      "management_tools": ["Terraform", "kubectl", "TKE Console"],
+      "risk_level": "中",
+      "assessment_factors": [
+        "当前负载情况",
+        "Pod调度策略",
+        "资源配额限制",
+        "网络配置"
+      ],
+      "key_metrics": [
+        "节点资源使用率",
+        "Pod调度成功率",
+        "集群稳定性",
+        "网络连通性"
+      ],
+      "checklist": [
+        "检查资源配额",
+        "验证网络配置",
+        "确认调度策略",
+        "准备监控告警"
+      ],
+      "potential_impacts": [
+        "Pod调度失败",
+        "服务不稳定",
+        "资源浪费",
+        "成本增加"
+      ],
+      "mitigation_strategies": [
+        "渐进式扩缩容",
+        "资源监控",
+        "自动化调度",
+        "成本优化"
+      ]
+    },
+    {
+      "description": "阿里云ECS实例规格变更",
+      "cloud_providers": ["AliCloud"],
+      "management_tools": ["Terraform", "Ansible", "阿里云控制台"],
+      "risk_level": "中",
+      "assessment_factors": [
+        "业务负载特性",
+        "变更时间窗口",
+        "数据迁移需求",
+        "依赖服务影响"
+      ],
+      "key_metrics": [
+        "CPU使用率",
+        "内存使用率",
+        "网络性能",
+        "磁盘IO"
+      ],
+      "checklist": [
+        "备份重要数据",
+        "选择合适时间窗口",
+        "测试新规格性能",
+        "准备回滚方案"
+      ],
+      "potential_impacts": [
+        "服务中断",
+        "性能下降",
+        "数据丢失风险",
+        "用户体验影响"
+      ],
+      "mitigation_strategies": [
+        "蓝绿部署",
+        "负载均衡",
+        "性能测试",
+        "监控告警"
+      ]
+    }
+  ]
+}

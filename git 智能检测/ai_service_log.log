@@ -1,0 +1,61 @@
+/Users/heytea/Desktop/cursor/git 智能检测/ai_infer_service/main.py:210: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+INFO:     Started server process [59720]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+加载云平台变更风险知识库...
+知识库加载成功，包含 28 条变更记录
+加载模型...
+模型加载成功
+InfluxDB client initialized.
+模型加载成功
+接收到输入，长度: 46
+预处理完成，变更类型: AWS_IAM_CHANGE
+匹配到知识库项: AWS_RDS_INSTANCE_CLASS_CHANGE_TF
+写入 InfluxDB 成功: probability=0.85
+INFO:     127.0.0.1:50539 - "POST /predict HTTP/1.1" 200 OK
+接收到输入，长度: 767
+预处理完成，变更类型: AliCloud_K8S_INGRESS_UPDATE
+匹配到知识库项: TENCENTCLOUD_K8S_INGRESS_UPDATE_HELM_ARGOCD
+写入 InfluxDB 成功: probability=0.85
+INFO:     127.0.0.1:50561 - "POST /predict HTTP/1.1" 200 OK
+接收到输入，长度: 1285
+预处理完成，变更类型: AliCloud_K8S_INGRESS_UPDATE
+匹配到知识库项: TENCENTCLOUD_K8S_INGRESS_UPDATE_HELM_ARGOCD
+写入 InfluxDB 成功: probability=0.85
+INFO:     127.0.0.1:50712 - "POST /predict HTTP/1.1" 200 OK
+接收到输入，长度: 3014
+预处理完成，变更类型: AWS_K8S_CHANGE
+匹配到知识库项: AWS_RDS_INSTANCE_CLASS_CHANGE_TF
+写入 InfluxDB 成功: probability=0.85
+INFO:     127.0.0.1:50737 - "POST /predict HTTP/1.1" 200 OK
+接收到输入，长度: 858
+预处理完成，变更类型: AliCloud_DATABASE_CHANGE
+匹配到知识库项: ALICLOUD_ECS_SG_RULE_CHANGE_TF
+写入 InfluxDB 成功: probability=0.65
+INFO:     127.0.0.1:50744 - "POST /predict HTTP/1.1" 200 OK
+接收到输入，长度: 897
+预处理完成，变更类型: AliCloud_NETWORK_CHANGE
+匹配到知识库项: ALICLOUD_ECS_SG_RULE_CHANGE_TF
+写入 InfluxDB 成功: probability=0.65
+INFO:     127.0.0.1:50764 - "POST /predict HTTP/1.1" 200 OK
+接收到输入，长度: 412
+预处理完成，变更类型: AWS_IAM_CHANGE
+匹配到知识库项: AWS_RDS_INSTANCE_CLASS_CHANGE_TF
+写入 InfluxDB 成功: probability=0.85
+INFO:     127.0.0.1:50779 - "POST /predict HTTP/1.1" 200 OK
+接收到输入，长度: 1034
+预处理完成，变更类型: AWS_K8S_CHANGE
+匹配到知识库项: AWS_RDS_INSTANCE_CLASS_CHANGE_TF
+写入 InfluxDB 成功: probability=0.85
+INFO:     127.0.0.1:50787 - "POST /predict HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [59720]

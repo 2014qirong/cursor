@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  namespace: production
+  labels:
+    app: order-service
+    env: production
+spec:
+  replicas: 10  # 从3副本增加到10副本
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0  # 确保零停机部署
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+      - name: order-service
+        image: company/order-service:v2.5.0  # 从v2.4.3升级到v2.5.0
+        resources:
+          requests:
+            cpu: "2"    # 从0.5增加到2
+            memory: 4Gi  # 从1Gi增加到4Gi
+          limits:
+            cpu: "4"     # 从1增加到4
+            memory: 8Gi  # 从2Gi增加到8Gi
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "production"
+        - name: DB_CONNECTION_TIMEOUT
+          value: "30"
+        - name: REDIS_POOL_SIZE
+          value: "50"  # 从20增加到50
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20 
