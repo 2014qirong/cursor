@@ -194,6 +194,25 @@ class DiffRequest(BaseModel):
 class CodeInput(BaseModel):
     code: str
 
+class GitLabWebhookPayload(BaseModel):
+    object_kind: str
+    event_name: str
+    before: str
+    after: str
+    ref: str
+    checkout_sha: str
+    message: str
+    user_id: int
+    user_name: str
+    user_username: str
+    user_email: str
+    user_avatar: str
+    project_id: int
+    project: dict
+    commits: list
+    total_commits_count: int
+    repository: dict
+
 def get_risk_description(diff_content: str, risk_level: str) -> dict:
     """
     根据代码内容和风险等级生成风险描述
@@ -349,6 +368,240 @@ def convert_risk_level_to_probability(risk_level):
     }
     return risk_mapping.get(risk_level, 0.5)
 
+# 辅助函数：从 GitLab API 获取 commit diff
+async def get_commit_diff(project_id: int, commit_sha: str, gitlab_token: str = None) -> str:
+    """
+    从 GitLab API 获取指定 commit 的 diff 内容
+    """
+    try:
+        # 如果没有提供 GitLab token，尝试从环境变量获取
+        if not gitlab_token:
+            gitlab_token = os.getenv("GITLAB_TOKEN")
+        
+        if not gitlab_token:
+            print("警告: 未提供 GitLab token，无法获取详细 diff")
+            return ""
+        
+        # GitLab API URL (假设是 GitLab.com，如果是私有实例需要修改)
+        gitlab_url = os.getenv("GITLAB_URL", "https://gitlab.com")
+        api_url = f"{gitlab_url}/api/v4/projects/{project_id}/repository/commits/{commit_sha}/diff"
+        
+        headers = {
+            "Authorization": f"Bearer {gitlab_token}",
+            "Content-Type": "application/json"
+        }
+        
+        response = requests.get(api_url, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            diffs = response.json()
+            # 合并所有文件的 diff 内容
+            combined_diff = ""
+            for diff in diffs:
+                if 'diff' in diff:
+                    combined_diff += f"\n--- {diff.get('old_path', 'unknown')}\n"
+                    combined_diff += f"+++ {diff.get('new_path', 'unknown')}\n"
+                    combined_diff += diff['diff'] + "\n"
+            return combined_diff
+        else:
+            print(f"获取 diff 失败: HTTP {response.status_code}")
+            return ""
+    except Exception as e:
+        print(f"获取 commit diff 时出错: {str(e)}")
+        return ""
+
+@app.post("/gitlab-webhook")
+async def gitlab_webhook(payload: GitLabWebhookPayload):
+    """
+    处理 GitLab Webhook 请求，解析 Push Event 并进行风险评估
+    """
+    try:
+        print(f"收到 GitLab Webhook: {payload.object_kind} - {payload.event_name}")
+        
+        # 只处理 push 事件
+        if payload.object_kind != "push":
+            return {"message": f"忽略非 push 事件: {payload.object_kind}", "status": "ignored"}
+        
+        # 提取项目和提交信息
+        project_id = payload.project_id
+        project_name = payload.project.get("name", "unknown") if payload.project else "unknown"
+        commits = payload.commits or []
+        
+        print(f"处理项目 {project_name} (ID: {project_id}) 的 {len(commits)} 个提交")
+        
+        # 收集所有变更内容
+        all_changes = []
+        risk_results = []
+        
+        for commit in commits:
+            commit_id = commit.get("id", "")
+            commit_message = commit.get("message", "")
+            commit_author = commit.get("author", {}).get("name", "unknown")
+            
+            print(f"处理提交: {commit_id[:8]} by {commit_author}")
+            
+            # 尝试从 payload 中获取文件变更信息
+            added_files = commit.get("added", [])
+            modified_files = commit.get("modified", [])
+            removed_files = commit.get("removed", [])
+            
+            # 构建变更摘要
+            change_summary = f"Commit: {commit_id[:8]}\n"
+            change_summary += f"Author: {commit_author}\n"
+            change_summary += f"Message: {commit_message}\n"
+            
+            if added_files:
+                change_summary += f"Added files: {', '.join(added_files)}\n"
+            if modified_files:
+                change_summary += f"Modified files: {', '.join(modified_files)}\n"
+            if removed_files:
+                change_summary += f"Removed files: {', '.join(removed_files)}\n"
+            
+            # 尝试获取详细的 diff 内容
+            diff_content = await get_commit_diff(project_id, commit_id)
+            
+            if diff_content:
+                change_summary += f"\nDiff content:\n{diff_content}"
+            else:
+                # 如果无法获取详细 diff，使用文件列表作为分析内容
+                change_summary += f"\nFile changes summary: {len(added_files)} added, {len(modified_files)} modified, {len(removed_files)} removed"
+            
+            all_changes.append(change_summary)
+            
+            # 对每个提交进行风险评估
+            try:
+                # 使用现有的预测接口
+                code_input = CodeInput(code=change_summary)
+                
+                # 直接检测，如果存在kind: NodePool就强制识别为腾讯云TKE节点池变更
+                if "kind: NodePool" in change_summary or "kind:NodePool" in change_summary:
+                    print("强制匹配: 发现kind: NodePool，直接返回TENCENTCLOUD_TKE_NODE_POOL_UPDATE")
+                    change_type = "TENCENTCLOUD_TKE_NODE_POOL_UPDATE"
+                    preprocessed_input = change_summary
+                # 直接检测阿里云OSS存储桶权限变更
+                elif (("阿里云OSS" in change_summary or "aliyun oss" in change_summary.lower()) and 
+                      ("bucket" in change_summary.lower() or "存储桶" in change_summary) and 
+                      ("acl" in change_summary.lower() or "权限" in change_summary or "public-read" in change_summary.lower())):
+                    print("强制匹配: 发现阿里云OSS权限变更，直接返回CLOUD_OBJECT_STORAGE_BUCKET_POLICY_UPDATE")
+                    change_type = "CLOUD_OBJECT_STORAGE_BUCKET_POLICY_UPDATE"
+                    preprocessed_input = change_summary
+                else:
+                    # 对输入进行预处理，识别变更类型和关键信息
+                    change_type, preprocessed_input = preprocess_infrastructure_change(change_summary)
+                
+                print(f"预处理完成，变更类型: {change_type}")
+                
+                # 根据变更类型和内容，与知识库进行匹配
+                if change_type:
+                    risk_item = match_change_with_knowledge_base(change_type, preprocessed_input, CLOUD_KNOWLEDGE_BASE)
+                    
+                    if risk_item:
+                        print(f"匹配到知识库项: {risk_item.get('type')}")
+                        # 直接使用知识库中的风险评估结果
+                        result = {
+                            'commit_id': commit_id,
+                            'commit_author': commit_author,
+                            'commit_message': commit_message,
+                            'probability': convert_risk_level_to_probability(risk_item.get('risk_level', 'Medium')),
+                            'risk_level': risk_item.get('risk_level', 'Medium'),
+                            'change_type': change_type,
+                            'matched_pattern': {
+                                'content': risk_item.get('description', ''),
+                                'source': "云变更风险知识库",
+                                'key_metrics_to_monitor': risk_item.get('key_metrics_to_monitor', []),
+                                'potential_impacts': risk_item.get('potential_impacts', []),
+                                'mitigation_strategies': risk_item.get('mitigation_strategies', [])
+                            },
+                            'suggested_solution': {
+                                'content': "\n".join(risk_item.get('pre_change_checklist', [])),
+                                'source': "云变更风险最佳实践"
+                            }
+                        }
+                    else:
+                        print("未匹配到知识库项，使用默认风险评估")
+                        # 未匹配到知识库项，使用默认结果
+                        result = {
+                            'commit_id': commit_id,
+                            'commit_author': commit_author,
+                            'commit_message': commit_message,
+                            'probability': 0.5,
+                            'risk_level': "中风险",
+                            'change_type': change_type,
+                            'matched_pattern': {
+                                'content': f"未能精确匹配到已知风险模式，但检测到云资源变更 ({change_type})",
+                                'source': "云变更风险通用检测",
+                                'key_metrics_to_monitor': ["资源CPU利用率", "内存利用率", "请求成功率"],
+                                'potential_impacts': ["服务可能出现短暂不可用", "性能可能受到影响"],
+                                'mitigation_strategies': ["预先备份相关配置", "准备回滚方案", "执行充分测试"]
+                            }
+                        }
+                else:
+                    # 非云平台变更或无法识别的变更
+                    print("无法识别变更类型，使用低风险评估")
+                    result = {
+                        'commit_id': commit_id,
+                        'commit_author': commit_author,
+                        'commit_message': commit_message,
+                        'probability': 0.3,
+                        'risk_level': "低风险",
+                        'change_type': "UNKNOWN",
+                        'matched_pattern': {
+                            'content': "未识别到特定的云资源变更模式",
+                            'source': "通用代码变更检测",
+                            'key_metrics_to_monitor': ["基本系统指标"],
+                            'potential_impacts': ["影响较小"],
+                            'mitigation_strategies': ["常规代码审查"]
+                        }
+                    }
+                
+                risk_results.append(result)
+                
+                # 写入 InfluxDB
+                point = influxdb_client.Point("gitlab_webhook_risk_assessment") \
+                    .tag("project_id", str(project_id)) \
+                    .tag("project_name", project_name) \
+                    .tag("commit_id", commit_id) \
+                    .tag("commit_author", commit_author) \
+                    .tag("change_type", change_type or "UNKNOWN") \
+                    .field("probability", result['probability']) \
+                    .field("risk_level", result['risk_level']) \
+                    .field("commit_message", commit_message)
+                
+                if 'matched_pattern' in result:
+                    point = point.field("matched_pattern", result['matched_pattern']['content']) \
+                        .field("pattern_source", result['matched_pattern']['source'])
+                
+                write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, record=point)
+                print(f"GitLab Webhook 风险评估写入 InfluxDB 成功: commit={commit_id[:8]}, risk={result['risk_level']}")
+                
+            except Exception as e:
+                print(f"处理提交 {commit_id} 时出错: {str(e)}")
+                # 添加错误记录
+                error_result = {
+                    'commit_id': commit_id,
+                    'commit_author': commit_author,
+                    'commit_message': commit_message,
+                    'error': str(e),
+                    'probability': 0.0,
+                    'risk_level': "处理失败"
+                }
+                risk_results.append(error_result)
+        
+        # 返回汇总结果
+        return {
+            "message": "GitLab Webhook 处理完成",
+            "status": "success",
+            "project_id": project_id,
+            "project_name": project_name,
+            "total_commits": len(commits),
+            "processed_commits": len(risk_results),
+            "risk_assessments": risk_results
+        }
+        
+    except Exception as e:
+        print(f"GitLab Webhook 处理错误: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"处理 GitLab Webhook 时出错: {str(e)}")
+
 @app.post("/explain")
 async def explain(input: CodeInput):
     try:
@@ -375,4 +628,4 @@ def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001) 
+    uvicorn.run(app, host="0.0.0.0", port=8001)

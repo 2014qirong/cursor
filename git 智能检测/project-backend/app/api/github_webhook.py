@@ -55,6 +55,7 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks, db
         db.add(change)
         db.commit()
         db.refresh(change)
-        # 触发异步AI分析
-        background_tasks.add_task(async_ai_analyze.delay, diff)
-    return {"msg": "Webhook已处理，变更已保存并触发分析"} 
+        # 触发异步AI分析，传递change_id
+        change_id = f"{repo}_{commit_id}_{change.id}"
+        background_tasks.add_task(async_ai_analyze.delay, diff, change_id)
+    return {"msg": "Webhook已处理，变更已保存并触发分析"}

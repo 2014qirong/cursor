@@ -5,7 +5,31 @@
         [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
         
   @app.on_event("startup")
-INFO:     Started server process [74221]
+INFO:     Started server process [31507]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+加载云平台变更风险知识库...
+知识库加载成功，包含 29 条变更记录
+加载模型...
+模型加载成功
+InfluxDB client initialized.
+模型加载成功
+INFO:     127.0.0.1:55577 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55592 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55831 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56607 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56698 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.250.249.110:58126 - "GET /health HTTP/1.1" 200 OK
+接收到输入，长度: 11
+预处理完成，变更类型: 
+使用基础模型进行预测
+预测错误: Iterable over raw text documents expected, string object received.
+INFO:     10.250.249.110:58149 - "POST /predict HTTP/1.1" 500 Internal Server Error
+INFO:     10.250.249.110:58325 - "GET / HTTP/1.1" 404 Not Found
+INFO:     10.250.249.110:58325 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59495 - "GET /health HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [31507]

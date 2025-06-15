@@ -2,3 +2,52 @@ Traceback (most recent call last):
   File "/Users/heytea/Desktop/cursor/git 智能检测/ai_infer_service/main.py", line 1, in <module>
     from fastapi import FastAPI, HTTPException
 ModuleNotFoundError: No module named 'fastapi'
+/Users/heytea/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [48486]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [48486]
+加载云平台变更风险知识库...
+知识库加载成功，包含 29 条变更记录
+加载模型...
+模型加载成功
+InfluxDB client initialized.
+模型加载成功
+/Users/heytea/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [84331]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+加载云平台变更风险知识库...
+知识库加载成功，包含 29 条变更记录
+加载模型...
+模型加载成功
+InfluxDB client initialized.
+模型加载成功
+INFO:     10.250.249.110:63386 - "GET /health HTTP/1.1" 200 OK
+收到 GitLab Webhook: push - push
+处理项目 test-project (ID: 123) 的 1 个提交
+处理提交: def456 by Test User
+警告: 未提供 GitLab token，无法获取详细 diff
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=def456, risk=低风险
+INFO:     10.250.249.110:63399 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+收到 GitLab Webhook: push - push
+处理项目 test-project (ID: 123) 的 1 个提交
+处理提交: def456 by Test User
+警告: 未提供 GitLab token，无法获取详细 diff
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=def456, risk=低风险
+INFO:     10.250.249.110:63407 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+INFO:     10.251.0.16:36176 - "POST /gitlab-webhook HTTP/1.1" 422 Unprocessable Entity
+INFO:     10.251.0.16:37086 - "POST /gitlab-webhook HTTP/1.1" 422 Unprocessable Entity
+INFO:     10.251.0.16:39598 - "POST /gitlab-webhook HTTP/1.1" 422 Unprocessable Entity
+INFO:     10.251.0.16:40712 - "POST /gitlab-webhook HTTP/1.1" 422 Unprocessable Entity
