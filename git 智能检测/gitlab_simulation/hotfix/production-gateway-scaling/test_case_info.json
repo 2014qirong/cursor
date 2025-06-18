@@ -1,0 +1,14 @@
+{
+  "test_name": "生产环境API网关核心配置变更",
+  "risk_level": "high",
+  "description": "修改生产环境API网关核心配置，包括负载均衡和安全策略",
+  "branch": "hotfix/production-gateway-scaling",
+  "author": "ops-emergency",
+  "commit_message": "URGENT: 紧急调整生产环境API网关资源配置",
+  "timestamp": "2025-06-17T14:35:23.763965",
+  "files_changed": [
+    "terraform/production/tencent_api_gateway.tf",
+    "k8s/production/tencent-api-gateway-deployment.yaml"
+  ],
+  "diff_content": "\n--- a/terraform/production/tencent_api_gateway.tf\n+++ b/terraform/production/tencent_api_gateway.tf\n@@ -25,7 +25,7 @@ variable \"node_count\" {\n  description = \"网关节点数量\"\n  type        = number\n-  default     = 3\n+  default     = 1\n}\n\nvariable \"node_spec\" {\n@@ -45,7 +45,7 @@ resource \"tencentcloud_vpc\" \"api_gateway_vpc\" {\n  name       = \"${var.gateway_name}-vpc\"\n-  cidr_block = \"10.0.0.0/16\"\n+  cidr_block = \"172.16.0.0/12\"\n  \n  tags = {\n    Name        = \"${var.gateway_name}-vpc\"\n--- a/k8s/production/tencent-api-gateway-deployment.yaml\n+++ b/k8s/production/tencent-api-gateway-deployment.yaml\n@@ -180,7 +180,7 @@ metadata:\n  labels:\n    app: kong\nspec:\n-  replicas: 3\n+  replicas: 1\n  strategy:\n    type: RollingUpdate\n    rollingUpdate:\n@@ -220,8 +220,8 @@ spec:\n        resources:\n          requests:\n-            memory: \"512Mi\"\n-            cpu: \"250m\"\n+            memory: \"128Mi\"\n+            cpu: \"100m\"\n          limits:\n-            memory: \"1Gi\"\n-            cpu: \"500m\"\n+            memory: \"256Mi\"\n+            cpu: \"200m\"\n        "
+}

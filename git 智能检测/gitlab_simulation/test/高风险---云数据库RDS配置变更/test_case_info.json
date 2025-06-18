@@ -1,0 +1,24 @@
+{
+  "test_name": "高风险 - 云数据库RDS配置变更",
+  "risk_level": "high",
+  "description": "云数据库RDS实例配置变更，涉及数据库参数、备份策略和网络访问控制",
+  "branch": "test/高风险---云数据库RDS配置变更",
+  "author": "database-admin",
+  "commit_message": "feat: 云数据库RDS配置优化 - 调整连接池和备份策略",
+  "timestamp": "2025-01-27T15:30:00.000000",
+  "files_changed": [
+    "database/rds-config.json",
+    "terraform/rds-instance.tf",
+    "config/database-params.yaml"
+  ],
+  "change_type": "database_configuration",
+  "impact_level": "critical",
+  "affected_services": ["user-service", "order-service", "payment-service"],
+  "rollback_plan": "自动回滚到上一个稳定配置版本",
+  "approval_required": true,
+  "monitoring_alerts": [
+    "database_connection_pool_usage",
+    "query_response_time",
+    "backup_completion_status"
+  ]
+}

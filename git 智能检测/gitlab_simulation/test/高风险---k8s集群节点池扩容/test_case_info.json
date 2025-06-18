@@ -1,0 +1,13 @@
+{
+  "test_name": "高风险 - K8S集群节点池扩容",
+  "risk_level": "high",
+  "description": "Kubernetes集群节点池扩容操作，涉及计算资源变更和集群稳定性",
+  "branch": "test/高风险---k8s集群节点池扩容",
+  "author": "test-automation",
+  "commit_message": "test: 高风险 - K8S集群节点池扩容",
+  "timestamp": "2025-01-27T10:30:00.000000",
+  "files_changed": [
+    "k8s/nodepool-config.yaml"
+  ],
+  "diff_content": "{\n  \"kind\": \"NodePool\",\n  \"apiVersion\": \"cs.aliyun.com/v1\",\n  \"metadata\": {\n    \"name\": \"production-nodepool\",\n    \"namespace\": \"kube-system\"\n  },\n  \"spec\": {\n    \"clusterName\": \"production-cluster\",\n    \"nodeCount\": 8,\n    \"instanceType\": \"ecs.c6.2xlarge\",\n    \"systemDiskSize\": 120,\n    \"autoScaling\": {\n      \"enable\": true,\n      \"minSize\": 3,\n      \"maxSize\": 10\n    },\n    \"management\": {\n      \"enable\": true,\n      \"autoRepair\": true,\n      \"autoUpgrade\": false\n    }\n  }\n}"
+}

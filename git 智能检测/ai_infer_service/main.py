@@ -11,6 +11,23 @@ import re
 from enhanced_model import EnhancedRiskModel
 
 # 新增：云平台变更预处理模块
+# 变更类型关键字匹配 - 移到全局作用域
+CLOUD_KEYWORDS = {
+    "AWS": ["aws", "amazon", "ec2", "s3", "rds", "eks", "iam", "dynamodb", "lambda", "cloudfront", "route53"],
+    "AliCloud": ["aliyun", "alibaba", "alicloud", "oss", "ecs", "rds", "acr", "ack", "ram"],
+    "TencentCloud": ["tencent", "qcloud", "cos", "cvm", "tke", "tcr", "cls", "cam", "clb"]
+}
+
+RESOURCE_KEYWORDS = {
+    "K8s": ["kubernetes", "k8s", "pod", "deployment", "service", "ingress", "configmap", "kind:", "apiVersion:"],
+    "Terraform": ["terraform", "provider ", "resource ", "module ", ".tf", "tf plan", "tf apply"],
+    "Network": ["vpc", "subnet", "cidr", "route table", "security group", "acl", "网络", "路由"],
+    "Storage": ["存储", "s3", "oss", "cos", "bucket", "对象存储"],
+    "Database": ["rds", "database", "数据库", "mysql", "sql", "redis"],
+    "Compute": ["ec2", "ecs", "cvm", "vm", "instance", "eks", "ack", "tke", "container"],
+    "IAM": ["iam", "ram", "cam", "role", "policy", "permission", "权限"]
+}
+
 # 尝试导入模块
 try:
     from cloud_change_processor import preprocess_infrastructure_change, match_change_with_knowledge_base
@@ -18,23 +35,6 @@ except ImportError:
     # 将模块定义内联到此文件中
     import difflib
     from typing import Dict, List, Tuple, Optional, Any
-    
-    # 变更类型关键字匹配
-    CLOUD_KEYWORDS = {
-        "AWS": ["aws", "amazon", "ec2", "s3", "rds", "eks", "iam", "dynamodb", "lambda", "cloudfront", "route53"],
-        "AliCloud": ["aliyun", "alibaba", "alicloud", "oss", "ecs", "rds", "acr", "ack", "ram"],
-        "TencentCloud": ["tencent", "qcloud", "cos", "cvm", "tke", "tcr", "cls", "cam", "clb"]
-    }
-
-    RESOURCE_KEYWORDS = {
-        "K8s": ["kubernetes", "k8s", "pod", "deployment", "service", "ingress", "configmap", "kind:", "apiVersion:"],
-        "Terraform": ["terraform", "provider ", "resource ", "module ", ".tf", "tf plan", "tf apply"],
-        "Network": ["vpc", "subnet", "cidr", "route table", "security group", "acl", "网络", "路由"],
-        "Storage": ["存储", "s3", "oss", "cos", "bucket", "对象存储"],
-        "Database": ["rds", "database", "数据库", "mysql", "sql", "redis"],
-        "Compute": ["ec2", "ecs", "cvm", "vm", "instance", "eks", "ack", "tke", "container"],
-        "IAM": ["iam", "ram", "cam", "role", "policy", "permission", "权限"]
-    }
 
     def preprocess_infrastructure_change(content: str) -> Tuple[str, str]:
         """预处理基础设施变更内容，识别变更类型并提取关键信息"""
@@ -116,7 +116,7 @@ MODEL_PATH = os.path.join(os.path.dirname(__file__), 'models/risk_clf.pkl')
 # InfluxDB 配置从环境变量获取
 INFLUXDB_URL = os.getenv("INFLUXDB_URL", "http://localhost:8086")
 INFLUXDB_TOKEN = os.getenv("INFLUXDB_TOKEN", "A__zIBb1iT9wWi6lN4VqIlNcADsOmmCp4WRfx0pzPAw8YO8WFeJCEKi24G2IovwP4Ooj4dZt9wjjK53kkZNysw==")
-INFLUXDB_ORG = os.getenv("INFLUXDB_ORG", "my-org")
+INFLUXDB_ORG = os.getenv("INFLUXDB_ORG", "my-org")  # 使用组织名称而不是 ID
 INFLUXDB_BUCKET = os.getenv("INFLUXDB_BUCKET", "risk_assessment")
 
 # 加载云平台变更风险知识库
@@ -175,7 +175,7 @@ RISK_DESCRIPTIONS = {
 # 加载模型
 print("加载模型...")
 base_model = joblib.load(MODEL_PATH)
-knowledge_base_path = os.path.join(os.path.dirname(__file__), 'knowledge_base.json')
+knowledge_base_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'cloud_change_risk_assessment_kb.json')
 model = EnhancedRiskModel(base_model, knowledge_base_path)
 print("模型加载成功")
 
@@ -194,24 +194,29 @@ class DiffRequest(BaseModel):
 class CodeInput(BaseModel):
     code: str
 
+from typing import Optional, List, Dict, Any
+
 class GitLabWebhookPayload(BaseModel):
     object_kind: str
     event_name: str
-    before: str
-    after: str
-    ref: str
-    checkout_sha: str
-    message: str
-    user_id: int
-    user_name: str
-    user_username: str
-    user_email: str
-    user_avatar: str
     project_id: int
-    project: dict
-    commits: list
-    total_commits_count: int
-    repository: dict
+    
+    # 设为可选字段，避免422错误
+    before: Optional[str] = ""
+    after: Optional[str] = ""
+    ref: Optional[str] = ""
+    checkout_sha: Optional[str] = ""
+    message: Optional[str] = ""
+    user_id: Optional[int] = 0
+    user_name: Optional[str] = ""
+    user_username: Optional[str] = ""
+    user_email: Optional[str] = ""
+    user_avatar: Optional[str] = ""
+    
+    project: Optional[Dict[str, Any]] = {}
+    commits: Optional[List[Dict[str, Any]]] = []
+    total_commits_count: Optional[int] = 0
+    repository: Optional[Dict[str, Any]] = {}
 
 def get_risk_description(diff_content: str, risk_level: str) -> dict:
     """
@@ -601,6 +606,119 @@ async def gitlab_webhook(payload: GitLabWebhookPayload):
     except Exception as e:
         print(f"GitLab Webhook 处理错误: {str(e)}")
         raise HTTPException(status_code=500, detail=f"处理 GitLab Webhook 时出错: {str(e)}")
+
+@app.post("/clb-webhook")
+async def clb_webhook(payload: dict):
+    """
+    处理腾讯云CLB Webhook请求，解析云审计事件并进行风险评估
+    """
+    try:
+        print(f"收到 CLB Webhook: {payload.get('eventName', 'unknown')}")
+        
+        event_name = payload.get('eventName', '')
+        event_time = payload.get('eventTime', '')
+        user_identity = payload.get('userIdentity', {})
+        request_params = payload.get('requestParameters', {})
+        
+        # 构建变更摘要
+        change_summary = f"Event: {event_name}\n"
+        change_summary += f"Time: {event_time}\n"
+        change_summary += f"User: {user_identity.get('principalId', 'unknown')}\n"
+        change_summary += f"Parameters: {json.dumps(request_params, ensure_ascii=False)}\n"
+        
+        # 进行风险评估
+        code_input = CodeInput(code=change_summary)
+        
+        # 对输入进行预处理，识别变更类型和关键信息
+        change_type, preprocessed_input = preprocess_infrastructure_change(change_summary)
+        
+        print(f"预处理完成，变更类型: {change_type}")
+        
+        # 根据变更类型和内容，与知识库进行匹配
+        if change_type:
+            risk_item = match_change_with_knowledge_base(change_type, preprocessed_input, CLOUD_KNOWLEDGE_BASE)
+            
+            if risk_item:
+                print(f"匹配到知识库项: {risk_item.get('type')}")
+                # 直接使用知识库中的风险评估结果
+                probability = convert_risk_level_to_probability(risk_item.get('risk_level', 'Medium'))
+                risk_level = risk_item.get('risk_level', 'Medium')
+                
+                result = {
+                    'event_name': event_name,
+                    'event_time': event_time,
+                    'user_identity': user_identity,
+                    'risk_probability': probability,
+                    'risk_level': risk_level,
+                    'change_type': change_type,
+                    'matched_pattern': {
+                        'content': risk_item.get('description', ''),
+                        'source': "云变更风险知识库",
+                        'key_metrics_to_monitor': risk_item.get('key_metrics_to_monitor', []),
+                        'potential_impacts': risk_item.get('potential_impacts', []),
+                        'mitigation_strategies': risk_item.get('mitigation_strategies', [])
+                    },
+                    'suggested_solution': risk_item.get('suggested_solution', {})
+                }
+            else:
+                # 使用默认风险评估
+                result = {
+                    'event_name': event_name,
+                    'event_time': event_time,
+                    'user_identity': user_identity,
+                    'risk_probability': 0.5,
+                    'risk_level': 'Medium',
+                    'change_type': change_type or 'TencentCloud_GENERAL_CHANGE',
+                    'matched_pattern': {
+                        'content': '未识别到特定的云资源变更模式',
+                        'source': '通用云变更检测',
+                        'key_metrics_to_monitor': ['基本系统指标'],
+                        'potential_impacts': ['影响待评估'],
+                        'mitigation_strategies': ['常规变更审查']
+                    }
+                }
+        else:
+            # 默认处理
+            result = {
+                'event_name': event_name,
+                'event_time': event_time,
+                'user_identity': user_identity,
+                'risk_probability': 0.3,
+                'risk_level': 'Low',
+                'change_type': 'TencentCloud_GENERAL_CHANGE',
+                'matched_pattern': {
+                    'content': '未识别到特定的云资源变更模式',
+                    'source': '通用云变更检测',
+                    'key_metrics_to_monitor': ['基本系统指标'],
+                    'potential_impacts': ['影响较小'],
+                    'mitigation_strategies': ['常规变更审查']
+                }
+            }
+        
+        # 写入 InfluxDB
+        try:
+            point = influxdb_client.Point("risk_assessment") \
+                .tag("event_name", event_name) \
+                .tag("change_type", result['change_type']) \
+                .tag("risk_level", result['risk_level']) \
+                .field("risk_probability", result['risk_probability']) \
+                .field("user_principal", user_identity.get('principalId', 'unknown'))
+            
+            write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, record=point)
+            print(f"写入 InfluxDB 成功: event={event_name}, risk_level={result['risk_level']}, probability={result['risk_probability']}")
+        except Exception as influx_error:
+            print(f"写入 InfluxDB 失败: {influx_error}")
+        
+        return {
+            "message": "CLB Webhook 处理完成",
+            "status": "success",
+            "event_name": event_name,
+            "risk_assessments": [result]
+        }
+        
+    except Exception as e:
+        print(f"CLB Webhook 处理错误: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"处理 CLB Webhook 时出错: {str(e)}")
 
 @app.post("/explain")
 async def explain(input: CodeInput):

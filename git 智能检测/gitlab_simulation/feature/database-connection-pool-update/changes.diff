@@ -1,0 +1,28 @@
+{
+  "object_kind": "push",
+  "event_name": "push",
+  "project_id": 301,
+  "project": {
+    "id": 301,
+    "name": "database-infrastructure",
+    "namespace": "backend"
+  },
+  "commits": [
+    {
+      "id": "db_pool_001",
+      "message": "feat: 优化数据库连接池配置以提升性能",
+      "author": {
+        "name": "Database Team"
+      },
+      "added": [
+        "monitoring/db-pool-metrics.yaml"
+      ],
+      "modified": [
+        "config/database-config.yaml",
+        "terraform/rds-config.tf",
+        "helm/database-values.yaml"
+      ],
+      "removed": []
+    }
+  ]
+}

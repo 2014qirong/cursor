@@ -1,0 +1,101 @@
+diff --git a/database/rds-config.json b/database/rds-config.json
+index 1234567..abcdefg 100644
+--- a/database/rds-config.json
++++ b/database/rds-config.json
+@@ -18,8 +18,8 @@
+   "PerformanceInsightsEnabled": true,
+   "PerformanceInsightsRetentionPeriod": 7,
+   "MonitoringInterval": 60,
+-  "BackupRetentionPeriod": 7,
++  "BackupRetentionPeriod": 30,
+   "ConnectionPooling": {
+-    "MaxConnections": 1000,
+-    "MaxUserConnections": 900,
++    "MaxConnections": 2000,
++    "MaxUserConnections": 1800,
+     "ConnectTimeout": 30,
+     "WaitTimeout": 28800,
+@@ -27,6 +27,10 @@
+     "InnodbBufferPoolSize": "75%",
+     "QueryCacheSize": "256M",
+     "QueryCacheType": 1
++  },
++  "SecurityConfiguration": {
++    "SSLMode": "REQUIRED",
++    "IAMDatabaseAuthenticationEnabled": true
+   }
+ }
+ 
+diff --git a/terraform/rds-instance.tf b/terraform/rds-instance.tf
+index 2345678..bcdefgh 100644
+--- a/terraform/rds-instance.tf
++++ b/terraform/rds-instance.tf
+@@ -15,7 +15,7 @@ resource "aws_db_instance" "mysql_prod" {
+   
+   # 备份配置
+-  backup_retention_period = 7
++  backup_retention_period = 30
+   backup_window          = "03:00-04:00"
+   maintenance_window     = "sun:04:00-sun:05:00"
+   delete_automated_backups = false
+@@ -45,6 +45,9 @@ resource "aws_db_instance" "mysql_prod" {
+   # 自动升级配置
+   auto_minor_version_upgrade = false
+   allow_major_version_upgrade = false
++  
++  # IAM数据库认证
++  iam_database_authentication_enabled = true
+   
+   tags = {
+     Name            = "MySQL Production Database"
+@@ -65,12 +68,12 @@ resource "aws_db_parameter_group" "mysql_prod_params" {
+   
+   parameter {
+     name  = "max_connections"
+-    value = "1000"
++    value = "2000"
+   }
+   
+   parameter {
+     name  = "max_user_connections"
+-    value = "900"
++    value = "1800"
+   }
+   
+   parameter {
+diff --git a/config/database-params.yaml b/config/database-params.yaml
+index 3456789..cdefghi 100644
+--- a/config/database-params.yaml
++++ b/config/database-params.yaml
+@@ -3,8 +3,8 @@ database_parameters:
+   # 连接配置
+   connection:
+-    max_connections: 1000
+-    max_user_connections: 900
++    max_connections: 2000
++    max_user_connections: 1800
+     connect_timeout: 30
+     wait_timeout: 28800
+     interactive_timeout: 28800
+@@ -45,6 +45,12 @@ database_parameters:
+     slave_parallel_type: "LOGICAL_CLOCK"
+     slave_parallel_workers: 8
+     
++  # 安全配置
++  security:
++    require_secure_transport: 1
++    validate_password_policy: "STRONG"
++    validate_password_length: 12
++    
+   # 性能监控
+   monitoring:
+     performance_schema: 1
+@@ -60,7 +66,7 @@ database_parameters:
+ backup_configuration:
+   automated_backup:
+     enabled: true
+-    retention_period: 7  # days
++    retention_period: 30  # days
+     backup_window: "03:00-04:00"
+     copy_tags_to_snapshot: true
+     delete_automated_backups: false

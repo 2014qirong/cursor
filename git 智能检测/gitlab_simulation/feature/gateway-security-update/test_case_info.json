@@ -1,0 +1,13 @@
+{
+  "test_name": "API网关插件配置变更",
+  "risk_level": "medium",
+  "description": "修改Kong网关插件配置，可能影响API访问控制",
+  "branch": "feature/gateway-security-update",
+  "author": "devops-team",
+  "commit_message": "feat: 调整API网关限流策略和IP访问控制",
+  "timestamp": "2025-06-17T14:35:23.760609",
+  "files_changed": [
+    "config/kong-plugins.yaml"
+  ],
+  "diff_content": "\n--- a/config/kong-plugins.yaml\n+++ b/config/kong-plugins.yaml\n@@ -15,7 +15,7 @@ plugins:\n  - name: rate-limiting\n    config:\n-      minute: 1000\n+      minute: 500\n      hour: 10000\n      day: 100000\n      policy: redis\n@@ -45,6 +45,12 @@ plugins:\n      anonymous: null\n      run_on_preflight: true\n    tags:\n      - auth\n      - jwt\n+  - name: ip-restriction\n+    config:\n+      allow:\n+        - 10.0.0.0/8\n+      deny:\n+        - 192.168.1.100\n        "
+}

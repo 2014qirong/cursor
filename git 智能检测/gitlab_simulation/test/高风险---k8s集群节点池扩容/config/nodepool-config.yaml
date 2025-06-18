@@ -1,0 +1,46 @@
+apiVersion: cs.aliyun.com/v1
+kind: NodePool
+metadata:
+  name: production-nodepool
+  namespace: kube-system
+  labels:
+    environment: production
+    team: platform
+spec:
+  clusterName: production-cluster
+  nodeCount: 8  # 从5扩容到8个节点
+  instanceType: ecs.c6.2xlarge  # 8核16GB
+  systemDiskSize: 120  # 系统盘120GB
+  systemDiskCategory: cloud_essd
+  dataDiskSize: 200  # 数据盘200GB
+  dataDiskCategory: cloud_essd
+  
+  # 自动伸缩配置
+  autoScaling:
+    enable: true
+    minSize: 3
+    maxSize: 10
+    
+  # 节点管理配置
+  management:
+    enable: true
+    autoRepair: true
+    autoUpgrade: false  # 生产环境禁用自动升级
+    
+  # 节点标签和污点
+  nodeLabels:
+    node.kubernetes.io/instance-type: ecs.c6.2xlarge
+    topology.kubernetes.io/zone: cn-beijing-a
+    
+  # 安全组配置
+  securityGroupIds:
+    - sg-bp1234567890abcdef
+    
+  # VPC配置
+  vSwitchIds:
+    - vsw-bp1234567890abcdef
+    
+  # 运行时配置
+  runtime:
+    name: containerd
+    version: 1.6.6

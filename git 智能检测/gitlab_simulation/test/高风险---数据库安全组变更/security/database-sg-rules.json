@@ -1,0 +1,50 @@
+{
+  "SecurityGroupId": "sg-database-prod-001",
+  "GroupName": "database-production-sg",
+  "Description": "Production database security group",
+  "VpcId": "vpc-prod-main",
+  "Rules": [
+    {
+      "Type": "Ingress",
+      "IpProtocol": "TCP",
+      "Port": "3306",
+      "SourceSecurityGroupId": "sg-app-servers",
+      "Description": "MySQL access from application servers"
+    },
+    {
+      "Type": "Ingress",
+      "IpProtocol": "TCP",
+      "Port": "3306",
+      "CidrIp": "10.0.0.0/8",
+      "Description": "MySQL access from internal network"
+    },
+    {
+      "Type": "Ingress",
+      "IpProtocol": "TCP",
+      "Port": "22",
+      "CidrIp": "192.168.1.0/24",
+      "Description": "SSH access from management subnet"
+    },
+    {
+      "Type": "Egress",
+      "IpProtocol": "ALL",
+      "Port": "-1",
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic"
+    }
+  ],
+  "Tags": [
+    {
+      "Key": "Environment",
+      "Value": "Production"
+    },
+    {
+      "Key": "Service",
+      "Value": "Database"
+    },
+    {
+      "Key": "CriticalLevel",
+      "Value": "High"
+    }
+  ]
+}

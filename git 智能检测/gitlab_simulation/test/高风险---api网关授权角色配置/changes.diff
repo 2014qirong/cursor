@@ -1,0 +1,35 @@
+{
+  "eventName": "AttachRolePolicy",
+  "eventTime": "2025-06-17T14:35:23.728698",
+  "userIdentity": {
+    "type": "Root",
+    "principalId": "security-admin",
+    "arn": "qcs::cam::uin/123456789:root",
+    "accountId": "123456789"
+  },
+  "eventRegion": "ap-beijing",
+  "sourceIPAddress": "203.0.113.20",
+  "userAgent": "TencentCloud-Console",
+  "requestParameters": {
+    "roleName": "ApiGateWay_QCSRole",
+    "policyName": "QcloudAccessForApiGateWayRoleInCloudNativeAPIGateway",
+    "policyDocument": {
+      "version": "2.0",
+      "statement": [
+        {
+          "effect": "allow",
+          "action": [
+            "cls:*",
+            "vpc:*",
+            "clb:*",
+            "monitor:*"
+          ],
+          "resource": "*"
+        }
+      ]
+    }
+  },
+  "responseElements": {
+    "requestId": "role12345-1234-1234-1234-123456789012"
+  }
+}

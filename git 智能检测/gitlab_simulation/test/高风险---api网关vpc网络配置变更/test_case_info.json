@@ -1,0 +1,13 @@
+{
+  "test_name": "高风险 - API网关VPC网络配置变更",
+  "risk_level": "high",
+  "description": "高风险 - API网关VPC网络配置变更",
+  "branch": "test/高风险---api网关vpc网络配置变更",
+  "author": "test-automation",
+  "commit_message": "test: 高风险 - API网关VPC网络配置变更",
+  "timestamp": "2025-06-17T14:35:23.747116",
+  "files_changed": [
+    "config/api-gateway-config.yaml"
+  ],
+  "diff_content": "{\n  \"eventName\": \"ModifyVpcAttribute\",\n  \"eventTime\": \"2025-06-17T14:35:23.728691\",\n  \"userIdentity\": {\n    \"type\": \"Root\",\n    \"principalId\": \"vpc-admin\",\n    \"arn\": \"qcs::cam::uin/123456789:root\",\n    \"accountId\": \"123456789\"\n  },\n  \"eventRegion\": \"ap-guangzhou\",\n  \"sourceIPAddress\": \"172.16.0.10\",\n  \"userAgent\": \"TencentCloud-Terraform\",\n  \"requestParameters\": {\n    \"vpcId\": \"vpc-apigw-12345\",\n    \"vpcName\": \"api-gateway-vpc-prod\",\n    \"cidrBlock\": \"10.0.0.0/16\",\n    \"subnetId\": \"subnet-apigw-001\",\n    \"subnetCidr\": \"10.0.1.0/24\",\n    \"gatewayId\": \"apigw-12345678\",\n    \"enableDnsHostnames\": true,\n    \"enableDnsResolution\": true\n  },\n  \"responseElements\": {\n    \"requestId\": \"vpc12345-1234-1234-1234-123456789012\"\n  }\n}"
+}

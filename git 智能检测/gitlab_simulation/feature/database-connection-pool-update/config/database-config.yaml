@@ -1,0 +1,38 @@
+# 数据库连接池配置
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-config
+  namespace: backend
+data:
+  database.yaml: |
+    database:
+      host: "mysql-cluster.backend.svc.cluster.local"
+      port: 3306
+      name: "risk_assessment_db"
+      username: "app_user"
+      
+      # 连接池配置优化
+      pool:
+        # 最大连接数从20增加到50
+        max_connections: 50
+        # 最小空闲连接数从5增加到10
+        min_idle_connections: 10
+        # 连接超时时间从30秒减少到20秒
+        connection_timeout: 20s
+        # 空闲连接超时时间从300秒增加到600秒
+        idle_timeout: 600s
+        # 最大连接生命周期从1小时增加到2小时
+        max_lifetime: 2h
+        
+      # 性能监控配置
+      monitoring:
+        enabled: true
+        metrics_interval: 30s
+        slow_query_threshold: 2s
+        
+      # 重试配置
+      retry:
+        max_attempts: 3
+        backoff_multiplier: 2
+        initial_interval: 1s

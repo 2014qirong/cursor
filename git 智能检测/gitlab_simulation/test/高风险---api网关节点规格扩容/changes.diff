@@ -1,0 +1,25 @@
+{
+  "eventName": "ModifyApiGatewayInstance",
+  "eventTime": "2025-06-17T14:35:23.728662",
+  "userIdentity": {
+    "type": "Root",
+    "principalId": "gateway-admin",
+    "arn": "qcs::cam::uin/123456789:root",
+    "accountId": "123456789"
+  },
+  "eventRegion": "ap-beijing",
+  "sourceIPAddress": "203.0.113.10",
+  "userAgent": "TencentCloud-Console",
+  "requestParameters": {
+    "gatewayId": "apigw-12345678",
+    "instanceType": "kong",
+    "nodeSpec": "4C8G",
+    "nodeCount": 6,
+    "deploymentMode": "multi-az",
+    "enablePublicNetwork": true,
+    "bandwidthLimit": 1000
+  },
+  "responseElements": {
+    "requestId": "12345678-1234-1234-1234-123456789012"
+  }
+}

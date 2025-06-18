@@ -1,0 +1,29 @@
+{
+  "object_kind": "push",
+  "event_name": "push",
+  "project_id": 203,
+  "project": {
+    "id": 203,
+    "name": "api-gateway-tags",
+    "namespace": "management"
+  },
+  "commits": [
+    {
+      "id": "tag001",
+      "message": "Update API Gateway resource tags for better cost management",
+      "author": {
+        "name": "FinOps Team"
+      },
+      "added": [
+        "tags/cost-allocation.yaml"
+      ],
+      "modified": [
+        "terraform/tags.tf",
+        "config/resource-tags.yaml"
+      ],
+      "removed": [
+        "tags/deprecated-tags.yaml"
+      ]
+    }
+  ]
+}

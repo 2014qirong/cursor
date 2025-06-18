@@ -12,8 +12,8 @@ def test_fixed_influxdb():
         
         print("✅ Connected to InfluxDB")
         
-        # 使用组织ID而不是名称
-        org_id = "0e99aeecad56cd00"
+        # 使用组织名称而不是ID
+        org_name = "my-org"
         bucket = "risk_assessment"
         
         # 创建写入API
@@ -27,7 +27,7 @@ def test_fixed_influxdb():
             .field("impact", "moderate")
         
         # 写入数据
-        write_api.write(bucket=bucket, org=org_id, record=point)
+        write_api.write(bucket=bucket, org=org_name, record=point)
         print("✅ Data written successfully to InfluxDB")
         
         # 验证数据写入
@@ -39,7 +39,7 @@ def test_fixed_influxdb():
         |> last()
         '''
         
-        result = query_api.query(org=org_id, query=query)
+        result = query_api.query(org=org_name, query=query)
         
         if result:
             print("✅ Data verification successful:")

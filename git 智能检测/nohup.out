@@ -51,3 +51,122 @@ INFO:     10.251.0.16:36176 - "POST /gitlab-webhook HTTP/1.1" 422 Unprocessable 
 INFO:     10.251.0.16:37086 - "POST /gitlab-webhook HTTP/1.1" 422 Unprocessable Entity
 INFO:     10.251.0.16:39598 - "POST /gitlab-webhook HTTP/1.1" 422 Unprocessable Entity
 INFO:     10.251.0.16:40712 - "POST /gitlab-webhook HTTP/1.1" 422 Unprocessable Entity
+INFO:     10.251.0.16:41646 - "POST /gitlab-webhook HTTP/1.1" 422 Unprocessable Entity
+收到 GitLab Webhook: push - push
+处理项目 test-project (ID: 123) 的 1 个提交
+处理提交: def456 by Test User
+警告: 未提供 GitLab token，无法获取详细 diff
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=def456, risk=低风险
+INFO:     127.0.0.1:55873 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+收到 GitLab Webhook: push - push
+处理项目 test-project (ID: 123) 的 1 个提交
+处理提交: def456 by Test User
+警告: 未提供 GitLab token，无法获取详细 diff
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=def456, risk=低风险
+INFO:     127.0.0.1:55887 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+收到 GitLab Webhook: push - push
+处理项目 test-project (ID: 123) 的 1 个提交
+处理提交: def456 by Test User
+警告: 未提供 GitLab token，无法获取详细 diff
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=def456, risk=低风险
+INFO:     127.0.0.1:55895 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+收到 GitLab Webhook: push - push
+处理项目 test-project (ID: 123) 的 1 个提交
+处理提交: def456 by Test User
+警告: 未提供 GitLab token，无法获取详细 diff
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=def456, risk=低风险
+INFO:     127.0.0.1:56609 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+收到 GitLab Webhook: push - push
+处理项目 test-project (ID: 123) 的 1 个提交
+处理提交: def456 by Test User
+警告: 未提供 GitLab token，无法获取详细 diff
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=def456, risk=低风险
+INFO:     127.0.0.1:56705 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57016 - "POST /gitlab-webhook HTTP/1.1" 422 Unprocessable Entity
+收到 GitLab Webhook: push - push
+处理项目 test-project (ID: 123) 的 1 个提交
+处理提交: def456 by Test User
+警告: 未提供 GitLab token，无法获取详细 diff
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=def456, risk=低风险
+INFO:     127.0.0.1:57110 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+收到 GitLab Webhook: push - push
+处理项目 test-project (ID: 123) 的 1 个提交
+处理提交: def456 by Test User
+警告: 未提供 GitLab token，无法获取详细 diff
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=def456, risk=低风险
+INFO:     127.0.0.1:57179 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+收到 GitLab Webhook: push - push
+处理项目 test-project (ID: 123) 的 1 个提交
+处理提交: def456 by Test User
+警告: 未提供 GitLab token，无法获取详细 diff
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=def456, risk=低风险
+INFO:     127.0.0.1:57409 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+收到 GitLab Webhook: push - push
+处理项目 test-project (ID: 123) 的 1 个提交
+处理提交: def456 by Test User
+警告: 未提供 GitLab token，无法获取详细 diff
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=def456, risk=低风险
+INFO:     127.0.0.1:58681 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [84331]
+/Users/heytea/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/heytea/Desktop/cursor/git 智能检测/ai_infer_service/main.py:234: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+INFO:     Started server process [25637]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [25637]
+/Users/heytea/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/heytea/Desktop/cursor/git 智能检测/ai_infer_service/main.py:234: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+INFO:     Started server process [61492]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [61492]
+加载云平台变更风险知识库...
+知识库加载成功，包含 30 条变更记录
+加载模型...
+模型加载成功
+InfluxDB client initialized.
+模型加载成功

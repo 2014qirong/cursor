@@ -1,0 +1,84 @@
+{
+  "object_kind": "push",
+  "event_name": "push",
+  "before": "95790bf891e76fee5e1747ab589903a6a1f80f22",
+  "after": "da1560886d4f094c3e6c9ef40349f7d38b5d27d7",
+  "ref": "refs/heads/main",
+  "checkout_sha": "da1560886d4f094c3e6c9ef40349f7d38b5d27d7",
+  "message": "Update ACK cluster nodepool configuration",
+  "user_id": 4,
+  "user_name": "DevOps Engineer",
+  "user_username": "devops",
+  "user_email": "devops@example.com",
+  "user_avatar": "https://s.gravatar.com/avatar/d4c74594d841139328695756648b6bd6?s=8://s.gravatar.com/avatar/d4c74594d841139328695756648b6bd6?s=80",
+  "project_id": 15,
+  "project": {
+    "id": 15,
+    "name": "cloud-infrastructure",
+    "description": "Cloud Infrastructure as Code",
+    "web_url": "http://example.com/devops/cloud-infrastructure",
+    "avatar_url": null,
+    "git_ssh_url": "git@example.com:devops/cloud-infrastructure.git",
+    "git_http_url": "http://example.com/devops/cloud-infrastructure.git",
+    "namespace": "DevOps",
+    "visibility_level": 0,
+    "path_with_namespace": "devops/cloud-infrastructure",
+    "default_branch": "main",
+    "homepage": "http://example.com/devops/cloud-infrastructure",
+    "url": "git@example.com:devops/cloud-infrastructure.git",
+    "ssh_url": "git@example.com:devops/cloud-infrastructure.git",
+    "http_url": "http://example.com/devops/cloud-infrastructure.git"
+  },
+  "repository": {
+    "name": "cloud-infrastructure",
+    "url": "git@example.com:devops/cloud-infrastructure.git",
+    "description": "Cloud Infrastructure as Code",
+    "homepage": "http://example.com/devops/cloud-infrastructure",
+    "git_http_url": "http://example.com/devops/cloud-infrastructure.git",
+    "git_ssh_url": "git@example.com:devops/cloud-infrastructure.git",
+    "visibility_level": 0
+  },
+  "commits": [
+    {
+      "id": "da1560886d4f094c3e6c9ef40349f7d38b5d27d7",
+      "message": "Update ACK cluster nodepool configuration\n\n- 增加节点池最小和最大节点数\n- 升级节点实例规格为 ecs.g6.4xlarge\n- 提升系统盘和数据盘容量及性能\n- 配置公网访问",
+      "title": "Update ACK cluster nodepool configuration",
+      "timestamp": "2023-05-13T18:18:08+00:00",
+      "url": "http://example.com/devops/cloud-infrastructure/commit/da1560886d4f094c3e6c9ef40349f7d38b5d27d7",
+      "author": {
+        "name": "DevOps Engineer",
+        "email": "devops@example.com"
+      },
+      "added": [],
+      "modified": [
+        "clusters/production/nodepool.yaml"
+      ],
+      "removed": []
+    }
+  ],
+  "total_commits_count": 1,
+  "push_options": {},
+  "repository": {
+    "name": "cloud-infrastructure",
+    "url": "git@example.com:devops/cloud-infrastructure.git",
+    "description": "Cloud Infrastructure as Code",
+    "homepage": "http://example.com/devops/cloud-infrastructure",
+    "git_http_url": "http://example.com/devops/cloud-infrastructure.git",
+    "git_ssh_url": "git@example.com:devops/cloud-infrastructure.git",
+    "visibility_level": 0
+  },
+  "diff": {
+    "changes": [
+      {
+        "old_path": "clusters/production/nodepool.yaml",
+        "new_path": "clusters/production/nodepool.yaml",
+        "a_mode": "100644",
+        "b_mode": "100644",
+        "diff": "@@ -7,18 +7,20 @@\n spec:\n   autoScaling:\n     enabled: true\n-    minSize: 3\n-    maxSize: 10\n+    minSize: 5\n+    maxSize: 20\n   nodeConfig:\n     instanceTypes:\n-      - ecs.g6.2xlarge\n+      - ecs.g6.4xlarge  # 更大规格实例\n     systemDisk:\n-      category: cloud_essd\n-      size: 100\n+      category: cloud_essd_pl2  # 更高性能磁盘\n+      size: 200  # 更大系统盘\n     dataDisks:\n-      - category: cloud_efficiency\n-        size: 200\n+      - category: cloud_essd\n+        size: 500  # 更大数据盘\n     labels:\n       node-role: worker\n       app: production\n+      priority: high\n     taints:\n       - key: \"dedicated\"\n         value: \"production\"\n@@ -26,3 +28,5 @@\n         effect: \"NoSchedule\"\n     securityGroupId: \"sg-bp1dktddjsg5nktv****\"\n+    internetChargeType: \"PayByTraffic\"  # 新增按流量计费\n+    internetMaxBandwidthOut: 10  # 新增出网带宽",
+        "new_file": false,
+        "renamed_file": false,
+        "deleted_file": false
+      }
+    ]
+  }
+}

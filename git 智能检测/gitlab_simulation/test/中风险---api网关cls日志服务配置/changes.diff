@@ -1,0 +1,28 @@
+{
+  "object_kind": "push",
+  "event_name": "push",
+  "project_id": 202,
+  "project": {
+    "id": 202,
+    "name": "api-gateway-logging",
+    "namespace": "monitoring"
+  },
+  "commits": [
+    {
+      "id": "cls001",
+      "message": "Enable CLS log service for API Gateway with custom log format",
+      "author": {
+        "name": "SRE Team"
+      },
+      "added": [
+        "logging/cls-logset.yaml",
+        "logging/cls-topic.yaml"
+      ],
+      "modified": [
+        "config/gateway-logging.yaml",
+        "terraform/cls-config.tf"
+      ],
+      "removed": []
+    }
+  ]
+}

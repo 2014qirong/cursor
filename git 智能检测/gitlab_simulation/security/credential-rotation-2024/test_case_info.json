@@ -1,0 +1,15 @@
+{
+  "test_name": "API网关密钥和证书管理变更",
+  "risk_level": "critical",
+  "description": "修改API网关的JWT密钥和SSL证书配置，高度敏感",
+  "branch": "security/credential-rotation-2024",
+  "author": "security-team",
+  "commit_message": "SECURITY: 更新API网关所有密钥和证书配置",
+  "timestamp": "2025-06-17T14:35:23.778495",
+  "files_changed": [
+    "config/api-gateway-config.yaml",
+    "k8s/secrets.yaml",
+    "terraform/tencent_api_gateway.tf"
+  ],
+  "diff_content": "\n--- a/config/api-gateway-config.yaml\n+++ b/config/api-gateway-config.yaml\n@@ -425,7 +425,7 @@ consumers:\n    jwt_secrets:\n      - key: mobile-app-issuer\n-        secret: \"mobile-app-jwt-secret-key-2023\"\n+        secret: \"mobile-app-jwt-secret-key-2024-updated\"\n        algorithm: HS256\n    \n  - username: web-app\n@@ -436,7 +436,7 @@ consumers:\n    jwt_secrets:\n      - key: web-app-issuer\n-        secret: \"web-app-jwt-secret-key-2023\"\n+        secret: \"web-app-jwt-secret-key-2024-updated\"\n        algorithm: HS256\n--- a/k8s/secrets.yaml\n+++ b/k8s/secrets.yaml\n@@ -8,8 +8,8 @@ metadata:\ntype: Opaque\ndata:\n  # base64编码的密码\n-  postgres-password: a29uZ19wYXNzd29yZA==\n-  postgres-user: a29uZw==\n+  postgres-password: bmV3X3Bvc3RncmVzX3Bhc3N3b3JkXzIwMjQ=\n+  postgres-user: a29uZ19hZG1pbg==\n--- a/terraform/tencent_api_gateway.tf\n+++ b/terraform/tencent_api_gateway.tf\n@@ -180,7 +180,7 @@ resource \"tencentcloud_clb_listener\" \"api_gateway_https\" {\n  port          = 443\n  protocol      = \"HTTPS\"\n  certificate_ssl_mode = \"UNIDIRECTIONAL\"\n-  certificate_id = var.ssl_certificate_id\n+  certificate_id = \"cert-new-2024-production\"\n  \n  health_check_switch = true\n        "
+}

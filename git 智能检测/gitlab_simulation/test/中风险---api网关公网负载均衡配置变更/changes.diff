@@ -1,0 +1,25 @@
+{
+  "eventName": "ModifyLoadBalancer",
+  "eventTime": "2025-06-17T14:35:23.728684",
+  "userIdentity": {
+    "type": "AssumedRole",
+    "principalId": "network-engineer",
+    "arn": "qcs::cam::uin/123456789:assumed-role/NetworkRole/network-engineer",
+    "accountId": "123456789"
+  },
+  "eventRegion": "ap-shanghai",
+  "sourceIPAddress": "10.0.1.100",
+  "userAgent": "TencentCloud-SDK",
+  "requestParameters": {
+    "loadBalancerId": "lb-apigw-12345",
+    "loadBalancerType": "OPEN",
+    "chargeType": "TRAFFIC_POSTPAID_BY_HOUR",
+    "internetMaxBandwidthOut": 2048,
+    "masterZoneId": "ap-shanghai-1",
+    "slaveZoneId": "ap-shanghai-2",
+    "projectId": 0
+  },
+  "responseElements": {
+    "requestId": "87654321-4321-4321-4321-210987654321"
+  }
+}

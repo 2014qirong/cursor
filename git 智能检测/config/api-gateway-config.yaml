@@ -1,0 +1,674 @@
+# 腾讯云原生API网关配置文件
+# Kong网关的服务、路由和插件配置
+
+# 服务配置
+services:
+  # 用户服务
+  - name: user-service
+    url: http://user-service.default.svc.cluster.local:8080
+    protocol: http
+    host: user-service.default.svc.cluster.local
+    port: 8080
+    path: /
+    retries: 3
+    connect_timeout: 60000
+    write_timeout: 60000
+    read_timeout: 60000
+    tags:
+      - production
+      - microservice
+      - user
+    
+  # 订单服务
+  - name: order-service
+    url: http://order-service.default.svc.cluster.local:8081
+    protocol: http
+    host: order-service.default.svc.cluster.local
+    port: 8081
+    path: /
+    retries: 3
+    connect_timeout: 60000
+    write_timeout: 60000
+    read_timeout: 60000
+    tags:
+      - production
+      - microservice
+      - order
+    
+  # 支付服务
+  - name: payment-service
+    url: http://payment-service.default.svc.cluster.local:8082
+    protocol: http
+    host: payment-service.default.svc.cluster.local
+    port: 8082
+    path: /
+    retries: 3
+    connect_timeout: 60000
+    write_timeout: 60000
+    read_timeout: 60000
+    tags:
+      - production
+      - microservice
+      - payment
+      - sensitive
+    
+  # 通知服务
+  - name: notification-service
+    url: http://notification-service.default.svc.cluster.local:8083
+    protocol: http
+    host: notification-service.default.svc.cluster.local
+    port: 8083
+    path: /
+    retries: 3
+    connect_timeout: 60000
+    write_timeout: 60000
+    read_timeout: 60000
+    tags:
+      - production
+      - microservice
+      - notification
+
+# 路由配置
+routes:
+  # 用户相关路由
+  - name: user-login
+    service: user-service
+    protocols:
+      - http
+      - https
+    methods:
+      - POST
+    paths:
+      - /api/v1/auth/login
+    strip_path: false
+    preserve_host: false
+    tags:
+      - auth
+      - public
+    
+  - name: user-register
+    service: user-service
+    protocols:
+      - http
+      - https
+    methods:
+      - POST
+    paths:
+      - /api/v1/auth/register
+    strip_path: false
+    preserve_host: false
+    tags:
+      - auth
+      - public
+    
+  - name: user-profile
+    service: user-service
+    protocols:
+      - http
+      - https
+    methods:
+      - GET
+      - PUT
+      - PATCH
+    paths:
+      - /api/v1/users
+    strip_path: false
+    preserve_host: false
+    tags:
+      - user
+      - protected
+    
+  # 订单相关路由
+  - name: order-create
+    service: order-service
+    protocols:
+      - http
+      - https
+    methods:
+      - POST
+    paths:
+      - /api/v1/orders
+    strip_path: false
+    preserve_host: false
+    tags:
+      - order
+      - protected
+    
+  - name: order-list
+    service: order-service
+    protocols:
+      - http
+      - https
+    methods:
+      - GET
+    paths:
+      - /api/v1/orders
+    strip_path: false
+    preserve_host: false
+    tags:
+      - order
+      - protected
+    
+  - name: order-detail
+    service: order-service
+    protocols:
+      - http
+      - https
+    methods:
+      - GET
+      - PUT
+      - DELETE
+    paths:
+      - /api/v1/orders/(?<order_id>\\d+)
+    strip_path: false
+    preserve_host: false
+    regex_priority: 100
+    tags:
+      - order
+      - protected
+    
+  # 支付相关路由
+  - name: payment-create
+    service: payment-service
+    protocols:
+      - https  # 支付接口强制HTTPS
+    methods:
+      - POST
+    paths:
+      - /api/v1/payments
+    strip_path: false
+    preserve_host: false
+    tags:
+      - payment
+      - protected
+      - sensitive
+    
+  - name: payment-callback
+    service: payment-service
+    protocols:
+      - https
+    methods:
+      - POST
+    paths:
+      - /api/v1/payments/callback
+    strip_path: false
+    preserve_host: false
+    tags:
+      - payment
+      - callback
+      - sensitive
+    
+  # 通知相关路由
+  - name: notification-send
+    service: notification-service
+    protocols:
+      - http
+      - https
+    methods:
+      - POST
+    paths:
+      - /api/v1/notifications
+    strip_path: false
+    preserve_host: false
+    tags:
+      - notification
+      - protected
+
+# 插件配置
+plugins:
+  # 全局CORS插件
+  - name: cors
+    config:
+      origins:
+        - "https://www.example.com"
+        - "https://app.example.com"
+        - "https://admin.example.com"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+        - Date
+        - Authorization
+        - X-Auth-Token
+        - X-Request-ID
+      exposed_headers:
+        - X-Auth-Token
+        - X-Request-ID
+      credentials: true
+      max_age: 3600
+    tags:
+      - global
+      - cors
+    
+  # 全局限流插件
+  - name: rate-limiting
+    config:
+      minute: 1000
+      hour: 10000
+      day: 100000
+      policy: redis
+      redis_host: redis-service.default.svc.cluster.local
+      redis_port: 6379
+      redis_database: 0
+      redis_timeout: 2000
+      fault_tolerant: true
+      hide_client_headers: false
+    tags:
+      - global
+      - rate-limiting
+    
+  # 全局请求大小限制
+  - name: request-size-limiting
+    config:
+      allowed_payload_size: 10  # 10MB
+    tags:
+      - global
+      - security
+    
+  # 全局IP限制（可选）
+  - name: ip-restriction
+    config:
+      allow:
+        - 10.0.0.0/8
+        - 172.16.0.0/12
+        - 192.168.0.0/16
+        - 127.0.0.1
+      deny: []
+    enabled: false
+    tags:
+      - global
+      - security
+      - ip-restriction
+    
+  # JWT认证插件（应用到需要认证的路由）
+  - name: jwt
+    route: user-profile
+    config:
+      uri_param_names:
+        - token
+      cookie_names:
+        - auth_token
+      header_names:
+        - Authorization
+      claims_to_verify:
+        - exp
+        - iat
+      key_claim_name: iss
+      secret_is_base64: false
+      anonymous: null
+      run_on_preflight: true
+    tags:
+      - auth
+      - jwt
+    
+  - name: jwt
+    route: order-create
+    config:
+      uri_param_names:
+        - token
+      cookie_names:
+        - auth_token
+      header_names:
+        - Authorization
+      claims_to_verify:
+        - exp
+        - iat
+      key_claim_name: iss
+      secret_is_base64: false
+      anonymous: null
+      run_on_preflight: true
+    tags:
+      - auth
+      - jwt
+    
+  - name: jwt
+    route: order-list
+    config:
+      uri_param_names:
+        - token
+      cookie_names:
+        - auth_token
+      header_names:
+        - Authorization
+      claims_to_verify:
+        - exp
+        - iat
+      key_claim_name: iss
+      secret_is_base64: false
+      anonymous: null
+      run_on_preflight: true
+    tags:
+      - auth
+      - jwt
+    
+  - name: jwt
+    route: order-detail
+    config:
+      uri_param_names:
+        - token
+      cookie_names:
+        - auth_token
+      header_names:
+        - Authorization
+      claims_to_verify:
+        - exp
+        - iat
+      key_claim_name: iss
+      secret_is_base64: false
+      anonymous: null
+      run_on_preflight: true
+    tags:
+      - auth
+      - jwt
+    
+  # 支付路由的特殊限流
+  - name: rate-limiting
+    route: payment-create
+    config:
+      minute: 10
+      hour: 100
+      day: 1000
+      policy: redis
+      redis_host: redis-service.default.svc.cluster.local
+      redis_port: 6379
+      redis_database: 1
+      redis_timeout: 2000
+      fault_tolerant: true
+      hide_client_headers: false
+    tags:
+      - payment
+      - rate-limiting
+      - strict
+    
+  # 支付路由的JWT认证
+  - name: jwt
+    route: payment-create
+    config:
+      uri_param_names:
+        - token
+      cookie_names:
+        - auth_token
+      header_names:
+        - Authorization
+      claims_to_verify:
+        - exp
+        - iat
+        - aud
+      key_claim_name: iss
+      secret_is_base64: false
+      anonymous: null
+      run_on_preflight: true
+    tags:
+      - payment
+      - auth
+      - jwt
+      - strict
+    
+  # 请求转换插件（添加请求头）
+  - name: request-transformer
+    config:
+      add:
+        headers:
+          - "X-Gateway-Version:2.8.1"
+          - "X-Request-ID:$(uuid)"
+        querystring: []
+        body: []
+      append:
+        headers: []
+        querystring: []
+        body: []
+      remove:
+        headers: []
+        querystring: []
+        body: []
+      replace:
+        headers: []
+        querystring: []
+        body: []
+        uri: null
+    tags:
+      - global
+      - request-transformer
+    
+  # 响应转换插件（添加响应头）
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - "X-Gateway-Response:Kong"
+          - "X-Response-Time:$(latency)"
+        json: []
+        json_types: []
+      append:
+        headers: []
+        json: []
+        json_types: []
+      remove:
+        headers:
+          - "Server"
+        json: []
+      replace:
+        headers: []
+        json: []
+        json_types: []
+    tags:
+      - global
+      - response-transformer
+    
+  # Prometheus监控插件
+  - name: prometheus
+    config:
+      per_consumer: true
+      status_code_metrics: true
+      latency_metrics: true
+      bandwidth_metrics: true
+      upstream_health_metrics: true
+    tags:
+      - global
+      - monitoring
+      - prometheus
+    
+  # 日志插件（HTTP日志）
+  - name: http-log
+    config:
+      http_endpoint: "http://log-collector.logging.svc.cluster.local:8080/kong-logs"
+      method: POST
+      timeout: 10000
+      keepalive: 60000
+      content_type: "application/json"
+      flush_timeout: 2
+      retry_count: 3
+      queue_size: 1000
+    tags:
+      - global
+      - logging
+      - http-log
+    
+  # 文件日志插件（备用）
+  - name: file-log
+    config:
+      path: "/var/log/kong/access.log"
+      reopen: true
+    enabled: false
+    tags:
+      - global
+      - logging
+      - file-log
+
+# 消费者配置（JWT密钥）
+consumers:
+  - username: mobile-app
+    custom_id: mobile-app-v1
+    tags:
+      - mobile
+      - app
+    jwt_secrets:
+      - key: mobile-app-issuer
+        secret: "mobile-app-jwt-secret-key-2023"
+        algorithm: HS256
+    
+  - username: web-app
+    custom_id: web-app-v1
+    tags:
+      - web
+      - app
+    jwt_secrets:
+      - key: web-app-issuer
+        secret: "web-app-jwt-secret-key-2023"
+        algorithm: HS256
+    
+  - username: admin-panel
+    custom_id: admin-panel-v1
+    tags:
+      - admin
+      - panel
+    jwt_secrets:
+      - key: admin-panel-issuer
+        secret: "admin-panel-jwt-secret-key-2023"
+        algorithm: HS256
+    
+  - username: payment-gateway
+    custom_id: payment-gateway-v1
+    tags:
+      - payment
+      - gateway
+      - sensitive
+    jwt_secrets:
+      - key: payment-gateway-issuer
+        secret: "payment-gateway-jwt-secret-key-2023"
+        algorithm: HS256
+
+# 上游配置（负载均衡）
+upstreams:
+  - name: user-service-upstream
+    algorithm: round-robin
+    hash_on: none
+    hash_fallback: none
+    healthchecks:
+      active:
+        timeout: 1
+        concurrency: 10
+        http_path: "/health"
+        healthy:
+          interval: 10
+          http_statuses:
+            - 200
+            - 302
+          successes: 3
+        unhealthy:
+          interval: 10
+          http_statuses:
+            - 429
+            - 404
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+          tcp_failures: 3
+          timeouts: 3
+          http_failures: 5
+      passive:
+        healthy:
+          http_statuses:
+            - 200
+            - 201
+            - 202
+            - 203
+            - 204
+            - 205
+            - 206
+            - 300
+            - 301
+            - 302
+            - 303
+            - 304
+            - 307
+            - 308
+          successes: 3
+        unhealthy:
+          http_statuses:
+            - 429
+            - 500
+            - 503
+          tcp_failures: 3
+          timeouts: 3
+          http_failures: 5
+    targets:
+      - target: user-service.default.svc.cluster.local:8080
+        weight: 100
+    tags:
+      - user-service
+      - upstream
+    
+  - name: order-service-upstream
+    algorithm: round-robin
+    hash_on: none
+    hash_fallback: none
+    healthchecks:
+      active:
+        timeout: 1
+        concurrency: 10
+        http_path: "/health"
+        healthy:
+          interval: 10
+          http_statuses:
+            - 200
+            - 302
+          successes: 3
+        unhealthy:
+          interval: 10
+          http_statuses:
+            - 429
+            - 404
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+          tcp_failures: 3
+          timeouts: 3
+          http_failures: 5
+      passive:
+        healthy:
+          http_statuses:
+            - 200
+            - 201
+            - 202
+            - 203
+            - 204
+            - 205
+            - 206
+            - 300
+            - 301
+            - 302
+            - 303
+            - 304
+            - 307
+            - 308
+          successes: 3
+        unhealthy:
+          http_statuses:
+            - 429
+            - 500
+            - 503
+          tcp_failures: 3
+          timeouts: 3
+          http_failures: 5
+    targets:
+      - target: order-service.default.svc.cluster.local:8081
+        weight: 100
+    tags:
+      - order-service
+      - upstream

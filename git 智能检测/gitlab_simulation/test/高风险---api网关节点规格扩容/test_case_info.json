@@ -1,0 +1,13 @@
+{
+  "test_name": "高风险 - API网关节点规格扩容",
+  "risk_level": "high",
+  "description": "高风险 - API网关节点规格扩容",
+  "branch": "test/高风险---api网关节点规格扩容",
+  "author": "test-automation",
+  "commit_message": "test: 高风险 - API网关节点规格扩容",
+  "timestamp": "2025-06-17T14:35:23.734042",
+  "files_changed": [
+    "config/api-gateway-config.yaml"
+  ],
+  "diff_content": "{\n  \"eventName\": \"ModifyApiGatewayInstance\",\n  \"eventTime\": \"2025-06-17T14:35:23.728662\",\n  \"userIdentity\": {\n    \"type\": \"Root\",\n    \"principalId\": \"gateway-admin\",\n    \"arn\": \"qcs::cam::uin/123456789:root\",\n    \"accountId\": \"123456789\"\n  },\n  \"eventRegion\": \"ap-beijing\",\n  \"sourceIPAddress\": \"203.0.113.10\",\n  \"userAgent\": \"TencentCloud-Console\",\n  \"requestParameters\": {\n    \"gatewayId\": \"apigw-12345678\",\n    \"instanceType\": \"kong\",\n    \"nodeSpec\": \"4C8G\",\n    \"nodeCount\": 6,\n    \"deploymentMode\": \"multi-az\",\n    \"enablePublicNetwork\": true,\n    \"bandwidthLimit\": 1000\n  },\n  \"responseElements\": {\n    \"requestId\": \"12345678-1234-1234-1234-123456789012\"\n  }\n}"
+}

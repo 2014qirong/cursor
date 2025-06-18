@@ -1,0 +1,38 @@
+
+--- a/config/api-gateway-config.yaml
++++ b/config/api-gateway-config.yaml
+@@ -425,7 +425,7 @@ consumers:
+    jwt_secrets:
+      - key: mobile-app-issuer
+-        secret: "mobile-app-jwt-secret-key-2023"
++        secret: "mobile-app-jwt-secret-key-2024-updated"
+        algorithm: HS256
+    
+  - username: web-app
+@@ -436,7 +436,7 @@ consumers:
+    jwt_secrets:
+      - key: web-app-issuer
+-        secret: "web-app-jwt-secret-key-2023"
++        secret: "web-app-jwt-secret-key-2024-updated"
+        algorithm: HS256
+--- a/k8s/secrets.yaml
++++ b/k8s/secrets.yaml
+@@ -8,8 +8,8 @@ metadata:
+type: Opaque
+data:
+  # base64编码的密码
+-  postgres-password: a29uZ19wYXNzd29yZA==
+-  postgres-user: a29uZw==
++  postgres-password: bmV3X3Bvc3RncmVzX3Bhc3N3b3JkXzIwMjQ=
++  postgres-user: a29uZ19hZG1pbg==
+--- a/terraform/tencent_api_gateway.tf
++++ b/terraform/tencent_api_gateway.tf
+@@ -180,7 +180,7 @@ resource "tencentcloud_clb_listener" "api_gateway_https" {
+  port          = 443
+  protocol      = "HTTPS"
+  certificate_ssl_mode = "UNIDIRECTIONAL"
+-  certificate_id = var.ssl_certificate_id
++  certificate_id = "cert-new-2024-production"
+  
+  health_check_switch = true
+        

@@ -1,0 +1,24 @@
+
+--- a/config/kong-plugins.yaml
++++ b/config/kong-plugins.yaml
+@@ -15,7 +15,7 @@ plugins:
+  - name: rate-limiting
+    config:
+-      minute: 1000
++      minute: 500
+      hour: 10000
+      day: 100000
+      policy: redis
+@@ -45,6 +45,12 @@ plugins:
+      anonymous: null
+      run_on_preflight: true
+    tags:
+      - auth
+      - jwt
++  - name: ip-restriction
++    config:
++      allow:
++        - 10.0.0.0/8
++      deny:
++        - 192.168.1.100
+        

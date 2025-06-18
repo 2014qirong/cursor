@@ -1,0 +1,13 @@
+{
+  "test_name": "高风险 - 数据库安全组变更",
+  "risk_level": "high",
+  "description": "数据库安全组规则变更，涉及网络访问控制和数据安全",
+  "branch": "test/高风险---数据库安全组变更",
+  "author": "test-automation",
+  "commit_message": "test: 高风险 - 数据库安全组变更",
+  "timestamp": "2025-01-27T11:00:00.000000",
+  "files_changed": [
+    "security/database-sg-rules.json"
+  ],
+  "diff_content": "{\n  \"SecurityGroupId\": \"sg-database-prod-001\",\n  \"GroupName\": \"database-production-sg\",\n  \"Description\": \"Production database security group\",\n  \"VpcId\": \"vpc-prod-main\",\n  \"Rules\": [\n    {\n      \"Type\": \"Ingress\",\n      \"IpProtocol\": \"TCP\",\n      \"Port\": \"3306\",\n      \"SourceSecurityGroupId\": \"sg-app-servers\",\n      \"Description\": \"MySQL access from application servers\"\n    },\n    {\n      \"Type\": \"Ingress\",\n      \"IpProtocol\": \"TCP\",\n      \"Port\": \"3306\",\n      \"CidrIp\": \"10.0.0.0/8\",\n      \"Description\": \"MySQL access from internal network\"\n    },\n    {\n      \"Type\": \"Ingress\",\n      \"IpProtocol\": \"TCP\",\n      \"Port\": \"22\",\n      \"CidrIp\": \"192.168.1.0/24\",\n      \"Description\": \"SSH access from management subnet\"\n    },\n    {\n      \"Type\": \"Egress\",\n      \"IpProtocol\": \"ALL\",\n      \"Port\": \"-1\",\n      \"CidrIp\": \"0.0.0.0/0\",\n      \"Description\": \"Allow all outbound traffic\"\n    }\n  ],\n  \"Tags\": [\n    {\n      \"Key\": \"Environment\",\n      \"Value\": \"Production\"\n    },\n    {\n      \"Key\": \"Service\",\n      \"Value\": \"Database\"\n    },\n    {\n      \"Key\": \"CriticalLevel\",\n      \"Value\": \"High\"\n    }\n  ]\n}"
+}

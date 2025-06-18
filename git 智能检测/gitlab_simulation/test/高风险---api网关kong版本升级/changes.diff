@@ -1,0 +1,29 @@
+{
+  "object_kind": "push",
+  "event_name": "push",
+  "project_id": 201,
+  "project": {
+    "id": 201,
+    "name": "tencent-api-gateway-config",
+    "namespace": "infrastructure"
+  },
+  "commits": [
+    {
+      "id": "kong001",
+      "message": "Upgrade Kong API Gateway from 2.4.1 to 2.5.1 in production",
+      "author": {
+        "name": "DevOps Team"
+      },
+      "added": [
+        "terraform/api-gateway-upgrade.tf"
+      ],
+      "modified": [
+        "config/kong-gateway.yaml",
+        "helm/values-prod.yaml"
+      ],
+      "removed": [
+        "config/kong-2.4.1-config.yaml"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "object_kind": "push",
+  "event_name": "push",
+  "before": "abc123",
+  "after": "def456",
+  "ref": "refs/heads/main",
+  "checkout_sha": "def456",
+  "message": "Test commit",
+  "user_id": 1,
+  "user_name": "Test User",
+  "user_username": "testuser",
+  "user_email": "test@example.com",
+  "user_avatar": "",
+  "project_id": 123,
+  "project": {
+    "name": "test-project"
+  },
+  "commits": [
+    {
+      "id": "def456",
+      "message": "Add test commit",
+      "author": {
+        "name": "Test User"
+      },
+      "added": ["test.txt"],
+      "modified": [],
+      "removed": []
+    }
+  ],
+  "total_commits_count": 1,
+  "repository": {
+    "name": "test-repo"
+  }
+}

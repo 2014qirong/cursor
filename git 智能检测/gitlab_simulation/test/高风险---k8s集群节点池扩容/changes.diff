@@ -1,0 +1,24 @@
+{
+  "kind": "NodePool",
+  "apiVersion": "cs.aliyun.com/v1",
+  "metadata": {
+    "name": "production-nodepool",
+    "namespace": "kube-system"
+  },
+  "spec": {
+    "clusterName": "production-cluster",
+    "nodeCount": 8,
+    "instanceType": "ecs.c6.2xlarge",
+    "systemDiskSize": 120,
+    "autoScaling": {
+      "enable": true,
+      "minSize": 3,
+      "maxSize": 10
+    },
+    "management": {
+      "enable": true,
+      "autoRepair": true,
+      "autoUpgrade": false
+    }
+  }
+}

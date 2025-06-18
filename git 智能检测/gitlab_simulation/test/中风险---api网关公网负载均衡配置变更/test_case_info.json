@@ -1,0 +1,13 @@
+{
+  "test_name": "中风险 - API网关公网负载均衡配置变更",
+  "risk_level": "high",
+  "description": "中风险 - API网关公网负载均衡配置变更",
+  "branch": "test/中风险---api网关公网负载均衡配置变更",
+  "author": "test-automation",
+  "commit_message": "test: 中风险 - API网关公网负载均衡配置变更",
+  "timestamp": "2025-06-17T14:35:23.739371",
+  "files_changed": [
+    "config/api-gateway-config.yaml"
+  ],
+  "diff_content": "{\n  \"eventName\": \"ModifyLoadBalancer\",\n  \"eventTime\": \"2025-06-17T14:35:23.728684\",\n  \"userIdentity\": {\n    \"type\": \"AssumedRole\",\n    \"principalId\": \"network-engineer\",\n    \"arn\": \"qcs::cam::uin/123456789:assumed-role/NetworkRole/network-engineer\",\n    \"accountId\": \"123456789\"\n  },\n  \"eventRegion\": \"ap-shanghai\",\n  \"sourceIPAddress\": \"10.0.1.100\",\n  \"userAgent\": \"TencentCloud-SDK\",\n  \"requestParameters\": {\n    \"loadBalancerId\": \"lb-apigw-12345\",\n    \"loadBalancerType\": \"OPEN\",\n    \"chargeType\": \"TRAFFIC_POSTPAID_BY_HOUR\",\n    \"internetMaxBandwidthOut\": 2048,\n    \"masterZoneId\": \"ap-shanghai-1\",\n    \"slaveZoneId\": \"ap-shanghai-2\",\n    \"projectId\": 0\n  },\n  \"responseElements\": {\n    \"requestId\": \"87654321-4321-4321-4321-210987654321\"\n  }\n}"
+}

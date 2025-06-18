@@ -1,0 +1,13 @@
+{
+  "test_name": "高风险 - API网关Kong版本升级",
+  "risk_level": "high",
+  "description": "高风险 - API网关Kong版本升级",
+  "branch": "test/高风险---api网关kong版本升级",
+  "author": "test-automation",
+  "commit_message": "test: 高风险 - API网关Kong版本升级",
+  "timestamp": "2025-06-17T14:35:23.732303",
+  "files_changed": [
+    "config/api-gateway-config.yaml"
+  ],
+  "diff_content": "{\n  \"object_kind\": \"push\",\n  \"event_name\": \"push\",\n  \"project_id\": 201,\n  \"project\": {\n    \"id\": 201,\n    \"name\": \"tencent-api-gateway-config\",\n    \"namespace\": \"infrastructure\"\n  },\n  \"commits\": [\n    {\n      \"id\": \"kong001\",\n      \"message\": \"Upgrade Kong API Gateway from 2.4.1 to 2.5.1 in production\",\n      \"author\": {\n        \"name\": \"DevOps Team\"\n      },\n      \"added\": [\n        \"terraform/api-gateway-upgrade.tf\"\n      ],\n      \"modified\": [\n        \"config/kong-gateway.yaml\",\n        \"helm/values-prod.yaml\"\n      ],\n      \"removed\": [\n        \"config/kong-2.4.1-config.yaml\"\n      ]\n    }\n  ]\n}"
+}

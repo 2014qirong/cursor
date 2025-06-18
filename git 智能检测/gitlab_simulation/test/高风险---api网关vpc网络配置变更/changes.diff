@@ -1,0 +1,26 @@
+{
+  "eventName": "ModifyVpcAttribute",
+  "eventTime": "2025-06-17T14:35:23.728691",
+  "userIdentity": {
+    "type": "Root",
+    "principalId": "vpc-admin",
+    "arn": "qcs::cam::uin/123456789:root",
+    "accountId": "123456789"
+  },
+  "eventRegion": "ap-guangzhou",
+  "sourceIPAddress": "172.16.0.10",
+  "userAgent": "TencentCloud-Terraform",
+  "requestParameters": {
+    "vpcId": "vpc-apigw-12345",
+    "vpcName": "api-gateway-vpc-prod",
+    "cidrBlock": "10.0.0.0/16",
+    "subnetId": "subnet-apigw-001",
+    "subnetCidr": "10.0.1.0/24",
+    "gatewayId": "apigw-12345678",
+    "enableDnsHostnames": true,
+    "enableDnsResolution": true
+  },
+  "responseElements": {
+    "requestId": "vpc12345-1234-1234-1234-123456789012"
+  }
+}

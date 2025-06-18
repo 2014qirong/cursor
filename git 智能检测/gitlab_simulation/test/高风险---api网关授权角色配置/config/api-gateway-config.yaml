@@ -1,0 +1,10 @@
+# 模拟文件: config/api-gateway-config.yaml
+# 测试用例: 高风险 - API网关授权角色配置
+# 风险等级: high
+# 生成时间: 2025-06-17 14:35:23.759650
+
+# API网关配置文件
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: 高风险---api网关授权角色配置

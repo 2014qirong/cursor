@@ -1,0 +1,14 @@
+{
+  "test_name": "API网关数据库配置变更",
+  "risk_level": "high",
+  "description": "修改API网关后端数据库配置，可能导致服务中断",
+  "branch": "feature/database-optimization",
+  "author": "database-team",
+  "commit_message": "feat: 升级API网关数据库配置以支持高并发",
+  "timestamp": "2025-06-17T14:35:23.770148",
+  "files_changed": [
+    "k8s/tencent-api-gateway-deployment.yaml",
+    "config/database-config.yaml"
+  ],
+  "diff_content": "\n--- a/k8s/tencent-api-gateway-deployment.yaml\n+++ b/k8s/tencent-api-gateway-deployment.yaml\n@@ -85,7 +85,7 @@ spec:\n        - name: POSTGRES_DB\n          value: kong\n        - name: POSTGRES_USER\n-          value: kong\n+          value: kong_admin\n        - name: POSTGRES_PASSWORD\n          valueFrom:\n            secretKeyRef:\n@@ -125,7 +125,7 @@ spec:\n        - name: KONG_PG_HOST\n-          value: postgres-service.api-gateway.svc.cluster.local\n+          value: postgres-cluster.database.svc.cluster.local\n        - name: KONG_PG_PORT\n          value: \"5432\"\n        - name: KONG_PG_DATABASE\n--- a/config/database-config.yaml\n+++ b/config/database-config.yaml\n@@ -5,7 +5,7 @@ database:\n  type: postgresql\n  host: postgres-service.api-gateway.svc.cluster.local\n  port: 5432\n-  database: kong\n+  database: kong_production\n  username: kong\n  password: ${POSTGRES_PASSWORD}\n  pool_size: 20\n-  max_connections: 100\n+  max_connections: 200\n  ssl_mode: require\n        "
+}

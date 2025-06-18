@@ -1,0 +1,13 @@
+{
+  "test_name": "低风险 - API网关标签管理",
+  "risk_level": "high",
+  "description": "低风险 - API网关标签管理",
+  "branch": "test/低风险---api网关标签管理",
+  "author": "test-automation",
+  "commit_message": "test: 低风险 - API网关标签管理",
+  "timestamp": "2025-06-17T14:35:23.750139",
+  "files_changed": [
+    "config/api-gateway-config.yaml"
+  ],
+  "diff_content": "{\n  \"object_kind\": \"push\",\n  \"event_name\": \"push\",\n  \"project_id\": 203,\n  \"project\": {\n    \"id\": 203,\n    \"name\": \"api-gateway-tags\",\n    \"namespace\": \"management\"\n  },\n  \"commits\": [\n    {\n      \"id\": \"tag001\",\n      \"message\": \"Update API Gateway resource tags for better cost management\",\n      \"author\": {\n        \"name\": \"FinOps Team\"\n      },\n      \"added\": [\n        \"tags/cost-allocation.yaml\"\n      ],\n      \"modified\": [\n        \"terraform/tags.tf\",\n        \"config/resource-tags.yaml\"\n      ],\n      \"removed\": [\n        \"tags/deprecated-tags.yaml\"\n      ]\n    }\n  ]\n}"
+}

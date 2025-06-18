@@ -1,0 +1,10 @@
+# 模拟文件: config/kong-plugins.yaml
+# 测试用例: API网关插件配置变更
+# 风险等级: medium
+# 生成时间: 2025-06-17 14:35:23.762477
+
+# API网关配置文件
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api网关插件配置变更

@@ -1,0 +1,90 @@
+# 阿里云ACK集群节点池扩容变更
+
+变更描述：
+修改生产环境阿里云ACK集群的节点池配置，以应对业务增长需求和提升集群稳定性。
+
+---
+# 集群节点池定义 - 变更前
+kind: NodePool
+apiVersion: cs.alibabacloud.com/v1
+metadata:
+  name: np-production-workers
+  labels:
+    app: production
+    environment: prod
+spec:
+  autoScaling:
+    enabled: true
+    minSize: 3
+    maxSize: 10
+  nodeConfig:
+    instanceTypes:
+      - ecs.g6.2xlarge
+    systemDisk:
+      category: cloud_essd
+      size: 100
+    dataDisks:
+      - category: cloud_efficiency
+        size: 200
+    labels:
+      node-role: worker
+      app: production
+    taints:
+      - key: "dedicated"
+        value: "production"
+        effect: "NoSchedule"
+    securityGroupId: "sg-bp1dktddjsg5nktv****"
+---
+# 集群节点池定义 - 变更后
+kind: NodePool
+apiVersion: cs.alibabacloud.com/v1
+metadata:
+  name: np-production-workers
+  labels:
+    app: production
+    environment: prod
+spec:
+  autoScaling:
+    enabled: true
+    minSize: 5
+    maxSize: 20
+  nodeConfig:
+    instanceTypes:
+      - ecs.g6.4xlarge  # 更大规格实例
+    systemDisk:
+      category: cloud_essd_pl2  # 更高性能磁盘
+      size: 200  # 更大系统盘
+    dataDisks:
+      - category: cloud_essd
+        size: 500  # 更大数据盘
+    labels:
+      node-role: worker
+      app: production
+      priority: high
+    taints:
+      - key: "dedicated"
+        value: "production"
+        effect: "NoSchedule"
+    securityGroupId: "sg-bp1dktddjsg5nktv****"
+    internetChargeType: "PayByTraffic"  # 新增按流量计费
+    internetMaxBandwidthOut: 10  # 新增出网带宽
+
+执行命令：
+```bash
+aliyun cs update-nodepool --cluster-id c-bp1gdz3dqnvs7****  --nodepool-id np-bp1ibw7xj3mq7**** --scaling-config '{"minSize":5,"maxSize":20}' --instance-types '["ecs.g6.4xlarge"]' --system-disk '{"category":"cloud_essd_pl2","size":200}' --data-disks '[{"category":"cloud_essd","size":500}]' --internet-charge-type "PayByTraffic" --internet-max-bandwidth-out 10
+```
+
+风险评估：
+- 风险等级: Medium
+- 影响范围: 生产环境核心业务
+- 潜在风险:
+  1. 节点池扩容过程中可能导致工作负载重新调度
+  2. 新规格节点可能与现有应用资源需求不匹配
+  3. 更高性能磁盘和更大实例规格将增加成本
+  4. 开启公网访问增加安全风险面
+
+缓解措施:
+  1. 确保应用配置了合理的Pod干扰预算(PDB)
+  2. 先小批量测试新节点性能和兼容性
+  3. 准备回滚方案
+  4. 监控新节点上的应用性能和资源利用率

@@ -1,0 +1,13 @@
+{
+  "test_name": "中风险 - API网关CLS日志服务配置",
+  "risk_level": "high",
+  "description": "中风险 - API网关CLS日志服务配置",
+  "branch": "test/中风险---api网关cls日志服务配置",
+  "author": "test-automation",
+  "commit_message": "test: 中风险 - API网关CLS日志服务配置",
+  "timestamp": "2025-06-17T14:35:23.743668",
+  "files_changed": [
+    "config/api-gateway-config.yaml"
+  ],
+  "diff_content": "{\n  \"object_kind\": \"push\",\n  \"event_name\": \"push\",\n  \"project_id\": 202,\n  \"project\": {\n    \"id\": 202,\n    \"name\": \"api-gateway-logging\",\n    \"namespace\": \"monitoring\"\n  },\n  \"commits\": [\n    {\n      \"id\": \"cls001\",\n      \"message\": \"Enable CLS log service for API Gateway with custom log format\",\n      \"author\": {\n        \"name\": \"SRE Team\"\n      },\n      \"added\": [\n        \"logging/cls-logset.yaml\",\n        \"logging/cls-topic.yaml\"\n      ],\n      \"modified\": [\n        \"config/gateway-logging.yaml\",\n        \"terraform/cls-config.tf\"\n      ],\n      \"removed\": []\n    }\n  ]\n}"
+}

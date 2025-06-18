@@ -1,0 +1,27 @@
+diff --git a/security/database-sg-rules.json b/security/database-sg-rules.json
+index 1234567..abcdefg 100644
+--- a/security/database-sg-rules.json
++++ b/security/database-sg-rules.json
+@@ -10,6 +10,12 @@
+       "Description": "MySQL access from application servers"
+     },
+     {
++      "Type": "Ingress",
++      "IpProtocol": "TCP",
++      "Port": "3306",
++      "CidrIp": "10.0.0.0/8",
++      "Description": "MySQL access from internal network"
++    },
++    {
+       "Type": "Ingress",
+       "IpProtocol": "TCP",
+       "Port": "22",
+@@ -17,7 +23,7 @@
+       "Description": "SSH access from management subnet"
+     },
+     {
+-      "CidrIp": "192.168.0.0/24",
++      "CidrIp": "192.168.1.0/24",
+       "Description": "SSH access from management subnet"
+     },
+     {

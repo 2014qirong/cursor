@@ -1,0 +1,13 @@
+{
+  "test_name": "高风险 - API网关授权角色配置",
+  "risk_level": "high",
+  "description": "高风险 - API网关授权角色配置",
+  "branch": "test/高风险---api网关授权角色配置",
+  "author": "test-automation",
+  "commit_message": "test: 高风险 - API网关授权角色配置",
+  "timestamp": "2025-06-17T14:35:23.757478",
+  "files_changed": [
+    "config/api-gateway-config.yaml"
+  ],
+  "diff_content": "{\n  \"eventName\": \"AttachRolePolicy\",\n  \"eventTime\": \"2025-06-17T14:35:23.728698\",\n  \"userIdentity\": {\n    \"type\": \"Root\",\n    \"principalId\": \"security-admin\",\n    \"arn\": \"qcs::cam::uin/123456789:root\",\n    \"accountId\": \"123456789\"\n  },\n  \"eventRegion\": \"ap-beijing\",\n  \"sourceIPAddress\": \"203.0.113.20\",\n  \"userAgent\": \"TencentCloud-Console\",\n  \"requestParameters\": {\n    \"roleName\": \"ApiGateWay_QCSRole\",\n    \"policyName\": \"QcloudAccessForApiGateWayRoleInCloudNativeAPIGateway\",\n    \"policyDocument\": {\n      \"version\": \"2.0\",\n      \"statement\": [\n        {\n          \"effect\": \"allow\",\n          \"action\": [\n            \"cls:*\",\n            \"vpc:*\",\n            \"clb:*\",\n            \"monitor:*\"\n          ],\n          \"resource\": \"*\"\n        }\n      ]\n    }\n  },\n  \"responseElements\": {\n    \"requestId\": \"role12345-1234-1234-1234-123456789012\"\n  }\n}"
+}
