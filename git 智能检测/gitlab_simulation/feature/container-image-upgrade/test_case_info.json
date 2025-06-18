@@ -1,0 +1,15 @@
+{
+  "test_name": "中风险 - 容器镜像版本升级",
+  "risk_level": "medium",
+  "description": "升级生产环境中的容器镜像版本，包含安全补丁和性能优化",
+  "branch": "feature/container-image-upgrade",
+  "author": "devops-team",
+  "commit_message": "feat: 升级容器镜像版本到v2.1.3，包含安全补丁",
+  "timestamp": "2025-01-27T10:30:00.000000",
+  "files_changed": [
+    "k8s/deployment.yaml",
+    "docker/Dockerfile",
+    "config/app-config.yaml"
+  ],
+  "diff_content": "{\n  \"object_kind\": \"push\",\n  \"event_name\": \"push\",\n  \"project_id\": 301,\n  \"project\": {\n    \"id\": 301,\n    \"name\": \"microservice-platform\",\n    \"namespace\": \"production\"\n  },\n  \"commits\": [\n    {\n      \"id\": \"img2024\",\n      \"message\": \"升级容器镜像版本到v2.1.3，包含安全补丁和性能优化\",\n      \"author\": {\n        \"name\": \"DevOps Team\"\n      },\n      \"added\": [\n        \"config/migration-script.sql\"\n      ],\n      \"modified\": [\n        \"k8s/deployment.yaml\",\n        \"docker/Dockerfile\",\n        \"config/app-config.yaml\"\n      ],\n      \"removed\": [\n        \"config/legacy-config.yaml\"\n      ]\n    }\n  ]\n}"
+}

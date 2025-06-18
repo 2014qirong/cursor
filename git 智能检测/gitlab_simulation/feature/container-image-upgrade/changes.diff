@@ -1,0 +1,30 @@
+{
+  "object_kind": "push",
+  "event_name": "push",
+  "project_id": 301,
+  "project": {
+    "id": 301,
+    "name": "microservice-platform",
+    "namespace": "production"
+  },
+  "commits": [
+    {
+      "id": "img2024",
+      "message": "升级容器镜像版本到v2.1.3，包含安全补丁和性能优化",
+      "author": {
+        "name": "DevOps Team"
+      },
+      "added": [
+        "config/migration-script.sql"
+      ],
+      "modified": [
+        "k8s/deployment.yaml",
+        "docker/Dockerfile",
+        "config/app-config.yaml"
+      ],
+      "removed": [
+        "config/legacy-config.yaml"
+      ]
+    }
+  ]
+}
