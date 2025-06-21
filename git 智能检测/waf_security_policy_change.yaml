@@ -1,0 +1,309 @@
+# 腾讯云 WAF 安全策略配置变更
+# 变更类型: 高风险安全策略调整
+# 风险等级: CRITICAL
+# 影响范围: 生产环境 Web 应用安全防护
+# 变更时间: 2024-01-15 14:30:00
+
+apiVersion: security.tencent.com/v1
+kind: WAFSecurityPolicy
+metadata:
+  name: production-waf-emergency-change
+  namespace: security
+  labels:
+    environment: production
+    risk-level: critical
+    change-type: security-policy
+    approval-required: "true"
+  annotations:
+    change-request-id: "CR-2024-0115-001"
+    approver: "security-team@company.com"
+    emergency-change: "true"
+    rollback-plan: "available"
+
+spec:
+  # WAF 实例配置
+  wafInstance:
+    instanceId: "${WAF_INSTANCE_ID}"
+    region: "ap-guangzhou"
+    edition: "premium"
+    domain: "${PRODUCTION_DOMAIN}"
+    
+  # 高风险变更：安全策略配置
+  securityPolicy:
+    # 防护模式配置 - 高风险变更
+    protectionMode:
+      mode: "observe"  # 从拦截模式改为观察模式
+      webSecurity: true
+      accessControl: false  # 关闭访问控制
+      ccProtection: false   # 关闭CC防护
+      botProtection: false  # 关闭Bot防护
+      apiProtection: true
+      
+    # 白名单规则配置 - 极高风险变更
+    whitelistRules:
+      - id: 1
+        name: "紧急全网白名单"
+        status: enabled
+        priority: 1
+        matchType: "ip"
+        matchContent: "0.0.0.0/0"  # 危险：允许所有IP访问
+        action: "allow"
+        description: "生产环境紧急白名单 - 允许所有IP访问"
+        validTime: 3600  # 1小时有效期
+        
+      - id: 2
+        name: "管理后台白名单"
+        status: enabled
+        priority: 2
+        matchType: "uri"
+        matchContent: "/admin/*"
+        action: "allow"
+        description: "管理员后台路径白名单"
+        
+      - id: 3
+        name: "API接口白名单"
+        status: enabled
+        priority: 3
+        matchType: "uri"
+        matchContent: "/api/*"
+        action: "allow"
+        description: "API接口路径白名单"
+        
+    # 自定义安全规则 - 高风险变更
+    customRules:
+      - id: "rule-001"
+        name: "SQL注入检测规则"
+        status: disabled  # 禁用关键安全规则
+        priority: 10
+        action: "log"  # 从拦截改为仅记录
+        conditions:
+          - field: "uri"
+            operator: "contains"
+            value: "union select"
+          - field: "args"
+            operator: "contains"
+            value: "' or 1=1"
+        description: "SQL注入攻击检测 - 已禁用"
+        
+      - id: "rule-002"
+        name: "XSS攻击检测规则"
+        status: disabled  # 禁用关键安全规则
+        priority: 11
+        action: "log"
+        conditions:
+          - field: "uri"
+            operator: "contains"
+            value: "<script>"
+          - field: "args"
+            operator: "contains"
+            value: "javascript:"
+        description: "XSS攻击检测 - 已禁用"
+        
+      - id: "rule-003"
+        name: "文件上传检测规则"
+        status: disabled
+        priority: 12
+        action: "log"
+        conditions:
+          - field: "uri"
+            operator: "contains"
+            value: "../"
+          - field: "filename"
+            operator: "regex"
+            value: "\.(php|jsp|asp|aspx)$"
+        description: "恶意文件上传检测 - 已禁用"
+        
+    # IP访问控制规则 - 高风险变更
+    ipAccessControl:
+      - id: "ip-rule-001"
+        name: "内网IP段控制"
+        status: enabled
+        action: "block"  # 拦截内网IP访问
+        ipList:
+          - "192.168.0.0/16"
+          - "10.0.0.0/8"
+          - "172.16.0.0/12"
+        validTime: 3600
+        description: "拦截内网IP段访问 - 可能影响正常用户"
+        
+      - id: "ip-rule-002"
+        name: "办公网IP控制"
+        status: enabled
+        action: "block"
+        ipList:
+          - "${OFFICE_IP_RANGE}"
+        validTime: 7200
+        description: "拦截办公网IP访问"
+        
+    # CC防护配置 - 高风险变更
+    ccProtection:
+      status: disabled  # 关闭CC防护
+      threshold: 1000   # 请求阈值
+      period: 60        # 统计周期
+      action: "captcha" # 验证码验证
+      
+    # Bot防护配置 - 高风险变更
+    botProtection:
+      status: disabled  # 关闭Bot防护
+      intelligentDetection: false
+      sessionDetection: false
+      behaviorAnalysis: false
+      
+  # 负载均衡配置变更
+  loadBalancer:
+    instanceId: "${CLB_INSTANCE_ID}"
+    listenerId: "${LISTENER_ID}"
+    protocol: "HTTPS"
+    port: 443
+    
+    # 高风险变更：修改后端服务器配置
+    backendServers:
+      - ip: "${BACKEND_SERVER_1}"
+        port: 8080
+        weight: 100
+        type: "CVM"
+      - ip: "${BACKEND_SERVER_2}"
+        port: 8080
+        weight: 100
+        type: "CVM"
+        
+    # SSL证书配置
+    sslConfig:
+      certificateId: "${SSL_CERT_ID}"
+      sslMode: "MUTUAL"  # 双向SSL认证
+      
+  # 日志配置
+  logging:
+    cls:
+      status: enabled
+      logsetId: "${LOGSET_ID}"
+      topicId: "${TOPIC_ID}"
+    
+    # 高风险变更：修改日志采集规则
+    logRules:
+      - name: "安全事件日志"
+        status: enabled
+        logLevel: "INFO"  # 从DEBUG降低到INFO
+        fields:
+          - "timestamp"
+          - "client_ip"
+          - "request_uri"
+          - "user_agent"
+          - "attack_type"
+          - "action_taken"
+          
+  # 监控告警配置
+  monitoring:
+    alerts:
+      - name: "WAF拦截率异常"
+        status: disabled  # 禁用关键告警
+        threshold: 0.1
+        period: 300
+        
+      - name: "攻击流量激增"
+        status: disabled  # 禁用关键告警
+        threshold: 1000
+        period: 60
+        
+# 变更风险评估
+riskAssessment:
+  overallRisk: "CRITICAL"
+  riskFactors:
+    - factor: "全网IP白名单"
+      risk: "CRITICAL"
+      impact: "允许任意IP访问，完全绕过WAF防护"
+      
+    - factor: "关闭核心安全规则"
+      risk: "HIGH"
+      impact: "SQL注入、XSS等攻击无法被检测和拦截"
+      
+    - factor: "防护模式降级"
+      risk: "HIGH"
+      impact: "从拦截模式改为观察模式，不会主动拦截攻击"
+      
+    - factor: "关闭CC和Bot防护"
+      risk: "MEDIUM"
+      impact: "无法防护CC攻击和恶意Bot访问"
+      
+    - factor: "禁用安全告警"
+      risk: "MEDIUM"
+      impact: "无法及时发现安全异常情况"
+      
+  mitigationPlan:
+    - action: "设置变更有效期"
+      description: "所有高风险变更设置1-2小时有效期"
+      
+    - action: "加强监控"
+      description: "人工监控安全事件和异常流量"
+      
+    - action: "准备回滚方案"
+      description: "准备快速回滚到变更前配置"
+      
+    - action: "通知安全团队"
+      description: "实时通知安全团队关注安全状况"
+      
+# 变更审批信息
+approval:
+  requestor: "ops-team@company.com"
+  approver: "security-team@company.com"
+  businessJustification: "生产环境紧急故障处理，需要临时调整WAF配置"
+  approvalTime: "2024-01-15T14:25:00Z"
+  validUntil: "2024-01-15T16:30:00Z"  # 2小时有效期
+  
+# 回滚计划
+rollbackPlan:
+  triggerConditions:
+    - "安全事件数量激增"
+    - "异常流量检测"
+    - "业务影响超出预期"
+    - "变更有效期到达"
+    
+  rollbackSteps:
+    - step: 1
+      action: "恢复防护模式为拦截模式"
+      command: "ModifyProtectionMode"
+      
+    - step: 2
+      action: "删除全网IP白名单规则"
+      command: "DeleteDomainWhiteRule"
+      
+    - step: 3
+      action: "启用关键安全检测规则"
+      command: "ModifyCustomRule"
+      
+    - step: 4
+      action: "恢复CC和Bot防护"
+      command: "ModifyProtectionMode"
+      
+    - step: 5
+      action: "启用安全告警"
+      command: "ModifyAlertPolicy"
+      
+  estimatedRollbackTime: "5-10分钟"
+  
+# 变更记录
+changeLog:
+  - timestamp: "2024-01-15T14:30:00Z"
+    operation: "CREATE_WHITELIST_RULE"
+    details: "创建全网IP白名单规则"
+    risk: "CRITICAL"
+    
+  - timestamp: "2024-01-15T14:31:00Z"
+    operation: "MODIFY_PROTECTION_MODE"
+    details: "防护模式从拦截改为观察"
+    risk: "HIGH"
+    
+  - timestamp: "2024-01-15T14:32:00Z"
+    operation: "DISABLE_SECURITY_RULES"
+    details: "禁用SQL注入和XSS检测规则"
+    risk: "HIGH"
+    
+  - timestamp: "2024-01-15T14:33:00Z"
+    operation: "DISABLE_CC_PROTECTION"
+    details: "关闭CC防护功能"
+    risk: "MEDIUM"
+    
+  - timestamp: "2024-01-15T14:34:00Z"
+    operation: "DISABLE_BOT_PROTECTION"
+    details: "关闭Bot防护功能"
+    risk: "MEDIUM"
