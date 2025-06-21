@@ -170,3 +170,159 @@ INFO:     Finished server process [61492]
 模型加载成功
 InfluxDB client initialized.
 模型加载成功
+/Users/heytea/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/heytea/Desktop/cursor/git 智能检测/ai_infer_service/main.py:234: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+INFO:     Started server process [24726]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [24726]
+加载云平台变更风险知识库...
+知识库加载成功，包含 30 条变更记录
+加载模型...
+模型加载成功
+InfluxDB client initialized.
+模型加载成功
+/Users/heytea/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/heytea/Desktop/cursor/git 智能检测/ai_infer_service/main.py:234: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+INFO:     Started server process [26771]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+加载云平台变更风险知识库...
+知识库加载成功，包含 30 条变更记录
+加载模型...
+模型加载成功
+InfluxDB client initialized.
+模型加载成功
+收到 GitLab Webhook: push - push
+处理项目 risk_detect (ID: 123) 的 1 个提交
+处理提交: abc123de by Test User
+获取 commit diff 时出错: Expecting value: line 1 column 1 (char 0)
+[DEBUG] preprocess_infrastructure_change called!
+前100字符： Commit: abc123de
+Author: Test User
+Message: 更新prod_db_modify.yaml配置文件
+Modified files: prod_db_modify
+处理变更内容，长度: 159
+识别到的云平台: []
+识别到的资源类型: ['Storage', 'IAM']
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=abc123de, risk=低风险
+INFO:     127.0.0.1:61364 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+收到 GitLab Webhook: push - push
+处理项目 risk_detect (ID: 123) 的 1 个提交
+处理提交: abc123de by Test User
+获取 commit diff 时出错: Expecting value: line 1 column 1 (char 0)
+[DEBUG] preprocess_infrastructure_change called!
+前100字符： Commit: abc123de
+Author: Test User
+Message: 更新prod_db_modify.yaml配置文件
+Modified files: prod_db_modify
+处理变更内容，长度: 159
+识别到的云平台: []
+识别到的资源类型: ['Storage', 'IAM']
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=abc123de, risk=低风险
+INFO:     127.0.0.1:61389 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+收到 GitLab Webhook: push - push
+处理项目 risk_detect (ID: 123) 的 1 个提交
+处理提交: abc123de by Test User
+获取 commit diff 时出错: Expecting value: line 1 column 1 (char 0)
+[DEBUG] preprocess_infrastructure_change called!
+前100字符： Commit: abc123de
+Author: Test User
+Message: 更新prod_db_modify.yaml配置文件
+Modified files: prod_db_modify
+处理变更内容，长度: 159
+识别到的云平台: []
+识别到的资源类型: ['Storage', 'IAM']
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=abc123de, risk=低风险
+INFO:     127.0.0.1:61416 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+收到 GitLab Webhook: push - push
+处理项目 risk_detect (ID: 123) 的 1 个提交
+处理提交: abc123de by Test User
+获取 commit diff 时出错: Expecting value: line 1 column 1 (char 0)
+[DEBUG] preprocess_infrastructure_change called!
+前100字符： Commit: abc123de
+Author: Test User
+Message: 更新prod_db_modify.yaml配置文件
+Modified files: prod_db_modify
+处理变更内容，长度: 159
+识别到的云平台: []
+识别到的资源类型: ['Storage', 'IAM']
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=abc123de, risk=低风险
+INFO:     127.0.0.1:63681 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+收到 GitLab Webhook: push - push
+处理项目 risk_detect (ID: 123) 的 1 个提交
+处理提交: abc123de by Test User
+获取 commit diff 时出错: Expecting value: line 1 column 1 (char 0)
+[DEBUG] preprocess_infrastructure_change called!
+前100字符： Commit: abc123de
+Author: Test User
+Message: 更新prod_db_modify.yaml配置文件
+Modified files: prod_db_modify
+处理变更内容，长度: 159
+识别到的云平台: []
+识别到的资源类型: ['Storage', 'IAM']
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=abc123de, risk=低风险
+INFO:     127.0.0.1:63730 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+收到 GitLab Webhook: push - push
+处理项目 risk_detect (ID: 123) 的 1 个提交
+处理提交: abc123de by Test User
+获取 commit diff 时出错: Expecting value: line 1 column 1 (char 0)
+[DEBUG] preprocess_infrastructure_change called!
+前100字符： Commit: abc123de
+Author: Test User
+Message: 更新prod_db_modify.yaml配置文件
+Modified files: prod_db_modify
+处理变更内容，长度: 159
+识别到的云平台: []
+识别到的资源类型: ['Storage', 'IAM']
+预处理完成，变更类型: 
+无法识别变更类型，使用低风险评估
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=abc123de, risk=低风险
+INFO:     127.0.0.1:64012 - "POST /gitlab-webhook HTTP/1.1" 200 OK
+收到 GitLab Webhook: push - push
+处理项目 AI Risk Assessment System (ID: 1) 的 1 个提交
+处理提交: 074fdeea by ops-team
+获取 commit diff 时出错: Expecting value: line 1 column 1 (char 0)
+[DEBUG] preprocess_infrastructure_change called!
+前100字符： Commit: 074fdeea
+Author: ops-team
+Message: 🚨 CRITICAL: 生产环境WAF安全策略紧急变更
+
+变更类型: 高风险WAF配置调整
+风险等级: CRITI
+处理变更内容，长度: 236
+识别到的云平台: ['AliCloud', 'TencentCloud']
+识别到的资源类型: ['CloudAPI', 'Storage', 'IAM']
+预处理完成，变更类型: AliCloud_GENERAL_CHANGE
+匹配到知识库项: ALICLOUD_ECS_SG_RULE_CHANGE_TF
+GitLab Webhook 风险评估写入 InfluxDB 成功: commit=074fdeea, risk=Medium
+INFO:     127.0.0.1:52694 - "POST /gitlab-webhook HTTP/1.1" 200 OK

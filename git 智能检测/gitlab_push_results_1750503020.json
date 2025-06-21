@@ -1,0 +1,194 @@
+{
+  "workflow_summary": {
+    "timestamp": "2025-06-21T18:50:09.377458",
+    "target_branch": "main",
+    "change_files": [
+      "waf_security_policy_change.yaml",
+      "tencent_waf_api_operations.py"
+    ],
+    "total_steps": 5
+  },
+  "steps": {
+    "git_status": {
+      "success": true,
+      "current_branch": "main",
+      "modified_files": [
+        {
+          "status": "M ",
+          "filename": "git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/ai_detect\""
+        },
+        {
+          "status": " M",
+          "filename": "\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/datasets/GAIA\""
+        },
+        {
+          "status": " M",
+          "filename": "\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/datasets/aiops2024\""
+        },
+        {
+          "status": " M",
+          "filename": "\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/nohup.out\""
+        },
+        {
+          "status": " M",
+          "filename": "\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/risk_demo\""
+        },
+        {
+          "status": "??",
+          "filename": "ai_service.log"
+        },
+        {
+          "status": "??",
+          "filename": "\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/push_waf_changes_to_gitlab.py\""
+        },
+        {
+          "status": "??",
+          "filename": "\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/tencent_waf_api_operations.py\""
+        },
+        {
+          "status": "??",
+          "filename": "\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/tencent_waf_config.tf\""
+        },
+        {
+          "status": "??",
+          "filename": "\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/tencent_waf_high_risk_change.py\""
+        },
+        {
+          "status": "??",
+          "filename": "\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/test_webhook_payload.json\""
+        },
+        {
+          "status": "??",
+          "filename": "\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/test_webhook_request.py\""
+        },
+        {
+          "status": "??",
+          "filename": "\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/waf_security_policy_change.yaml\""
+        }
+      ],
+      "is_clean": false
+    },
+    "branch_switch": {
+      "success": true,
+      "message": "Successfully switched to main branch",
+      "output": "M\t\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/ai_detect\"\nM\t\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/datasets/GAIA\"\nM\t\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/datasets/aiops2024\"\nM\t\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/nohup.out\"\nM\t\"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/risk_demo\"\nYour branch is up to date with 'origin/main'.\n"
+    },
+    "commit": {
+      "success": true,
+      "commit_hash": "074fdeeaac137f1047235979c1a260319a670fe9",
+      "commit_message": "🚨 CRITICAL: 生产环境WAF安全策略紧急变更\n\n变更类型: 高风险WAF配置调整\n风险等级: CRITICAL\n变更时间: 2025-06-21T18:50:15.512304\n有效期: 1-2小时\n\n变更内容:\n- 创建全网IP白名单规则 (0.0.0.0/0)\n- 防护模式从拦截改为观察模式\n- 禁用SQL注入和XSS检测规则\n- 关闭CC防护和Bot防护\n- 修改IP访问控制规则\n- 调整负载均衡器配置\n\n⚠️ 警告: 此变更将显著降低WAF安全防护能力\n🔄 回滚方案: 已准备，预计5-10分钟完成\n👥 审批人: security-team@company.com\n📋 变更单号: CR-2024-0115-001\n\n影响文件:\n- waf_security_policy_change.yaml\n- tencent_waf_api_operations.py\n\n#emergency #critical #waf #security #production",
+      "output": "[main 074fdeea] 🚨 CRITICAL: 生产环境WAF安全策略紧急变更\n 2 files changed, 880 insertions(+)\n create mode 100644 \"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/tencent_waf_api_operations.py\"\n create mode 100644 \"git \\346\\231\\272\\350\\203\\275\\346\\243\\200\\346\\265\\213/waf_security_policy_change.yaml\"\n"
+    },
+    "push": {
+      "success": true,
+      "message": "Successfully pushed to remote repository",
+      "output": ""
+    },
+    "webhook": {
+      "success": true,
+      "status_code": 200,
+      "response": {
+        "message": "GitLab Webhook 处理完成",
+        "status": "success",
+        "project_id": 1,
+        "project_name": "AI Risk Assessment System",
+        "total_commits": 1,
+        "processed_commits": 1,
+        "risk_assessments": [
+          {
+            "commit_id": "074fdeeaac137f1047235979c1a260319a670fe9",
+            "commit_author": "ops-team",
+            "commit_message": "🚨 CRITICAL: 生产环境WAF安全策略紧急变更\n\n变更类型: 高风险WAF配置调整\n风险等级: CRITICAL",
+            "probability": 0.65,
+            "risk_level": "Medium",
+            "change_type": "AliCloud_GENERAL_CHANGE",
+            "matched_pattern": {
+              "content": "通过Terraform修改阿里云ECS实例关联的安全组规则。",
+              "source": "云变更风险知识库",
+              "key_metrics_to_monitor": [
+                "目标ECS实例的网络流入/流出流量 (Alibaba Cloud Monitor)",
+                "特定端口的连通性测试结果",
+                "应用层日志中的连接错误"
+              ],
+              "potential_impacts": [
+                "ECS实例无法被正常访问或无法访问外部依赖",
+                "安全漏洞，实例遭受攻击",
+                "业务中断"
+              ],
+              "mitigation_strategies": [
+                "Revert Terraform代码到上一版本并重新apply",
+                "通过阿里云控制台手动修正或删除错误的安全组规则",
+                "临时将安全组规则设置为更宽松的策略以恢复访问，然后定位并修复问题规则"
+              ]
+            },
+            "suggested_solution": {
+              "content": "仔细审查 `terraform plan` 中安全组规则的变更详情\n确认规则的源/目标IP、端口、协议正确无误\n遵循最小权限原则\n如果可能，先在测试环境验证Terraform脚本",
+              "source": "云变更风险最佳实践"
+            }
+          }
+        ]
+      },
+      "webhook_payload": {
+        "object_kind": "push",
+        "event_name": "push",
+        "before": "0000000000000000000000000000000000000000",
+        "after": "074fdeeaac137f1047235979c1a260319a670fe9",
+        "ref": "refs/heads/main",
+        "checkout_sha": "074fdeeaac137f1047235979c1a260319a670fe9",
+        "message": "🚨 CRITICAL: 生产环境WAF安全策略紧急变更",
+        "user_id": 1,
+        "user_name": "ops-team",
+        "user_username": "ops-team",
+        "user_email": "ops-team@company.com",
+        "project_id": 1,
+        "project": {
+          "id": 1,
+          "name": "AI Risk Assessment System",
+          "description": "Intelligent risk assessment for infrastructure changes",
+          "web_url": "http://10.251.0.16/gitlab-instance-1807000d/ai-risk-assessment",
+          "avatar_url": null,
+          "git_ssh_url": "git@gitlab.example.com:security/ai-risk-assessment.git",
+          "git_http_url": "http://10.251.0.16/gitlab-instance-1807000d/security/ai-risk-assessment.git",
+          "namespace": "security",
+          "visibility_level": 10,
+          "path_with_namespace": "security/ai-risk-assessment",
+          "default_branch": "main",
+          "homepage": "http://10.251.0.16/gitlab-instance-1807000d/security/ai-risk-assessment",
+          "url": "git@gitlab.example.com:security/ai-risk-assessment.git",
+          "ssh_url": "git@gitlab.example.com:security/ai-risk-assessment.git",
+          "http_url": "http://10.251.0.16/gitlab-instance-1807000d/security/ai-risk-assessment.git"
+        },
+        "commits": [
+          {
+            "id": "074fdeeaac137f1047235979c1a260319a670fe9",
+            "message": "🚨 CRITICAL: 生产环境WAF安全策略紧急变更\n\n变更类型: 高风险WAF配置调整\n风险等级: CRITICAL",
+            "title": "🚨 CRITICAL: 生产环境WAF安全策略紧急变更",
+            "timestamp": "2025-06-21T18:50:20.127868",
+            "url": "http://10.251.0.16/gitlab-instance-1807000d/security/ai-risk-assessment/-/commit/074fdeeaac137f1047235979c1a260319a670fe9",
+            "author": {
+              "name": "ops-team",
+              "email": "ops-team@company.com"
+            },
+            "added": [],
+            "modified": [
+              "waf_security_policy_change.yaml",
+              "tencent_waf_api_operations.py"
+            ],
+            "removed": []
+          }
+        ],
+        "total_commits_count": 1,
+        "push_options": {},
+        "repository": {
+          "name": "AI Risk Assessment System",
+          "url": "git@gitlab.example.com:security/ai-risk-assessment.git",
+          "description": "Intelligent risk assessment for infrastructure changes",
+          "homepage": "http://10.251.0.16/gitlab-instance-1807000d/security/ai-risk-assessment",
+          "git_http_url": "http://10.251.0.16/gitlab-instance-1807000d/security/ai-risk-assessment.git",
+          "git_ssh_url": "git@gitlab.example.com:security/ai-risk-assessment.git",
+          "visibility_level": 10
+        }
+      }
+    }
+  }
+}

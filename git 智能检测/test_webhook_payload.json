@@ -1,0 +1,22 @@
+{
+  "object_kind": "push",
+  "event_name": "push",
+  "project_id": 123,
+  "project": {
+    "name": "risk_detect",
+    "id": 123
+  },
+  "commits": [
+    {
+      "id": "abc123def456",
+      "message": "更新prod_db_modify.yaml配置文件",
+      "author": {
+        "name": "Test User",
+        "email": "test@example.com"
+      },
+      "added": [],
+      "modified": ["prod_db_modify.yaml"],
+      "removed": []
+    }
+  ]
+}

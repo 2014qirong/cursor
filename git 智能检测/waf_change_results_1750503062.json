@@ -1,0 +1,436 @@
+{
+  "change_results": {
+    "change_summary": {
+      "timestamp": "2025-06-21T18:50:48.898755",
+      "domain": "${PRODUCTION_DOMAIN}",
+      "instance_id": "${WAF_INSTANCE_ID}",
+      "total_operations": 7,
+      "risk_level": "CRITICAL"
+    },
+    "operations": {
+      "whitelist_rule": {
+        "Response": {
+          "Error": {
+            "Code": "AuthFailure.SecretIdNotFound",
+            "Message": "The SecretId is not found, please ensure that your SecretId is correct."
+          },
+          "RequestId": "df5bce9c-86b4-41d5-9c69-7d899fe362e6"
+        }
+      },
+      "protection_mode": {
+        "Response": {
+          "Error": {
+            "Code": "InvalidAction",
+            "Message": "The request action=`ModifyProtectionMode` is invalid or not found in service=`waf` and version=`2018-01-25`."
+          },
+          "RequestId": "0331e74b-c34b-44e0-9855-74928d8ca71e"
+        }
+      },
+      "security_rules": [
+        {
+          "Error": {
+            "Code": "RequestError",
+            "Message": "Expecting value: line 1 column 1 (char 0)"
+          }
+        },
+        {
+          "Error": {
+            "Code": "RequestError",
+            "Message": "Expecting value: line 1 column 1 (char 0)"
+          }
+        }
+      ],
+      "cc_protection": {
+        "Response": {
+          "Error": {
+            "Code": "InvalidAction",
+            "Message": "The request action=`ModifyProtectionMode` is invalid or not found in service=`waf` and version=`2018-01-25`."
+          },
+          "RequestId": "c945fd9e-99de-44c8-83a4-e074404180eb"
+        }
+      },
+      "bot_protection": {
+        "Response": {
+          "Error": {
+            "Code": "AuthFailure.SecretIdNotFound",
+            "Message": "The SecretId is not found, please ensure that your SecretId is correct."
+          },
+          "RequestId": "5efdc0d8-d80c-4e46-a6f4-94d73776ee86"
+        }
+      },
+      "ip_access_control": {
+        "Response": {
+          "Error": {
+            "Code": "InvalidAction",
+            "Message": "The request action=`AddAccessControlRule` is invalid or not found in service=`waf` and version=`2018-01-25`."
+          },
+          "RequestId": "4fffad5a-8f18-49da-9172-e568370c8fdb"
+        }
+      },
+      "load_balancer": {
+        "Response": {
+          "Error": {
+            "Code": "InvalidAction",
+            "Message": "The request action=`ModifyLoadBalancerMix` is invalid or not found in service=`waf` and version=`2018-01-25`."
+          },
+          "RequestId": "c1650538-f761-4c7d-abfa-a12780ac8b35"
+        }
+      }
+    },
+    "change_log": [
+      {
+        "timestamp": "2025-06-21T18:50:49.128280",
+        "action": "AddDomainWhiteRule",
+        "params": {
+          "Domain": "${PRODUCTION_DOMAIN}",
+          "Rules": [
+            {
+              "Id": 1,
+              "WhiteRuleType": 1,
+              "Src": "0.0.0.0/0",
+              "Status": 1,
+              "MatchField": "IP",
+              "MatchMethod": "equal",
+              "MatchContent": "0.0.0.0/0",
+              "RuleName": "紧急全网白名单-生产环境",
+              "RuleAction": "allow",
+              "ValidTime": 3600,
+              "JobType": "add",
+              "JobDateTime": 1750503108,
+              "Source": "custom",
+              "Label": [
+                "emergency",
+                "critical",
+                "production"
+              ],
+              "PageId": "${PAGE_ID}",
+              "Description": "Production emergency whitelist - Allow all IPs (CRITICAL RISK)"
+            }
+          ]
+        },
+        "response": {
+          "Response": {
+            "Error": {
+              "Code": "AuthFailure.SecretIdNotFound",
+              "Message": "The SecretId is not found, please ensure that your SecretId is correct."
+            },
+            "RequestId": "df5bce9c-86b4-41d5-9c69-7d899fe362e6"
+          }
+        },
+        "status": "success"
+      },
+      {
+        "timestamp": "2025-06-21T18:50:51.247747",
+        "action": "ModifyProtectionMode",
+        "params": {
+          "Domain": "${PRODUCTION_DOMAIN}",
+          "Mode": 0,
+          "Edition": "premium",
+          "Type": "waf",
+          "Level": 1,
+          "AutoDeniedIp": 0,
+          "AutoDeniedTime": 0,
+          "LastUpdateTime": 1750503051
+        },
+        "response": {
+          "Response": {
+            "Error": {
+              "Code": "InvalidAction",
+              "Message": "The request action=`ModifyProtectionMode` is invalid or not found in service=`waf` and version=`2018-01-25`."
+            },
+            "RequestId": "0331e74b-c34b-44e0-9855-74928d8ca71e"
+          }
+        },
+        "status": "success"
+      },
+      {
+        "timestamp": "2025-06-21T18:50:53.346208",
+        "action": "ModifyCustomRule",
+        "params": {
+          "Domain": "${PRODUCTION_DOMAIN}",
+          "RuleId": "${SQL_INJECTION_RULE_ID}",
+          "RuleName": "SQL注入检测规则",
+          "RuleAction": "log",
+          "Strategies": [
+            {
+              "Field": "args",
+              "CompareFunc": "contain",
+              "Content": "' or 1=1",
+              "Arg": "all"
+            },
+            {
+              "Field": "uri",
+              "CompareFunc": "contain",
+              "Content": "union select",
+              "Arg": ""
+            }
+          ],
+          "Status": 0,
+          "Priority": 10,
+          "ValidTime": 1750506653,
+          "Description": "SQL injection detection rule - DISABLED for emergency"
+        },
+        "response": {
+          "Error": {
+            "Code": "RequestError",
+            "Message": "Expecting value: line 1 column 1 (char 0)"
+          }
+        },
+        "status": "error"
+      },
+      {
+        "timestamp": "2025-06-21T18:50:53.719810",
+        "action": "ModifyCustomRule",
+        "params": {
+          "Domain": "${PRODUCTION_DOMAIN}",
+          "RuleId": "${XSS_RULE_ID}",
+          "RuleName": "XSS攻击检测规则",
+          "RuleAction": "log",
+          "Strategies": [
+            {
+              "Field": "args",
+              "CompareFunc": "contain",
+              "Content": "<script>",
+              "Arg": "all"
+            },
+            {
+              "Field": "uri",
+              "CompareFunc": "contain",
+              "Content": "javascript:",
+              "Arg": ""
+            }
+          ],
+          "Status": 0,
+          "Priority": 11,
+          "ValidTime": 1750506653,
+          "Description": "XSS attack detection rule - DISABLED for emergency"
+        },
+        "response": {
+          "Error": {
+            "Code": "RequestError",
+            "Message": "Expecting value: line 1 column 1 (char 0)"
+          }
+        },
+        "status": "error"
+      },
+      {
+        "timestamp": "2025-06-21T18:50:55.836353",
+        "action": "ModifyProtectionMode",
+        "params": {
+          "Domain": "${PRODUCTION_DOMAIN}",
+          "CCStatus": 0,
+          "CCRuleStatus": 0,
+          "CCLevel": "loose",
+          "CCThreshold": 1000,
+          "CCPeriod": 60,
+          "CCAction": "alg",
+          "CCDeny": 0,
+          "ValidTime": 1750510255
+        },
+        "response": {
+          "Response": {
+            "Error": {
+              "Code": "InvalidAction",
+              "Message": "The request action=`ModifyProtectionMode` is invalid or not found in service=`waf` and version=`2018-01-25`."
+            },
+            "RequestId": "c945fd9e-99de-44c8-83a4-e074404180eb"
+          }
+        },
+        "status": "success"
+      },
+      {
+        "timestamp": "2025-06-21T18:50:57.942467",
+        "action": "ModifyBotStatus",
+        "params": {
+          "Domain": "${PRODUCTION_DOMAIN}",
+          "Category": "bot",
+          "Status": 0,
+          "IsVersionFour": true,
+          "BotConfig": {
+            "IntelligentMode": 0,
+            "SessionMode": 0,
+            "BehaviorMode": 0,
+            "AlgDetectMode": 0,
+            "SmartCCMode": 0
+          },
+          "ValidTime": 1750510257
+        },
+        "response": {
+          "Response": {
+            "Error": {
+              "Code": "AuthFailure.SecretIdNotFound",
+              "Message": "The SecretId is not found, please ensure that your SecretId is correct."
+            },
+            "RequestId": "5efdc0d8-d80c-4e46-a6f4-94d73776ee86"
+          }
+        },
+        "status": "success"
+      },
+      {
+        "timestamp": "2025-06-21T18:51:00.041458",
+        "action": "AddAccessControlRule",
+        "params": {
+          "Domain": "${PRODUCTION_DOMAIN}",
+          "Rules": [
+            {
+              "FullMatch": 0,
+              "IpOrDomain": "192.168.0.0/16",
+              "RuleAction": "drop",
+              "ValidTime": 7200,
+              "RuleName": "内网IP段拦截规则",
+              "Description": "Block internal IP ranges - May affect legitimate users",
+              "Source": "custom"
+            },
+            {
+              "FullMatch": 0,
+              "IpOrDomain": "10.0.0.0/8",
+              "RuleAction": "drop",
+              "ValidTime": 7200,
+              "RuleName": "内网IP段拦截规则2",
+              "Description": "Block internal IP ranges 2 - May affect legitimate users",
+              "Source": "custom"
+            },
+            {
+              "FullMatch": 0,
+              "IpOrDomain": "${OFFICE_IP_RANGE}",
+              "RuleAction": "captcha",
+              "ValidTime": 3600,
+              "RuleName": "办公网IP验证规则",
+              "Description": "Office IP verification rule - May affect office users",
+              "Source": "custom"
+            }
+          ]
+        },
+        "response": {
+          "Response": {
+            "Error": {
+              "Code": "InvalidAction",
+              "Message": "The request action=`AddAccessControlRule` is invalid or not found in service=`waf` and version=`2018-01-25`."
+            },
+            "RequestId": "4fffad5a-8f18-49da-9172-e568370c8fdb"
+          }
+        },
+        "status": "success"
+      },
+      {
+        "timestamp": "2025-06-21T18:51:02.144669",
+        "action": "ModifyLoadBalancerMix",
+        "params": {
+          "LoadBalancerId": "${CLB_INSTANCE_ID}",
+          "ListenerId": "${LISTENER_ID}",
+          "Domain": "${PRODUCTION_DOMAIN}",
+          "Url": "/",
+          "Targets": [
+            {
+              "Type": "CVM",
+              "InstanceId": "${BACKEND_SERVER_1}",
+              "Port": 8080,
+              "Weight": 100,
+              "PublicIpAddresses": [
+                "${BACKEND_IP_1}"
+              ],
+              "PrivateIpAddresses": [
+                "${BACKEND_PRIVATE_IP_1}"
+              ]
+            },
+            {
+              "Type": "CVM",
+              "InstanceId": "${BACKEND_SERVER_2}",
+              "Port": 8080,
+              "Weight": 100,
+              "PublicIpAddresses": [
+                "${BACKEND_IP_2}"
+              ],
+              "PrivateIpAddresses": [
+                "${BACKEND_PRIVATE_IP_2}"
+              ]
+            }
+          ],
+          "LocationId": "${LOCATION_ID}",
+          "HealthCheck": {
+            "HealthSwitch": 1,
+            "TimeOut": 5,
+            "IntervalTime": 10,
+            "HealthNum": 3,
+            "UnHealthNum": 3,
+            "HttpCode": 200,
+            "HttpCheckPath": "/health",
+            "HttpCheckMethod": "GET"
+          }
+        },
+        "response": {
+          "Response": {
+            "Error": {
+              "Code": "InvalidAction",
+              "Message": "The request action=`ModifyLoadBalancerMix` is invalid or not found in service=`waf` and version=`2018-01-25`."
+            },
+            "RequestId": "c1650538-f761-4c7d-abfa-a12780ac8b35"
+          }
+        },
+        "status": "success"
+      }
+    ]
+  },
+  "rollback_plan": {
+    "rollback_operations": [
+      {
+        "step": 1,
+        "action": "DeleteDomainWhiteRule",
+        "description": "删除全网IP白名单规则",
+        "params": {
+          "Domain": "${PRODUCTION_DOMAIN}",
+          "Id": 1
+        },
+        "priority": "CRITICAL"
+      },
+      {
+        "step": 2,
+        "action": "ModifyProtectionMode",
+        "description": "恢复防护模式为拦截模式",
+        "params": {
+          "Domain": "${PRODUCTION_DOMAIN}",
+          "Mode": 1
+        },
+        "priority": "HIGH"
+      },
+      {
+        "step": 3,
+        "action": "ModifyCustomRule",
+        "description": "启用关键安全检测规则",
+        "params": {
+          "Domain": "${PRODUCTION_DOMAIN}",
+          "Status": 1,
+          "RuleAction": "deny"
+        },
+        "priority": "HIGH"
+      },
+      {
+        "step": 4,
+        "action": "ModifyProtectionMode",
+        "description": "恢复CC防护",
+        "params": {
+          "Domain": "${PRODUCTION_DOMAIN}",
+          "CCStatus": 1
+        },
+        "priority": "MEDIUM"
+      },
+      {
+        "step": 5,
+        "action": "ModifyBotStatus",
+        "description": "恢复Bot防护",
+        "params": {
+          "Domain": "${PRODUCTION_DOMAIN}",
+          "Status": 1
+        },
+        "priority": "MEDIUM"
+      }
+    ],
+    "estimated_time": "5-10分钟",
+    "trigger_conditions": [
+      "安全事件数量激增",
+      "异常流量检测",
+      "业务影响超出预期",
+      "变更有效期到达"
+    ]
+  }
+}
