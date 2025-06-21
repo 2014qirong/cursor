@@ -1,0 +1,287 @@
+# 生产环境数据库安全组配置变更
+# 变更类型: 高风险 - 数据库安全组规则调整
+# 变更时间: 2025-01-27
+# 变更目的: 优化数据库访问控制，增强安全性
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prod-db-security-group-config
+  namespace: production
+  labels:
+    app: database
+    environment: production
+    change-type: security-group
+    risk-level: high
+data:
+  # 数据库安全组配置
+  security-group-rules: |
+    # MySQL生产数据库安全组规则
+    mysql_prod_sg:
+      name: "mysql-prod-security-group"
+      description: "MySQL生产环境安全组 - 2025年安全加固"
+      vpc_id: "vpc-prod-12345"
+      
+      # 入站规则 (Ingress Rules)
+      ingress_rules:
+        # 应用服务器访问MySQL
+        - rule_id: "mysql-app-access"
+          protocol: "tcp"
+          port_range: "3306"
+          source_type: "security_group"
+          source_value: "sg-app-servers-prod"
+          description: "应用服务器访问MySQL数据库"
+          priority: 100
+          
+        # 备份服务访问
+        - rule_id: "mysql-backup-access"
+          protocol: "tcp"
+          port_range: "3306"
+          source_type: "cidr"
+          source_value: "10.0.100.0/24"
+          description: "备份服务专用网段访问"
+          priority: 110
+          
+        # 监控服务访问
+        - rule_id: "mysql-monitor-access"
+          protocol: "tcp"
+          port_range: "3306"
+          source_type: "cidr"
+          source_value: "10.0.200.0/24"
+          description: "监控服务网段访问"
+          priority: 120
+          
+        # DBA运维访问 (新增)
+        - rule_id: "mysql-dba-access"
+          protocol: "tcp"
+          port_range: "3306"
+          source_type: "cidr"
+          source_value: "10.0.50.0/28"
+          description: "DBA运维专用网段访问"
+          priority: 90
+          
+        # SSL/TLS加密连接 (新增)
+        - rule_id: "mysql-ssl-access"
+          protocol: "tcp"
+          port_range: "3307"
+          source_type: "security_group"
+          source_value: "sg-app-servers-prod"
+          description: "SSL加密连接端口"
+          priority: 95
+      
+      # 出站规则 (Egress Rules)
+      egress_rules:
+        # 允许数据库主从复制
+        - rule_id: "mysql-replication"
+          protocol: "tcp"
+          port_range: "3306"
+          destination_type: "cidr"
+          destination_value: "10.0.10.0/24"
+          description: "数据库主从复制通信"
+          priority: 100
+          
+        # 允许备份到对象存储
+        - rule_id: "mysql-backup-storage"
+          protocol: "tcp"
+          port_range: "443"
+          destination_type: "cidr"
+          destination_value: "0.0.0.0/0"
+          description: "备份数据上传到对象存储"
+          priority: 110
+          
+        # DNS解析
+        - rule_id: "mysql-dns"
+          protocol: "udp"
+          port_range: "53"
+          destination_type: "cidr"
+          destination_value: "10.0.0.2/32"
+          description: "DNS解析服务"
+          priority: 120
+    
+    # Redis缓存安全组规则
+    redis_prod_sg:
+      name: "redis-prod-security-group"
+      description: "Redis生产环境安全组"
+      vpc_id: "vpc-prod-12345"
+      
+      ingress_rules:
+        # 应用服务器访问Redis
+        - rule_id: "redis-app-access"
+          protocol: "tcp"
+          port_range: "6379"
+          source_type: "security_group"
+          source_value: "sg-app-servers-prod"
+          description: "应用服务器访问Redis"
+          priority: 100
+          
+        # Redis集群内部通信
+        - rule_id: "redis-cluster-comm"
+          protocol: "tcp"
+          port_range: "16379"
+          source_type: "security_group"
+          source_value: "sg-redis-cluster-prod"
+          description: "Redis集群节点间通信"
+          priority: 90
+          
+        # 监控访问
+        - rule_id: "redis-monitor"
+          protocol: "tcp"
+          port_range: "6379"
+          source_type: "cidr"
+          source_value: "10.0.200.0/24"
+          description: "监控服务访问Redis"
+          priority: 110
+  
+  # 变更配置
+  change-config: |
+    change_metadata:
+      change_id: "DB-SG-2025-001"
+      change_type: "security_group_modification"
+      risk_level: "high"
+      impact_assessment: "critical"
+      
+      # 变更详情
+      changes:
+        - action: "add_rule"
+          target: "mysql_prod_sg"
+          rule_type: "ingress"
+          rule_id: "mysql-dba-access"
+          description: "新增DBA运维访问规则"
+          
+        - action: "add_rule"
+          target: "mysql_prod_sg"
+          rule_type: "ingress"
+          rule_id: "mysql-ssl-access"
+          description: "新增SSL加密连接端口"
+          
+        - action: "modify_rule"
+          target: "mysql_prod_sg"
+          rule_id: "mysql-backup-access"
+          old_source: "10.0.150.0/24"
+          new_source: "10.0.100.0/24"
+          description: "调整备份服务网段"
+          
+        - action: "remove_rule"
+          target: "mysql_prod_sg"
+          rule_id: "mysql-legacy-access"
+          description: "移除过期的遗留访问规则"
+      
+      # 回滚计划
+      rollback_plan:
+        enabled: true
+        auto_rollback_timeout: "30m"
+        rollback_triggers:
+          - "connection_failure_rate > 5%"
+          - "response_time > 2000ms"
+          - "error_rate > 1%"
+        
+        rollback_steps:
+          - "恢复原有安全组规则"
+          - "验证数据库连接正常"
+          - "确认应用服务正常运行"
+          - "通知相关团队回滚完成"
+      
+      # 验证步骤
+      validation_steps:
+        pre_change:
+          - "备份当前安全组配置"
+          - "验证变更窗口时间"
+          - "确认相关服务状态正常"
+          - "通知相关团队变更开始"
+        
+        post_change:
+          - "验证数据库连接正常"
+          - "检查应用服务状态"
+          - "监控数据库性能指标"
+          - "确认安全组规则生效"
+          - "运行连接测试脚本"
+      
+      # 影响评估
+      impact_assessment:
+        affected_services:
+          - "user-service"
+          - "order-service"
+          - "payment-service"
+          - "inventory-service"
+        
+        downtime_estimate: "0分钟 (无服务中断)"
+        
+        risk_factors:
+          - "数据库连接可能短暂中断"
+          - "新规则可能影响现有连接"
+          - "网络延迟可能增加"
+        
+        mitigation_measures:
+          - "分批应用安全组规则"
+          - "实时监控连接状态"
+          - "准备快速回滚方案"
+          - "24小时监控窗口"
+---
+# 变更执行脚本配置
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-sg-change-script
+  namespace: production
+data:
+  apply-changes.sh: |
+    #!/bin/bash
+    # 数据库安全组变更执行脚本
+    
+    set -e
+    
+    echo "开始执行数据库安全组变更..."
+    echo "变更ID: DB-SG-2025-001"
+    echo "变更时间: $(date)"
+    
+    # 备份当前配置
+    echo "备份当前安全组配置..."
+    aws ec2 describe-security-groups --group-ids sg-mysql-prod > /tmp/sg-backup-$(date +%Y%m%d-%H%M%S).json
+    
+    # 应用新规则
+    echo "应用新的安全组规则..."
+    
+    # 添加DBA访问规则
+    aws ec2 authorize-security-group-ingress \
+      --group-id sg-mysql-prod \
+      --protocol tcp \
+      --port 3306 \
+      --cidr 10.0.50.0/28 \
+      --description "DBA运维专用网段访问"
+    
+    # 添加SSL端口规则
+    aws ec2 authorize-security-group-ingress \
+      --group-id sg-mysql-prod \
+      --protocol tcp \
+      --port 3307 \
+      --source-group sg-app-servers-prod \
+      --description "SSL加密连接端口"
+    
+    # 验证变更
+    echo "验证安全组规则变更..."
+    aws ec2 describe-security-groups --group-ids sg-mysql-prod
+    
+    echo "数据库安全组变更完成！"
+  
+  rollback.sh: |
+    #!/bin/bash
+    # 数据库安全组变更回滚脚本
+    
+    set -e
+    
+    echo "开始回滚数据库安全组变更..."
+    
+    # 移除新添加的规则
+    aws ec2 revoke-security-group-ingress \
+      --group-id sg-mysql-prod \
+      --protocol tcp \
+      --port 3306 \
+      --cidr 10.0.50.0/28
+    
+    aws ec2 revoke-security-group-ingress \
+      --group-id sg-mysql-prod \
+      --protocol tcp \
+      --port 3307 \
+      --source-group sg-app-servers-prod
+    
+    echo "安全组规则回滚完成！"
